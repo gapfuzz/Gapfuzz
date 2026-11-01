@@ -1,0 +1,26 @@
+{
+ "name": "zlib",
+ "repo": "https://github.com/madler/zlib.git",
+ "commit": "71747d1d39168833e0cae8ed84b8ce77cb049699",
+ "clone_dir": "third_party/zlib",
+ "lang": "c",
+ "lib_dir": "third_party/zlib",
+ "sources": [
+  "adler32.c",
+  "compress.c",
+  "crc32.c",
+  "deflate.c",
+  "infback.c",
+  "inffast.c",
+  "inflate.c",
+  "inftrees.c",
+  "trees.c",
+  "uncompr.c",
+  "zutil.c"
+ ],
+ "header": "zlib.h",
+ "namespace": "",
+ "internal_classes": [],
+ "cflags": [],
+ "internal_branches": true
+}

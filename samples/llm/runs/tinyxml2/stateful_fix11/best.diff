@@ -1,0 +1,11 @@
+--- 수정 전
++++ 시도 1
+@@ -39,7 +39,7 @@
+ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+     FuzzedDataProvider fdp(data, size);
+ 
+-    XMLDocument doc(fdp.ConsumeBool(), fdp.ConsumeBool() ? COLLAPSE_WHITESPACE : PRESERVE_WHITESPACE);
++    XMLDocument doc(fdp.ConsumeBool(), fdp.PickValueInArray<Whitespace>({PRESERVE_WHITESPACE, COLLAPSE_WHITESPACE, PEDANTIC_WHITESPACE}));  // [gapfuzz-llm] PEDANTIC_WHITESPACE도 입력에서 고르게 해 752행 분기를 열고, 기존 두 모드도 계속 나오게 함
+     std::string xml = fdp.ConsumeRandomLengthString(4096);
+     doc.Parse(xml.c_str());
+ 

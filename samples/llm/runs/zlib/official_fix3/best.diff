@@ -1,0 +1,12 @@
+--- 수정 전
++++ 시도 1
+@@ -14,7 +14,8 @@
+ // Entry point for LibFuzzer.
+ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
+   uLongf buffer_length = static_cast<uLongf>(sizeof(buffer));
+-  if (Z_OK != uncompress(buffer, &buffer_length, data,
++  Bytef* dest = (size > 0 && (data[0] & 0x07) == 0) ? nullptr : buffer;  // [gapfuzz-llm] 입력 첫 바이트로 dest에 nullptr도 가끔(약 1/8) 넘겨 dest == NULL 분기 도달
++  if (Z_OK != uncompress(dest, &buffer_length, data,  // [gapfuzz-llm] 고정 buffer 대신 입력으로 고른 dest 사용 (나머지 7/8은 원래 buffer)
+                          static_cast<uLong>(size))) {
+     return 0;
+   }

@@ -1,0 +1,14 @@
+--- 수정 전
++++ 시도 2
+@@ -17,6 +17,10 @@
+ 	(void)json_object_to_json_string_ext(obj, JSON_C_TO_STRING_PRETTY | JSON_C_TO_STRING_SPACED);
+ 	
+ 	json_object_put(obj);
+-	json_tokener_free(tok);
++	const bool reset_null = size > 0 && ((data[0] >> 2) & 3) == 0; // [gapfuzz-llm] 입력 첫 바이트의 다른 비트로 reset에 nullptr를 넘길지 선택(약 1/4)
++	json_tokener_reset(reset_null ? nullptr : tok); // [gapfuzz-llm] json_tokener_reset을 직접 호출하며 nullptr도 넘겨 210행 !tok 분기를 실행
++	const bool free_null = size > 0 && (data[0] & 3) == 0; // [gapfuzz-llm] 입력 첫 바이트로 free에 nullptr를 넘길지 선택(약 1/4), 나머지는 원래대로 tok 전달
++	json_tokener_free(free_null ? nullptr : tok); // [gapfuzz-llm] json_tokener_free에 nullptr도 넘겨 !tok 분기를 실행
++	if (free_null) json_tokener_free(tok); // [gapfuzz-llm] nullptr를 넘긴 경우 실제 tok이 누수되지 않도록 해제
+ 	return 0;
+ }

@@ -1,0 +1,243 @@
+[
+ {
+  "verdict": "NARROW",
+  "apis": [
+   "json_tokener_free(struct json_tokener *)"
+  ],
+  "param_index": 0,
+  "param_name": "tok",
+  "suggestions": [
+   "`json_tokener_free(struct json_tokener *)`의 1번째 인자 `tok`에 하네스가 null을 넘긴 적이 없습니다(20행) → nullptr도 넘겨 보세요"
+  ],
+  "harness_lines": [
+   20
+  ],
+  "harness_source": [
+   "json_tokener_free(tok);"
+  ],
+  "arg": [
+   {
+    "line": 20,
+    "kind": "variable",
+    "value": null
+   }
+  ],
+  "blocked": [
+   {
+    "api": "json_tokener_free(struct json_tokener *)",
+    "line": 188,
+    "col": 6,
+    "expr": "!tok",
+    "never": "참",
+    "source": "if (!tok)"
+   },
+   {
+    "api": "json_tokener_reset(struct json_tokener *)",
+    "line": 210,
+    "col": 6,
+    "expr": "!tok",
+    "never": "참",
+    "source": "if (!tok)"
+   }
+  ],
+  "suggestion": "`json_tokener_free(struct json_tokener *)`의 1번째 인자 `tok`에 하네스가 null을 넘긴 적이 없습니다(20행) → nullptr도 넘겨 보세요",
+  "checks": [
+   {
+    "api": "json_tokener_free(struct json_tokener *)",
+    "line": 188,
+    "col": 6,
+    "expr": "!tok",
+    "never": "참",
+    "source": "if (!tok)",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   },
+   {
+    "api": "json_tokener_reset(struct json_tokener *)",
+    "line": 210,
+    "col": 6,
+    "expr": "!tok",
+    "never": "참",
+    "source": "if (!tok)",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   }
+  ],
+  "opened": 0,
+  "total": 2
+ },
+ {
+  "verdict": "DIRECT_CALL",
+  "apis": [
+   "json_object_object_add_ex(struct json_object *, const char *const, struct json_object *const, const unsigned int)"
+  ],
+  "param_index": 3,
+  "param_name": "opts",
+  "suggestions": [
+   "`json_object_object_add_ex(struct json_object *, const char *const, struct json_object *const, const unsigned int)`는 공개 API인데 하네스가 직접 부르지 않고 라이브러리 내부(`json_object_object_add`)에서만 불립니다. 내부 호출은 4번째 인자 `opts`를 한 가지 방식으로만 넘기므로 → 하네스가 직접 불러 다른 값을 넘겨 보세요"
+  ],
+  "harness_lines": [],
+  "harness_source": [],
+  "arg": [],
+  "blocked": [
+   {
+    "api": "json_object_object_add_ex(struct json_object *, const char *const, struct json_object *const, const unsigned int)",
+    "line": 755,
+    "col": 6,
+    "expr": "(opts & JSON_C_OBJECT_ADD_KEY_IS_NEW)",
+    "never": "참",
+    "source": "(opts & JSON_C_OBJECT_ADD_KEY_IS_NEW)"
+   },
+   {
+    "api": "json_object_object_add_ex(struct json_object *, const char *const, struct json_object *const, const unsigned int)",
+    "line": 768,
+    "col": 7,
+    "expr": "!(opts & JSON_C_OBJECT_ADD_CONSTANT_KEY)",
+    "never": "거짓",
+    "source": "if (!(opts & JSON_C_OBJECT_ADD_CONSTANT_KEY))"
+   }
+  ],
+  "suggestion": "`json_object_object_add_ex(struct json_object *, const char *const, struct json_object *const, const unsigned int)`는 공개 API인데 하네스가 직접 부르지 않고 라이브러리 내부(`json_object_object_add`)에서만 불립니다. 내부 호출은 4번째 인자 `opts`를 한 가지 방식으로만 넘기므로 → 하네스가 직접 불러 다른 값을 넘겨 보세요",
+  "checks": [
+   {
+    "api": "json_object_object_add_ex(struct json_object *, const char *const, struct json_object *const, const unsigned int)",
+    "line": 755,
+    "col": 6,
+    "expr": "(opts & JSON_C_OBJECT_ADD_KEY_IS_NEW)",
+    "never": "참",
+    "source": "(opts & JSON_C_OBJECT_ADD_KEY_IS_NEW)",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "json_object_object_add_ex(struct json_object *, const char *const, struct json_object *const, const unsigned int)",
+    "line": 768,
+    "col": 7,
+    "expr": "!(opts & JSON_C_OBJECT_ADD_CONSTANT_KEY)",
+    "never": "거짓",
+    "source": "if (!(opts & JSON_C_OBJECT_ADD_CONSTANT_KEY))",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   }
+  ],
+  "opened": 2,
+  "total": 2
+ },
+ {
+  "verdict": "DIRECT_CALL",
+  "apis": [
+   "json_tokener_new_ex(int)"
+  ],
+  "param_index": 0,
+  "param_name": "depth",
+  "suggestions": [
+   "`json_tokener_new_ex(int)`는 공개 API인데 하네스가 직접 부르지 않고 라이브러리 내부(`json_tokener_new`)에서만 불립니다. 내부 호출은 1번째 인자 `depth`를 한 가지 방식으로만 넘기므로 → 하네스가 직접 불러 다른 값을 넘겨 보세요"
+  ],
+  "harness_lines": [],
+  "harness_source": [],
+  "arg": [],
+  "blocked": [
+   {
+    "api": "json_tokener_new_ex(int)",
+    "line": 157,
+    "col": 6,
+    "expr": "depth < 1",
+    "never": "참",
+    "source": "if (depth < 1)"
+   }
+  ],
+  "suggestion": "`json_tokener_new_ex(int)`는 공개 API인데 하네스가 직접 부르지 않고 라이브러리 내부(`json_tokener_new`)에서만 불립니다. 내부 호출은 1번째 인자 `depth`를 한 가지 방식으로만 넘기므로 → 하네스가 직접 불러 다른 값을 넘겨 보세요",
+  "checks": [
+   {
+    "api": "json_tokener_new_ex(int)",
+    "line": 157,
+    "col": 6,
+    "expr": "depth < 1",
+    "never": "참",
+    "source": "if (depth < 1)",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   }
+  ],
+  "opened": 1,
+  "total": 1
+ },
+ {
+  "verdict": "DIRECT_CALL",
+  "apis": [
+   "json_object_to_json_string_length(struct json_object *, int, size_t *)"
+  ],
+  "param_index": 2,
+  "param_name": "length",
+  "suggestions": [
+   "`json_object_to_json_string_length(struct json_object *, int, size_t *)`는 공개 API인데 하네스가 직접 부르지 않고 라이브러리 내부(`json_object_to_json_string_ext`)에서만 불립니다. 내부 호출은 3번째 인자 `length`를 한 가지 방식으로만 넘기므로 → 하네스가 직접 불러 다른 값(null 포함)을 넘겨 보세요"
+  ],
+  "harness_lines": [],
+  "harness_source": [],
+  "arg": [],
+  "blocked": [
+   {
+    "api": "json_object_to_json_string_length(struct json_object *, int, size_t *)",
+    "line": 612,
+    "col": 6,
+    "expr": "length",
+    "never": "참",
+    "source": "if (length)"
+   }
+  ],
+  "suggestion": "`json_object_to_json_string_length(struct json_object *, int, size_t *)`는 공개 API인데 하네스가 직접 부르지 않고 라이브러리 내부(`json_object_to_json_string_ext`)에서만 불립니다. 내부 호출은 3번째 인자 `length`를 한 가지 방식으로만 넘기므로 → 하네스가 직접 불러 다른 값(null 포함)을 넘겨 보세요",
+  "checks": [
+   {
+    "api": "json_object_to_json_string_length(struct json_object *, int, size_t *)",
+    "line": 612,
+    "col": 6,
+    "expr": "length",
+    "never": "참",
+    "source": "if (length)",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   }
+  ],
+  "opened": 1,
+  "total": 1
+ },
+ {
+  "verdict": "DIRECT_CALL",
+  "apis": [
+   "json_object_array_shrink(struct json_object *, int)"
+  ],
+  "param_index": 1,
+  "param_name": "empty_slots",
+  "suggestions": [
+   "`json_object_array_shrink(struct json_object *, int)`는 공개 API인데 하네스가 직접 부르지 않고 라이브러리 내부(`json_tokener_parse_ex`)에서만 불립니다. 내부 호출은 2번째 인자 `empty_slots`를 한 가지 방식으로만 넘기므로 → 하네스가 직접 불러 다른 값을 넘겨 보세요"
+  ],
+  "harness_lines": [],
+  "harness_source": [],
+  "arg": [],
+  "blocked": [
+   {
+    "api": "json_object_array_shrink(struct json_object *, int)",
+    "line": 1849,
+    "col": 6,
+    "expr": "empty_slots < 0",
+    "never": "참",
+    "source": "if (empty_slots < 0)"
+   }
+  ],
+  "suggestion": "`json_object_array_shrink(struct json_object *, int)`는 공개 API인데 하네스가 직접 부르지 않고 라이브러리 내부(`json_tokener_parse_ex`)에서만 불립니다. 내부 호출은 2번째 인자 `empty_slots`를 한 가지 방식으로만 넘기므로 → 하네스가 직접 불러 다른 값을 넘겨 보세요",
+  "checks": [
+   {
+    "api": "json_object_array_shrink(struct json_object *, int)",
+    "line": 1849,
+    "col": 6,
+    "expr": "empty_slots < 0",
+    "never": "참",
+    "source": "if (empty_slots < 0)",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   }
+  ],
+  "opened": 0,
+  "total": 1
+ }
+]

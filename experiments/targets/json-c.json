@@ -1,0 +1,77 @@
+{
+ "lib": "json-c",
+ "source": "samples/verify/json-c_official_to_v2.json",
+ "note": "수정 전(official, 2분 r1) 분석에서 '고칠 곳'이 겨냥한 분기. applied=false는 대조군.",
+ "branches": [
+  {
+   "fix": 1,
+   "applied": false,
+   "verdict": "NARROW",
+   "api": "json_tokener_free(struct json_tokener *)",
+   "line": 188,
+   "col": 6,
+   "expr": "!tok",
+   "never": "참"
+  },
+  {
+   "fix": 1,
+   "applied": false,
+   "verdict": "NARROW",
+   "api": "json_tokener_reset(struct json_tokener *)",
+   "line": 210,
+   "col": 6,
+   "expr": "!tok",
+   "never": "참"
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "json_object_object_add_ex(struct json_object *, const char *const, struct json_object *const, const unsigned int)",
+   "line": 755,
+   "col": 6,
+   "expr": "(opts & JSON_C_OBJECT_ADD_KEY_IS_NEW)",
+   "never": "참"
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "json_object_object_add_ex(struct json_object *, const char *const, struct json_object *const, const unsigned int)",
+   "line": 768,
+   "col": 7,
+   "expr": "!(opts & JSON_C_OBJECT_ADD_CONSTANT_KEY)",
+   "never": "거짓"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "json_tokener_new_ex(int)",
+   "line": 157,
+   "col": 6,
+   "expr": "depth < 1",
+   "never": "참"
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "json_object_to_json_string_length(struct json_object *, int, size_t *)",
+   "line": 612,
+   "col": 6,
+   "expr": "length",
+   "never": "참"
+  },
+  {
+   "fix": 5,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "json_object_array_shrink(struct json_object *, int)",
+   "line": 1849,
+   "col": 6,
+   "expr": "empty_slots < 0",
+   "never": "참"
+  }
+ ]
+}

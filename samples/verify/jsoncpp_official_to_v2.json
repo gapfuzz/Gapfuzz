@@ -1,0 +1,247 @@
+[
+ {
+  "verdict": "FIXED",
+  "apis": [
+   "Value::Value(ValueType)"
+  ],
+  "param_index": 0,
+  "param_name": "type",
+  "suggestions": [
+   "`Value::Value(ValueType)`의 1번째 인자 `type`를 하네스가 고정합니다(55행에서 기본값) → 퍼저 입력으로 바꾸세요"
+  ],
+  "harness_lines": [
+   55
+  ],
+  "harness_source": [
+   "Json::Value root;"
+  ],
+  "arg": [
+   {
+    "line": 55,
+    "kind": "default",
+    "value": null
+   }
+  ],
+  "blocked": [
+   {
+    "api": "Value::Value(ValueType)",
+    "line": 407,
+    "col": 3,
+    "expr": "case intValue",
+    "never": "참",
+    "source": "case intValue:"
+   },
+   {
+    "api": "Value::Value(ValueType)",
+    "line": 408,
+    "col": 3,
+    "expr": "case uintValue",
+    "never": "참",
+    "source": "case uintValue:"
+   },
+   {
+    "api": "Value::Value(ValueType)",
+    "line": 411,
+    "col": 3,
+    "expr": "case realValue",
+    "never": "참",
+    "source": "case realValue:"
+   },
+   {
+    "api": "Value::Value(ValueType)",
+    "line": 414,
+    "col": 3,
+    "expr": "case stringValue",
+    "never": "참",
+    "source": "case stringValue:"
+   },
+   {
+    "api": "Value::Value(ValueType)",
+    "line": 422,
+    "col": 3,
+    "expr": "case booleanValue",
+    "never": "참",
+    "source": "case booleanValue:"
+   },
+   {
+    "api": "Value::Value(ValueType)",
+    "line": 425,
+    "col": 3,
+    "expr": "default",
+    "never": "참",
+    "source": "default:"
+   }
+  ],
+  "suggestion": "`Value::Value(ValueType)`의 1번째 인자 `type`를 하네스가 고정합니다(55행에서 기본값) → 퍼저 입력으로 바꾸세요",
+  "checks": [
+   {
+    "api": "Value::Value(ValueType)",
+    "line": 407,
+    "col": 3,
+    "expr": "case intValue",
+    "never": "참",
+    "source": "case intValue:",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "Value::Value(ValueType)",
+    "line": 408,
+    "col": 3,
+    "expr": "case uintValue",
+    "never": "참",
+    "source": "case uintValue:",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "Value::Value(ValueType)",
+    "line": 411,
+    "col": 3,
+    "expr": "case realValue",
+    "never": "참",
+    "source": "case realValue:",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "Value::Value(ValueType)",
+    "line": 414,
+    "col": 3,
+    "expr": "case stringValue",
+    "never": "참",
+    "source": "case stringValue:",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "Value::Value(ValueType)",
+    "line": 422,
+    "col": 3,
+    "expr": "case booleanValue",
+    "never": "참",
+    "source": "case booleanValue:",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "Value::Value(ValueType)",
+    "line": 425,
+    "col": 3,
+    "expr": "default",
+    "never": "참",
+    "source": "default:",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   }
+  ],
+  "opened": 5,
+  "total": 6
+ },
+ {
+  "verdict": "FIXED",
+  "apis": [
+   "CharReaderBuilder::validate(Value *) const"
+  ],
+  "param_index": 0,
+  "param_name": "invalid",
+  "suggestions": [
+   "`CharReaderBuilder::validate(Value *) const`의 1번째 인자 `invalid`를 하네스가 고정합니다(49행에서 항상 `nullptr`) → 퍼저 입력으로 바꾸세요"
+  ],
+  "harness_lines": [
+   49
+  ],
+  "harness_source": [
+   "if (!builder.validate(nullptr)) {"
+  ],
+  "arg": [
+   {
+    "line": 49,
+    "kind": "literal",
+    "value": "nullptr"
+   }
+  ],
+  "blocked": [
+   {
+    "api": "CharReaderBuilder::validate(Value *) const",
+    "line": 1981,
+    "col": 10,
+    "expr": "invalid",
+    "never": "참",
+    "source": "return invalid ? invalid->empty() : true;"
+   }
+  ],
+  "suggestion": "`CharReaderBuilder::validate(Value *) const`의 1번째 인자 `invalid`를 하네스가 고정합니다(49행에서 항상 `nullptr`) → 퍼저 입력으로 바꾸세요",
+  "checks": [
+   {
+    "api": "CharReaderBuilder::validate(Value *) const",
+    "line": 1981,
+    "col": 10,
+    "expr": "invalid",
+    "never": "참",
+    "source": "return invalid ? invalid->empty() : true;",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   }
+  ],
+  "opened": 0,
+  "total": 1
+ },
+ {
+  "verdict": "DIRECT_CALL",
+  "apis": [
+   "Value::Value(Int)"
+  ],
+  "param_index": 0,
+  "param_name": "value",
+  "suggestions": [
+   "`Value::Value(Int)`는 공개 API인데 하네스가 직접 부르지 않고 라이브러리 내부(`CharReaderBuilder::setDefaults`)에서만 불립니다. 내부 호출은 1번째 인자 `value`를 한 가지 방식으로만 넘기므로 (필드 `int_`를 거쳐 조건에 쓰임) → 하네스가 직접 불러 다른 값을 넘겨 보세요"
+  ],
+  "harness_lines": [],
+  "harness_source": [],
+  "arg": [],
+  "blocked": [
+   {
+    "api": "Value::isUInt() const",
+    "line": 1404,
+    "col": 12,
+    "expr": "value_.int_ >= 0",
+    "never": "거짓",
+    "source": "return value_.int_ >= 0 && LargestUInt(value_.int_) <= LargestUInt(maxUInt);"
+   },
+   {
+    "api": "Value::isUInt() const",
+    "line": 1404,
+    "col": 32,
+    "expr": "LargestUInt(value_.int_) <= LargestUInt(maxUInt)",
+    "never": "거짓",
+    "source": "return value_.int_ >= 0 && LargestUInt(value_.int_) <= LargestUInt(maxUInt);"
+   }
+  ],
+  "suggestion": "`Value::Value(Int)`는 공개 API인데 하네스가 직접 부르지 않고 라이브러리 내부(`CharReaderBuilder::setDefaults`)에서만 불립니다. 내부 호출은 1번째 인자 `value`를 한 가지 방식으로만 넘기므로 (필드 `int_`를 거쳐 조건에 쓰임) → 하네스가 직접 불러 다른 값을 넘겨 보세요",
+  "checks": [
+   {
+    "api": "Value::isUInt() const",
+    "line": 1404,
+    "col": 12,
+    "expr": "value_.int_ >= 0",
+    "never": "거짓",
+    "source": "return value_.int_ >= 0 && LargestUInt(value_.int_) <= LargestUInt(maxUInt);",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "Value::isUInt() const",
+    "line": 1404,
+    "col": 32,
+    "expr": "LargestUInt(value_.int_) <= LargestUInt(maxUInt)",
+    "never": "거짓",
+    "source": "return value_.int_ >= 0 && LargestUInt(value_.int_) <= LargestUInt(maxUInt);",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   }
+  ],
+  "opened": 1,
+  "total": 2
+ }
+]

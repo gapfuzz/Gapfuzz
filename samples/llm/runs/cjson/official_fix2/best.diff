@@ -1,0 +1,16 @@
+--- 수정 전
++++ 시도 1
+@@ -37,7 +37,7 @@
+ 
+     if(buffered)
+     {
+-        printed_json = cJSON_PrintBuffered(json, 1, formatted);
++        printed_json = cJSON_PrintBuffered(json, (int)(int8_t)data[size - 2], formatted); // [gapfuzz-llm] prebuffer를 입력 바이트(-128~127)에서 골라 음수 분기와 기존 값 1이 모두 나오게 함
+     }
+     else
+     {
+@@ -74,4 +74,3 @@
+ #ifdef __cplusplus
+ }
+ #endif
+-

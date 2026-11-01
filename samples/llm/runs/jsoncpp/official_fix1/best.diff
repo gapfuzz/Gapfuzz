@@ -1,0 +1,11 @@
+--- 수정 전
++++ 시도 1
+@@ -52,7 +52,7 @@
+ 
+   std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+ 
+-  Json::Value root;
++  Json::Value root(static_cast<Json::ValueType>((hash_settings >> 12) & 0x7)); // [gapfuzz-llm] Value 생성자의 type 인자를 입력의 미사용 비트(12~14)에서 골라 0~7(유효한 ValueType 전부)을 만들고, 0이면 기존 nullValue가 됨
+   const auto data_str = reinterpret_cast<const char*>(data);
+ #if JSON_USE_EXCEPTION
+   try {

@@ -1,0 +1,17 @@
+{
+ "name": "tinyxml2",
+ "repo": "https://github.com/leethomason/tinyxml2.git",
+ "commit": "8224e427b655b83dae5e2298f1e6919523a78737",
+ "clone_dir": "third_party/tinyxml2",
+ "lang": "c++",
+ "lib_dir": "third_party/tinyxml2",
+ "sources": [
+  "tinyxml2.cpp"
+ ],
+ "header": "tinyxml2.h",
+ "namespace": "tinyxml2",
+ "harness_dir": "harnesses",
+ "dict": "dicts/xml.dict",
+ "cflags": [],
+ "internal_branches": false
+}

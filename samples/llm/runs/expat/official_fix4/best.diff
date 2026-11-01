@@ -1,0 +1,10 @@
+--- 수정 전
++++ 시도 1
+@@ -68,6 +68,7 @@
+   uint8_t entropy[16];
+   memcpy(entropy, &first, sizeof(first));
+   memcpy(entropy + sizeof(first), &second, sizeof(second));
++  if (size > 0 && data[0] % 4 == 0) XML_SetHashSalt16Bytes(p, NULL); // [gapfuzz-llm] entropy == NULL 분기를 타도록 입력 첫 바이트에 따라 NULL도 전달 (XML_FALSE 반환만 하며 파서 상태는 바뀌지 않음)
+   XML_SetHashSalt16Bytes(p, entropy);
+   (void)sip24_valid;
+ 

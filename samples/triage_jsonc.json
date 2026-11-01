@@ -1,0 +1,31 @@
+{
+ "meta": {
+  "name": "json-c-v2",
+  "binary": "out/targets/json-c/official_v2/fuzz",
+  "repeat": 3
+ },
+ "crashes": [
+  {
+   "files": [
+    "out/targets/json-c/official_v2/r1/crash-ff48e5a811379e525195cf66dc824cb68c3d26a6"
+   ],
+   "kind": "deadly signal",
+   "summary": "libFuzzer: deadly signal",
+   "signature": "ba5d535c492c",
+   "verdict": {
+    "cls": "ASSERT",
+    "confidence": "강",
+    "reason": "라이브러리의 assert/abort가 실패함",
+    "evidence": [
+     "오류 지점: `json_abort` @ third_party/json-c/json_object.c:2136 (library)"
+    ]
+   },
+   "reproduced": "3/3",
+   "top_frames": [
+    "json_abort [library]",
+    "json_object_array_shrink [library]",
+    "LLVMFuzzerTestOneInput [harness]"
+   ]
+  }
+ ]
+}

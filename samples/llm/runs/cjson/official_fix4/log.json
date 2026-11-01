@@ -1,0 +1,37 @@
+{
+ "target": "cjson",
+ "harness": "official",
+ "fix": 4,
+ "model": "claude-sonnet-5-5",
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 18.2,
+   "usage": {
+    "input_tokens": 1884,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 2172,
+    "output_tokens_details": {
+     "thinking_tokens": 1120
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+   },
+   "harness": "harnesses/cjson/llm/official_fix4/try1.c",
+   "stage": "fuzz",
+   "opened": 1,
+   "total": 1,
+   "still": [],
+   "crashes": [],
+   "ok": true,
+   "complete": true
+  }
+ ],
+ "best": 1
+}

@@ -1,0 +1,32 @@
+{
+ "meta": {
+  "name": "json-c-v2",
+  "binary": "out/targets/json-c/official_v2/fuzz",
+  "repeat": 3
+ },
+ "crashes": [
+  {
+   "files": [
+    "out/targets/json-c/official_v2/r1/crash-ff48e5a811379e525195cf66dc824cb68c3d26a6"
+   ],
+   "kind": "deadly signal",
+   "summary": "libFuzzer: deadly signal",
+   "signature": "ba5d535c492c",
+   "verdict": {
+    "cls": "HARNESS",
+    "confidence": "중",
+    "reason": "하네스가 직접 부른 API `json_object_array_shrink`가 입구의 인자 검사에서 abort함 — API가 허용하지 않는 인자를 하네스가 넘김 (문서의 인자 범위를 지켜야 함)",
+    "evidence": [
+     "오류 지점: `json_abort` @ third_party/json-c/json_object.c:2136 (library)",
+     "하네스가 부른 API: `json_object_array_shrink` @ third_party/json-c/json_object.c:1850, 하네스 위치: `LLVMFuzzerTestOneInput` @ harnesses/json-c/official_v2.cc:50"
+    ]
+   },
+   "reproduced": "3/3",
+   "top_frames": [
+    "json_abort [library]",
+    "json_object_array_shrink [library]",
+    "LLVMFuzzerTestOneInput [harness]"
+   ]
+  }
+ ]
+}

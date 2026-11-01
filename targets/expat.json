@@ -1,0 +1,29 @@
+{
+ "name": "expat",
+ "repo": "https://github.com/libexpat/libexpat.git",
+ "commit": "f13682468f5a04e56fe662a8fe234320c98aecce",
+ "clone_dir": "third_party/libexpat",
+ "lang": "c",
+ "lib_dir": "third_party/libexpat/expat",
+ "sources": [
+  "lib/xmlparse.c",
+  "lib/xmlrole.c",
+  "lib/xmltok.c",
+  "lib/xcs.c",
+  "lib/random_getrandom.c",
+  "lib/random_dev_urandom.c"
+ ],
+ "header": "lib/expat.h",
+ "include_dirs": [
+  "lib",
+  "../../../harnesses/expat/cfg"
+ ],
+ "namespace": "",
+ "internal_classes": [],
+ "dict": "dicts/expat_xml.dict",
+ "cflags": [
+  "-DHAVE_EXPAT_CONFIG_H",
+  "-DENCODING_FOR_FUZZING=UTF-8"
+ ],
+ "internal_branches": true
+}

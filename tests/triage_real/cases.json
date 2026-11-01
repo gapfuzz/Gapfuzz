@@ -1,0 +1,67 @@
+[
+ {
+  "name": "misuse_clear_then_use",
+  "harness": "misuse_clear_then_use.cpp",
+  "lib": "tinyxml2",
+  "expect": "HARNESS",
+  "why": "Clear() 뒤에 문서가 소유한 요소를 씀 (사용 규칙 위반)"
+ },
+ {
+  "name": "misuse_delete_doc",
+  "harness": "misuse_delete_doc.cpp",
+  "lib": "tinyxml2",
+  "expect": "HARNESS",
+  "why": "문서를 delete한 뒤 그 요소를 씀 (사용 규칙 위반)"
+ },
+ {
+  "name": "misuse_unterminated",
+  "harness": "misuse_unterminated.cpp",
+  "lib": "tinyxml2",
+  "expect": "HARNESS",
+  "why": "NUL 없는 버퍼를 길이 없이 넘김"
+ },
+ {
+  "name": "real_setvalue_uaf",
+  "harness": "real_stateful_before_fix.cpp",
+  "lib": "tinyxml2",
+  "expect": "HARNESS",
+  "why": "실제 퍼징에서 나온 크래시: SetValue(str, true)에 곧 사라질 문자열"
+ },
+ {
+  "name": "lib_deletenode_null",
+  "harness": "lib_deletenode_null.cpp",
+  "lib": "tx_del",
+  "expect": "LIBRARY",
+  "why": "이슈 #1048, 커밋 aba13c5에서 라이브러리가 고침"
+ },
+ {
+  "name": "lib_cve_assert",
+  "harness": "../../../harnesses/official.cpp",
+  "lib": "tx_cve",
+  "debug": true,
+  "expect": "ASSERT",
+  "why": "CVE-2024-50614/50615, 커밋 494735d에서 라이브러리가 고침. 같은 속성을 두 번 쓰면 파싱만 해도 닿음 (assert는 디버그 빌드에서만 켜짐)"
+ },
+ {
+  "name": "lib_stack_overflow",
+  "harness": "../../../harnesses/official.cpp",
+  "lib": "tx_stack",
+  "expect": "RESOURCE",
+  "why": "깊은 중첩 재귀, 커밋 d946dda에서 깊이 제한 추가"
+ },
+ {
+  "name": "lib_assert_2021",
+  "harness": "lib_loadfile_twice.cpp",
+  "lib": "tx_assert21",
+  "debug": true,
+  "expect": "ASSERT",
+  "why": "커밋 9efb6b0에서 라이브러리가 고친 assert 실패 (입력은 그 커밋의 테스트 파일 xmltest-5330.xml)"
+ },
+ {
+  "name": "not_a_crash",
+  "harness": "../../../harnesses/official.cpp",
+  "lib": "tinyxml2",
+  "expect": "UNCLEAR",
+  "why": "정상 입력 (재현 안 됨)"
+ }
+]

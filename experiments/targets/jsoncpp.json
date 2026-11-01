@@ -1,0 +1,97 @@
+{
+ "lib": "jsoncpp",
+ "source": "samples/verify/jsoncpp_official_to_v2.json",
+ "note": "수정 전(official, 2분 r1) 분석에서 '고칠 곳'이 겨냥한 분기. applied=false는 대조군.",
+ "branches": [
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "Value::Value(ValueType)",
+   "line": 407,
+   "col": 3,
+   "expr": "case intValue",
+   "never": "참"
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "Value::Value(ValueType)",
+   "line": 408,
+   "col": 3,
+   "expr": "case uintValue",
+   "never": "참"
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "Value::Value(ValueType)",
+   "line": 411,
+   "col": 3,
+   "expr": "case realValue",
+   "never": "참"
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "Value::Value(ValueType)",
+   "line": 414,
+   "col": 3,
+   "expr": "case stringValue",
+   "never": "참"
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "Value::Value(ValueType)",
+   "line": 422,
+   "col": 3,
+   "expr": "case booleanValue",
+   "never": "참"
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "Value::Value(ValueType)",
+   "line": 425,
+   "col": 3,
+   "expr": "default",
+   "never": "참"
+  },
+  {
+   "fix": 2,
+   "applied": false,
+   "verdict": "FIXED",
+   "api": "CharReaderBuilder::validate(Value *) const",
+   "line": 1981,
+   "col": 10,
+   "expr": "invalid",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "Value::isUInt() const",
+   "line": 1404,
+   "col": 12,
+   "expr": "value_.int_ >= 0",
+   "never": "거짓"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "Value::isUInt() const",
+   "line": 1404,
+   "col": 32,
+   "expr": "LargestUInt(value_.int_) <= LargestUInt(maxUInt)",
+   "never": "거짓"
+  }
+ ]
+}

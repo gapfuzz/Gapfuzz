@@ -1,0 +1,34 @@
+{
+ "meta": {
+  "name": "fuzz",
+  "binary": "out/targets/jsoncpp/official_v2/fuzz",
+  "repeat": 3
+ },
+ "crashes": [
+  {
+   "files": [
+    "out/targets/jsoncpp/official_v2/r1/crash-41a5a85e6b239f4562e2989491c81c13915ddd9c"
+   ],
+   "kind": "deadly signal",
+   "summary": "libFuzzer: deadly signal",
+   "signature": "d5b75eeff397",
+   "verdict": {
+    "cls": "HARNESS",
+    "confidence": "강",
+    "reason": "라이브러리 API `Json::CharReaderBuilder::newCharReader`가 던진 예외 `Json::LogicError`를 하네스가 잡지 않아 프로그램이 종료됨 — 그 호출을 try/catch로 감싸거나 API 문서의 인자 범위를 지켜야 함",
+    "evidence": [
+     "오류 지점: `Json::throwLogicError` @ third_party/jsoncpp/src/lib_json/json_value.cpp:240 (library)",
+     "예외: Json::LogicError (LargestInt out of UInt range)",
+     "하네스가 부른 API: `Json::CharReaderBuilder::newCharReader` @ third_party/jsoncpp/src/lib_json/json_reader.cpp:1949, 하네스 위치: `LLVMFuzzerTestOneInput` @ harnesses/jsoncpp/official_v2.cpp:60"
+    ]
+   },
+   "reproduced": "3/3",
+   "top_frames": [
+    "Json::throwLogicError [library]",
+    "Json::Value::asUInt [library]",
+    "Json::CharReaderBuilder::newCharReader [library]",
+    "LLVMFuzzerTestOneInput [harness]"
+   ]
+  }
+ ]
+}

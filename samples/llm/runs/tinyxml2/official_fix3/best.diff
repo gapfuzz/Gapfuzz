@@ -1,0 +1,10 @@
+--- 수정 전
++++ 시도 1
+@@ -10,6 +10,6 @@
+ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+     std::string data_string(reinterpret_cast<const char *>(data), size);
+     XMLDocument doc;
+-    doc.Parse(data_string.c_str());
++    doc.Parse((size > 0 && data[0] % 16 == 0) ? nullptr : data_string.c_str()); // [gapfuzz-llm] 입력 첫 바이트로 약 1/16 확률로 nullptr을 넘겨 Parse의 `!xml` 분기를 도달시킴 (나머지는 기존 문자열 그대로, Parse가 null을 EMPTY_DOCUMENT 오류로 안전하게 처리함)
+     return 0;
+ }

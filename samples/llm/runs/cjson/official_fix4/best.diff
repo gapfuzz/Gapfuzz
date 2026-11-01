@@ -1,0 +1,16 @@
+--- 수정 전
++++ 시도 1
+@@ -37,7 +37,7 @@
+ 
+     if(buffered)
+     {
+-        printed_json = cJSON_PrintBuffered(json, 1, formatted);
++        printed_json = cJSON_PrintBuffered(((data[size-2] & 0x07) == 0) ? NULL : json, 1, formatted); // [gapfuzz-llm] item이 NULL일 때의 분기(print_value의 item == NULL)를 닿게 하려고 입력 바이트로 가끔 NULL을 넘김 (그 외에는 기존 json 유지)
+     }
+     else
+     {
+@@ -74,4 +74,3 @@
+ #ifdef __cplusplus
+ }
+ #endif
+-

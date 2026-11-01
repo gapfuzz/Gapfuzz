@@ -1,0 +1,27 @@
+{
+ "name": "jsoncpp",
+ "repo": "https://github.com/open-source-parsers/jsoncpp.git",
+ "commit": "93acc7b155048f1a66c43235cc205519f1e7a6ea",
+ "clone_dir": "third_party/jsoncpp",
+ "lang": "c++",
+ "lib_dir": "third_party/jsoncpp",
+ "sources": [
+  "src/lib_json/json_reader.cpp",
+  "src/lib_json/json_value.cpp",
+  "src/lib_json/json_writer.cpp"
+ ],
+ "header": [
+  "include/json/reader.h",
+  "include/json/value.h",
+  "include/json/writer.h"
+ ],
+ "include_dirs": [
+  "include",
+  "src/lib_json"
+ ],
+ "namespace": "Json",
+ "internal_classes": [],
+ "dict": "third_party/jsoncpp/src/test_lib_json/fuzz.dict",
+ "cflags": [],
+ "internal_branches": true
+}

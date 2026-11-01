@@ -1,0 +1,332 @@
+[
+ {
+  "verdict": "FIXED",
+  "apis": [
+   "uncompress(Bytef *, uLongf *, const Bytef *, uLong)"
+  ],
+  "param_index": 1,
+  "param_name": "destLen",
+  "suggestions": [
+   "`uncompress(Bytef *, uLongf *, const Bytef *, uLong)`의 2번째 인자 `destLen`를 하네스가 고정합니다(17행에서 항상 같은 객체 `&buffer_length`) (라이브러리 내부 `uncompress2` → `uncompress2_z`를 거쳐 조건에 쓰임) → 퍼저 입력으로 바꾸세요"
+  ],
+  "harness_lines": [
+   17
+  ],
+  "harness_source": [
+   "if (Z_OK != uncompress(buffer, &buffer_length, data,"
+  ],
+  "arg": [
+   {
+    "line": 17,
+    "kind": "same_object",
+    "value": "&buffer_length"
+   }
+  ],
+  "blocked": [
+   {
+    "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+    "line": 36,
+    "col": 9,
+    "expr": "sourceLen == NULL",
+    "never": "참",
+    "source": "if (sourceLen == NULL || (*sourceLen > 0 && source == NULL) ||"
+   },
+   {
+    "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+    "line": 37,
+    "col": 9,
+    "expr": "destLen == NULL",
+    "never": "참",
+    "source": "destLen == NULL || (*destLen > 0 && dest == NULL))"
+   },
+   {
+    "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+    "line": 37,
+    "col": 29,
+    "expr": "*destLen > 0",
+    "never": "거짓",
+    "source": "destLen == NULL || (*destLen > 0 && dest == NULL))"
+   }
+  ],
+  "suggestion": "`uncompress(Bytef *, uLongf *, const Bytef *, uLong)`의 2번째 인자 `destLen`를 하네스가 고정합니다(17행에서 항상 같은 객체 `&buffer_length`) (라이브러리 내부 `uncompress2` → `uncompress2_z`를 거쳐 조건에 쓰임) → 퍼저 입력으로 바꾸세요",
+  "checks": [
+   {
+    "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+    "line": 36,
+    "col": 9,
+    "expr": "sourceLen == NULL",
+    "never": "참",
+    "source": "if (sourceLen == NULL || (*sourceLen > 0 && source == NULL) ||",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   },
+   {
+    "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+    "line": 37,
+    "col": 9,
+    "expr": "destLen == NULL",
+    "never": "참",
+    "source": "destLen == NULL || (*destLen > 0 && dest == NULL))",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   },
+   {
+    "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+    "line": 37,
+    "col": 29,
+    "expr": "*destLen > 0",
+    "never": "거짓",
+    "source": "destLen == NULL || (*destLen > 0 && dest == NULL))",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   }
+  ],
+  "opened": 1,
+  "total": 3
+ },
+ {
+  "verdict": "NARROW",
+  "apis": [
+   "uncompress(Bytef *, uLongf *, const Bytef *, uLong)"
+  ],
+  "param_index": 2,
+  "param_name": "source",
+  "suggestions": [
+   "`uncompress(Bytef *, uLongf *, const Bytef *, uLong)`의 3번째 인자 `source`에 하네스가 null을 넘긴 적이 없습니다(17행) → nullptr도 넘겨 보세요"
+  ],
+  "harness_lines": [
+   17
+  ],
+  "harness_source": [
+   "if (Z_OK != uncompress(buffer, &buffer_length, data,"
+  ],
+  "arg": [
+   {
+    "line": 17,
+    "kind": "variable",
+    "value": null
+   }
+  ],
+  "blocked": [
+   {
+    "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+    "line": 36,
+    "col": 49,
+    "expr": "source == NULL",
+    "never": "참",
+    "source": "if (sourceLen == NULL || (*sourceLen > 0 && source == NULL) ||"
+   }
+  ],
+  "suggestion": "`uncompress(Bytef *, uLongf *, const Bytef *, uLong)`의 3번째 인자 `source`에 하네스가 null을 넘긴 적이 없습니다(17행) → nullptr도 넘겨 보세요",
+  "checks": [
+   {
+    "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+    "line": 36,
+    "col": 49,
+    "expr": "source == NULL",
+    "never": "참",
+    "source": "if (sourceLen == NULL || (*sourceLen > 0 && source == NULL) ||",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   }
+  ],
+  "opened": 0,
+  "total": 1
+ },
+ {
+  "verdict": "NARROW",
+  "apis": [
+   "uncompress(Bytef *, uLongf *, const Bytef *, uLong)"
+  ],
+  "param_index": 0,
+  "param_name": "dest",
+  "suggestions": [
+   "`uncompress(Bytef *, uLongf *, const Bytef *, uLong)`의 1번째 인자 `dest`에 하네스가 null을 넘긴 적이 없습니다(17행) → nullptr도 넘겨 보세요"
+  ],
+  "harness_lines": [
+   17
+  ],
+  "harness_source": [
+   "if (Z_OK != uncompress(buffer, &buffer_length, data,"
+  ],
+  "arg": [
+   {
+    "line": 17,
+    "kind": "variable",
+    "value": null
+   }
+  ],
+  "blocked": [
+   {
+    "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+    "line": 37,
+    "col": 45,
+    "expr": "dest == NULL",
+    "never": "참",
+    "source": "destLen == NULL || (*destLen > 0 && dest == NULL))"
+   }
+  ],
+  "suggestion": "`uncompress(Bytef *, uLongf *, const Bytef *, uLong)`의 1번째 인자 `dest`에 하네스가 null을 넘긴 적이 없습니다(17행) → nullptr도 넘겨 보세요",
+  "checks": [
+   {
+    "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+    "line": 37,
+    "col": 45,
+    "expr": "dest == NULL",
+    "never": "참",
+    "source": "destLen == NULL || (*destLen > 0 && dest == NULL))",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   }
+  ],
+  "opened": 1,
+  "total": 1
+ },
+ {
+  "verdict": "DIRECT_CALL",
+  "apis": [
+   "inflate(z_streamp, int)"
+  ],
+  "param_index": 1,
+  "param_name": "flush",
+  "suggestions": [
+   "`inflate(z_streamp, int)`는 공개 API인데 하네스가 직접 부르지 않고 라이브러리 내부(`uncompress2_z`)에서만 불립니다. 내부 호출은 2번째 인자 `flush`를 한 가지 방식으로만 넘기므로 → 하네스가 직접 불러 다른 값(null 포함)을 넘겨 보세요"
+  ],
+  "harness_lines": [],
+  "harness_source": [],
+  "arg": [],
+  "blocked": [
+   {
+    "api": "inflate(z_streamp, int)",
+    "line": 717,
+    "col": 17,
+    "expr": "flush == Z_BLOCK",
+    "never": "참",
+    "source": "if (flush == Z_BLOCK || flush == Z_TREES) goto inf_leave;"
+   },
+   {
+    "api": "inflate(z_streamp, int)",
+    "line": 717,
+    "col": 37,
+    "expr": "flush == Z_TREES",
+    "never": "참",
+    "source": "if (flush == Z_BLOCK || flush == Z_TREES) goto inf_leave;"
+   },
+   {
+    "api": "inflate(z_streamp, int)",
+    "line": 739,
+    "col": 21,
+    "expr": "flush == Z_TREES",
+    "never": "참",
+    "source": "if (flush == Z_TREES) {"
+   },
+   {
+    "api": "inflate(z_streamp, int)",
+    "line": 768,
+    "col": 17,
+    "expr": "flush == Z_TREES",
+    "never": "참",
+    "source": "if (flush == Z_TREES) goto inf_leave;"
+   },
+   {
+    "api": "inflate(z_streamp, int)",
+    "line": 917,
+    "col": 17,
+    "expr": "flush == Z_TREES",
+    "never": "참",
+    "source": "if (flush == Z_TREES) goto inf_leave;"
+   },
+   {
+    "api": "inflate(z_streamp, int)",
+    "line": 1142,
+    "col": 37,
+    "expr": "flush != Z_FINISH",
+    "never": "거짓",
+    "source": "(state->mode < CHECK || flush != Z_FINISH)))"
+   },
+   {
+    "api": "inflate(z_streamp, int)",
+    "line": 1158,
+    "col": 35,
+    "expr": "flush == Z_FINISH",
+    "never": "참",
+    "source": "if (((in == 0 && out == 0) || flush == Z_FINISH) && ret == Z_OK)"
+   }
+  ],
+  "suggestion": "`inflate(z_streamp, int)`는 공개 API인데 하네스가 직접 부르지 않고 라이브러리 내부(`uncompress2_z`)에서만 불립니다. 내부 호출은 2번째 인자 `flush`를 한 가지 방식으로만 넘기므로 → 하네스가 직접 불러 다른 값(null 포함)을 넘겨 보세요",
+  "checks": [
+   {
+    "api": "inflate(z_streamp, int)",
+    "line": 717,
+    "col": 17,
+    "expr": "flush == Z_BLOCK",
+    "never": "참",
+    "source": "if (flush == Z_BLOCK || flush == Z_TREES) goto inf_leave;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "inflate(z_streamp, int)",
+    "line": 717,
+    "col": 37,
+    "expr": "flush == Z_TREES",
+    "never": "참",
+    "source": "if (flush == Z_BLOCK || flush == Z_TREES) goto inf_leave;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "inflate(z_streamp, int)",
+    "line": 739,
+    "col": 21,
+    "expr": "flush == Z_TREES",
+    "never": "참",
+    "source": "if (flush == Z_TREES) {",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "inflate(z_streamp, int)",
+    "line": 768,
+    "col": 17,
+    "expr": "flush == Z_TREES",
+    "never": "참",
+    "source": "if (flush == Z_TREES) goto inf_leave;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "inflate(z_streamp, int)",
+    "line": 917,
+    "col": 17,
+    "expr": "flush == Z_TREES",
+    "never": "참",
+    "source": "if (flush == Z_TREES) goto inf_leave;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "inflate(z_streamp, int)",
+    "line": 1142,
+    "col": 37,
+    "expr": "flush != Z_FINISH",
+    "never": "거짓",
+    "source": "(state->mode < CHECK || flush != Z_FINISH)))",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "inflate(z_streamp, int)",
+    "line": 1158,
+    "col": 35,
+    "expr": "flush == Z_FINISH",
+    "never": "참",
+    "source": "if (((in == 0 && out == 0) || flush == Z_FINISH) && ret == Z_OK)",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   }
+  ],
+  "opened": 7,
+  "total": 7
+ }
+]

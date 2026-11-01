@@ -1,0 +1,67 @@
+{
+ "target": "json-c",
+ "harness": "official",
+ "fix": 1,
+ "model": "claude-sonnet-5-5",
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 10.7,
+   "usage": {
+    "input_tokens": 1427,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1405,
+    "output_tokens_details": {
+     "thinking_tokens": 698
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+   },
+   "harness": "harnesses/json-c/llm/official_fix1/try1.cc",
+   "stage": "fuzz",
+   "opened": 1,
+   "total": 2,
+   "still": [
+    "`json_tokener_reset(struct json_tokener *)` 210행 `!tok`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  },
+  {
+   "try": 2,
+   "llm_seconds": 12.2,
+   "usage": {
+    "input_tokens": 2261,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1598,
+    "output_tokens_details": {
+     "thinking_tokens": 666
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+   },
+   "harness": "harnesses/json-c/llm/official_fix1/try2.cc",
+   "stage": "fuzz",
+   "opened": 2,
+   "total": 2,
+   "still": [],
+   "crashes": [],
+   "ok": true,
+   "complete": true
+  }
+ ],
+ "best": 2
+}

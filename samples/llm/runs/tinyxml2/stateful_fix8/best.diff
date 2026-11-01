@@ -1,0 +1,11 @@
+--- 수정 전
++++ 시도 1
+@@ -187,7 +187,7 @@
+         case 15: {  // 핸들 탐색
+             XMLHandle h(&doc);
+             h.FirstChildElement(fdp.ConsumeBool() ? str : nullptr).FirstChild().NextSiblingElement().ToElement();
+-            XMLConstHandle ch(cur);
++            XMLConstHandle ch(fdp.ConsumeBool() ? cur : nullptr);  // [gapfuzz-llm] XMLConstHandle의 null 노드 분기(_node가 거짓)를 타도록 입력에 따라 nullptr도 전달
+             ch.LastChildElement().PreviousSibling().ToNode();
+             break;
+         }

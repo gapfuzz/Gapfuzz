@@ -1,0 +1,11 @@
+--- 수정 전
++++ 시도 1
+@@ -9,7 +9,7 @@
+ 
+ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+     std::string data_string(reinterpret_cast<const char *>(data), size);
+-    XMLDocument doc;
++    XMLDocument doc(true, static_cast<Whitespace>(size > 0 ? data[0] % 3 : 0)); // [gapfuzz-llm] whitespaceMode가 기본값(PRESERVE)으로 고정되어 PEDANTIC 분기에 못 가므로 입력 첫 바이트로 세 모드(0=PRESERVE, 1=COLLAPSE, 2=PEDANTIC)를 고름
+     doc.Parse(data_string.c_str());
+     return 0;
+ }

@@ -1,0 +1,61 @@
+{
+ "target": "tinyxml2",
+ "harness": "stateful",
+ "fix": 6,
+ "model": "claude-sonnet-5-5",
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 28.4,
+   "usage": {
+    "input_tokens": 6339,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 5960,
+    "output_tokens_details": {
+     "thinking_tokens": 857
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+   },
+   "harness": "harnesses/llm/stateful_fix6/try1.cpp",
+   "ok": false,
+   "stage": "compile",
+   "detail": "/home/claude/gapfuzz/harnesses/llm/stateful_fix6/try1.cpp:170:119: error: use of undeclared identifier 'ESCAPE_APOS_CHARS_IN_ATTRIBUTES'\n      |                                                                                                                       ^\n/home/claude/gapfuzz/harnesses/llm/stateful_fix6/try1.cpp:170:153: error: use of undeclared identifier 'DONT_ESCAPE_APOS_CHARS_IN_ATTRIBUTES'\n      |                                                                                                                                                         ^\n/home/claude/gapfuzz/harnesses/llm/stateful_fix6/try1.cpp:178:83: error: use of undeclared identifier 'ESCAPE_APOS_CHARS_IN_ATTRIBUTES'\n      |                                                                                   ^\n/home/claude/gapfuzz/harnesses/llm/stateful_fix6/try1.cpp:178:117: error: use of undeclared identifier 'DONT_ESCAPE_APOS_CHARS_IN_ATTRIBUTES'\n      |                                                                                                                     ^\n4 errors generated."
+  },
+  {
+   "try": 2,
+   "llm_seconds": 30.8,
+   "usage": {
+    "input_tokens": 11895,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 6404,
+    "output_tokens_details": {
+     "thinking_tokens": 1096
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+   },
+   "harness": "harnesses/llm/stateful_fix6/try2.cpp",
+   "stage": "fuzz",
+   "opened": 1,
+   "total": 1,
+   "still": [],
+   "crashes": [],
+   "ok": true,
+   "complete": true
+  }
+ ],
+ "best": 2
+}

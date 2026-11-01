@@ -1,0 +1,17 @@
+{
+ "name": "cjson",
+ "repo": "https://github.com/DaveGamble/cJSON.git",
+ "commit": "6d9f2443ab071f86e5d9b43025a40929ec41c46c",
+ "clone_dir": "third_party/cjson",
+ "lang": "c",
+ "lib_dir": "third_party/cjson",
+ "sources": [
+  "cJSON.c"
+ ],
+ "header": "cJSON.h",
+ "namespace": "",
+ "internal_classes": [],
+ "dict": "third_party/cjson/fuzzing/json.dict",
+ "cflags": [],
+ "internal_branches": true
+}

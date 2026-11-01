@@ -1,0 +1,87 @@
+{
+ "lib": "cjson",
+ "source": "samples/verify/cjson_official_to_v2.json",
+ "note": "수정 전(official, 2분 r1) 분석에서 '고칠 곳'이 겨냥한 분기. applied=false는 대조군.",
+ "branches": [
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "cJSON_ParseWithLengthOpts(const char *, size_t, const char **, cJSON_bool)",
+   "line": 1187,
+   "col": 9,
+   "expr": "return_parse_end",
+   "never": "참"
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "cJSON_ParseWithLengthOpts(const char *, size_t, const char **, cJSON_bool)",
+   "line": 1215,
+   "col": 13,
+   "expr": "return_parse_end != NULL",
+   "never": "참"
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "cJSON_PrintBuffered(const cJSON *, int, cJSON_bool)",
+   "line": 1321,
+   "col": 9,
+   "expr": "prebuffer < 0",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "cJSON_ParseWithOpts(const char *, const char **, cJSON_bool)",
+   "line": 1135,
+   "col": 9,
+   "expr": "NULL == value",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "cJSON_ParseWithLengthOpts(const char *, size_t, const char **, cJSON_bool)",
+   "line": 1156,
+   "col": 9,
+   "expr": "value == NULL",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "cJSON_ParseWithLengthOpts(const char *, size_t, const char **, cJSON_bool)",
+   "line": 1200,
+   "col": 9,
+   "expr": "value != NULL",
+   "never": "거짓"
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "cJSON_PrintBuffered(const cJSON *, int, cJSON_bool)",
+   "line": 1427,
+   "col": 9,
+   "expr": "(item == NULL)",
+   "never": "참"
+  },
+  {
+   "fix": 5,
+   "applied": false,
+   "verdict": "NARROW",
+   "api": "cJSON_Minify(char *)",
+   "line": 2928,
+   "col": 9,
+   "expr": "json == NULL",
+   "never": "참"
+  }
+ ]
+}

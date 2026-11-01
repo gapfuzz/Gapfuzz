@@ -1,0 +1,122 @@
+[
+ {
+  "bug": "cve",
+  "harness": "official",
+  "trial": 1,
+  "found": true,
+  "crashed": true,
+  "seconds": 5.4,
+  "kind": "deadly",
+  "top_lib_frame": "tinyxml2::XMLUtil::GetCharacterRef(char",
+  "crash_file": "crash-13617f176b52840fcd35ed1d1e5b6570bb34df5a",
+  "triage": "ASSERT"
+ },
+ {
+  "bug": "cve",
+  "harness": "stateful",
+  "trial": 1,
+  "found": false,
+  "crashed": true,
+  "seconds": 1.8,
+  "kind": "deadly",
+  "top_lib_frame": "tinyxml2::StrPair::GetStr()",
+  "crash_file": "crash-6b7e3ed7fb87c9c8cead361c43e59aa05f743094",
+  "triage": "ASSERT"
+ },
+ {
+  "bug": "cve",
+  "harness": "official",
+  "trial": 2,
+  "found": true,
+  "crashed": true,
+  "seconds": 9.3,
+  "kind": "deadly",
+  "top_lib_frame": "tinyxml2::XMLUtil::GetCharacterRef(char",
+  "crash_file": "crash-2048109645c7c34dbcae2acc1f8f702e0f9cdb9c",
+  "triage": "ASSERT"
+ },
+ {
+  "bug": "cve",
+  "harness": "stateful",
+  "trial": 2,
+  "found": false,
+  "crashed": true,
+  "seconds": 3.7,
+  "kind": "deadly",
+  "top_lib_frame": "tinyxml2::StrPair::GetStr()",
+  "crash_file": "crash-a2e8b2aa9fd17392c7c033471f646b4519f2086a",
+  "triage": "ASSERT"
+ },
+ {
+  "bug": "cve",
+  "harness": "official",
+  "trial": 3,
+  "found": true,
+  "crashed": true,
+  "seconds": 5.6,
+  "kind": "deadly",
+  "top_lib_frame": "tinyxml2::XMLUtil::GetCharacterRef(char",
+  "crash_file": "crash-1108961cadcf279fdc192332b0fdd41ef6437e55",
+  "triage": "ASSERT"
+ },
+ {
+  "bug": "cve",
+  "harness": "stateful",
+  "trial": 3,
+  "found": false,
+  "crashed": true,
+  "seconds": 1.7,
+  "kind": "deadly",
+  "top_lib_frame": "tinyxml2::StrPair::GetStr()",
+  "crash_file": "crash-e4a6570c687fe987002879647a44b3000a30a851",
+  "triage": "ASSERT"
+ },
+ {
+  "bug": "cve",
+  "harness": "official",
+  "trial": 4,
+  "found": true,
+  "crashed": true,
+  "seconds": 17.7,
+  "kind": "deadly",
+  "top_lib_frame": "tinyxml2::XMLUtil::GetCharacterRef(char",
+  "crash_file": "crash-c0eaf13a0f988bcceb145b05c3a68bfc23f574c3",
+  "triage": "ASSERT"
+ },
+ {
+  "bug": "cve",
+  "harness": "stateful",
+  "trial": 4,
+  "found": false,
+  "crashed": true,
+  "seconds": 1.8,
+  "kind": "deadly",
+  "top_lib_frame": "tinyxml2::StrPair::GetStr()",
+  "crash_file": "crash-805d7b42c179e78ef3f608875f6d36142add67d0",
+  "triage": "ASSERT"
+ },
+ {
+  "bug": "cve",
+  "harness": "official",
+  "trial": 5,
+  "found": true,
+  "crashed": true,
+  "seconds": 5.6,
+  "kind": "deadly",
+  "top_lib_frame": "tinyxml2::XMLUtil::GetCharacterRef(char",
+  "crash_file": "crash-77862ec26402f75900b68627b53f5c815dc40666",
+  "triage": "ASSERT"
+ },
+ {
+  "bug": "cve",
+  "harness": "stateful",
+  "trial": 5,
+  "found": false,
+  "crashed": true,
+  "seconds": 2.4,
+  "kind": "deadly",
+  "top_lib_frame": "tinyxml2::StrPair::GetStr()",
+  "crash_file": "crash-a8190cbda12395120be1222d5e4e4c434c239ee1",
+  "triage": "ASSERT"
+ }
+]

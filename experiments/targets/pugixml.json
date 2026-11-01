@@ -1,0 +1,347 @@
+{
+ "lib": "pugixml",
+ "source": "samples/verify/pugixml_official_to_v2.json",
+ "note": "수정 전(official, 2분 r1) 분석에서 '고칠 곳'이 겨냥한 분기. applied=false는 대조군.",
+ "branches": [
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2106,
+   "col": 7,
+   "expr": "encoding == encoding_wchar",
+   "never": "참"
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2109,
+   "col": 7,
+   "expr": "encoding == encoding_utf16",
+   "never": "참"
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2112,
+   "col": 7,
+   "expr": "encoding == encoding_utf32",
+   "never": "참"
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2115,
+   "col": 7,
+   "expr": "encoding != encoding_auto",
+   "never": "참"
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 4864,
+   "col": 7,
+   "expr": "!impl::convert_buffer(buffer, length, buffer_encoding, contents, size, is_mutable)",
+   "never": "참"
+  },
+  {
+   "fix": 2,
+   "applied": false,
+   "verdict": "SETTER_NOT_CALLED",
+   "api": "xml_document::reset()",
+   "line": 7680,
+   "col": 103,
+   "expr": "extra",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2800,
+   "col": 3,
+   "expr": "case 1",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2801,
+   "col": 3,
+   "expr": "case 2",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2803,
+   "col": 3,
+   "expr": "case 4",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2804,
+   "col": 3,
+   "expr": "case 5",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2805,
+   "col": 3,
+   "expr": "case 6",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2806,
+   "col": 3,
+   "expr": "case 7",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2807,
+   "col": 3,
+   "expr": "default",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2969,
+   "col": 3,
+   "expr": "case 1",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2970,
+   "col": 3,
+   "expr": "case 2",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2971,
+   "col": 3,
+   "expr": "case 3",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2972,
+   "col": 3,
+   "expr": "case 4",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2973,
+   "col": 3,
+   "expr": "case 5",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2974,
+   "col": 3,
+   "expr": "case 6",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2976,
+   "col": 3,
+   "expr": "case 8",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2977,
+   "col": 3,
+   "expr": "case 9",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2978,
+   "col": 3,
+   "expr": "case 10",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2979,
+   "col": 3,
+   "expr": "case 11",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2980,
+   "col": 3,
+   "expr": "case 12",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2981,
+   "col": 3,
+   "expr": "case 13",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2982,
+   "col": 3,
+   "expr": "case 14",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2983,
+   "col": 3,
+   "expr": "case 15",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2984,
+   "col": 3,
+   "expr": "default",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 3515,
+   "col": 11,
+   "expr": "!PUGI_IMPL_OPTSET",
+   "never": "거짓"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 3525,
+   "col": 10,
+   "expr": "!PUGI_IMPL_OPTSET",
+   "never": "거짓"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 3642,
+   "col": 9,
+   "expr": "!PUGI_IMPL_OPTSET",
+   "never": "거짓"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 4855,
+   "col": 48,
+   "expr": "(options & parse_fragment)",
+   "never": "참"
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 2138,
+   "col": 8,
+   "expr": "contents",
+   "never": "거짓"
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+   "line": 4844,
+   "col": 7,
+   "expr": "!contents",
+   "never": "참"
+  }
+ ]
+}

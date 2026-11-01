@@ -1,0 +1,50 @@
+<!-- LLM 하네스 수정 슬라이드 (LLM_EVAL: 숫자는 samples/llm/summary.md 기준) -->
+<section class="slide" data-sec="3" data-time="50">
+  <div class="hd">
+    <p class="kick">3. 중간 결과 ⑤ Claude 연동</p>
+    <h2>고칠 곳을 Claude가 코드로 옮기고, gapfuzz가 검사합니다</h2>
+    <p class="sub">사람이 하네스를 고쳐 쓰던 단계에 Claude API를 연결했습니다. LLM이 틀린 코드를 내도 검증과 크래시 귀속이 걸러 냅니다.</p>
+  </div>
+  <div class="body grid" style="grid-template-columns:1.08fr .92fr">
+    <div class="card" style="padding:18px 22px">
+      <p class="ct">자동 수정 흐름 <span class="muted" style="font-weight:500">gapfuzz llmfix, 제안 하나마다</span></p>
+      <div class="llm-flow">
+        <div class="lf-step"><span class="pill vi">gapfuzz</span><p><b>고칠 곳</b> 하네스 코드, 제안 문장, 막힌 라이브러리 분기, 지킬 규칙을 묶어 보냄</p></div>
+        <div class="lf-step dark"><span class="pill vf">Claude</span><p><b>수정 코드</b> 고친 하네스 전체와 바꾼 줄마다 이유 주석</p></div>
+        <div class="lf-step"><span class="pill vi">gapfuzz</span><p><b>검사</b> 컴파일 → 60초 × 2회 퍼징 → 겨냥한 분기가 열렸나 → 크래시는 누구 탓인가</p></div>
+        <div class="lf-row">
+          <div class="lf-step ok"><span class="pill vf">통과</span><p>diff와 보고서를 남기고 사람이 읽고 넣음</p></div>
+          <div class="lf-step bad"><span class="pill zr">실패</span><p>컴파일 오류, 아직 막힌 분기, “하네스 버그” 판정 근거를 같은 대화로 돌려줌 (최대 3번)</p></div>
+        </div>
+      </div>
+      <pre class="code" style="margin-top:12px;font-size:12px;line-height:1.6"><span class="cm">// Claude가 zlib 하네스에 넣은 코드 (제안: inflate를 직접 안 부름)</span>
+int flush = kFlushModes[data[0] % 5];   <span class="cm">// [gapfuzz-llm] 입력으로 flush 선택</span>
+int ret = <span class="hl">inflate(&amp;strm, flush)</span>;       <span class="cm">// → 막힌 분기 7개 모두 열림</span></pre>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card" style="padding:16px 22px">
+        <p class="ct">라이브러리 7개의 고칠 곳 전체를 맡긴 결과</p>
+        <div class="grid g2" style="gap:12px;margin-top:6px">
+          <div><div class="stat" id="llmPass">@@PASS@@</div><p class="k" style="font-size:13px">통과한 제안 (첫 시도에 @@FIRST@@)</p></div>
+          <div><div class="stat" id="llmOpen">@@OPEN@@</div><p class="k" style="font-size:13px">겨냥한 분기 중 열림</p></div>
+        </div>
+        <p class="k" style="font-size:13px;margin-top:8px">@@HUMAN@@</p>
+      </div>
+      <div class="card soft" style="padding:14px 20px">
+        <p class="ct">왜 믿을 수 있나</p>
+        <p class="k" style="font-size:13.5px">LLM 출력은 그대로 쓰지 않습니다. 열렸는지는 실제 퍼징으로 재고, 크래시는 귀속 규칙이 하네스 탓인지 가립니다. @@FILTER@@</p>
+      </div>
+      <div class="card dark" style="padding:14px 20px">
+        <p class="ct" style="color:#B9A9FF">하네스 코드는 외부로 나갑니다</p>
+        <p style="font-size:13.5px">Claude API를 쓰므로 하네스와 라이브러리 일부 코드가 Anthropic으로 전송됩니다. 공개 오픈소스라 문제없지만, 비공개 코드라면 로컬 모델로 바꿔 끼울 수 있게 호출 부분을 분리해 두었습니다.</p>
+      </div>
+    </div>
+  </div>
+  <aside>
+    50초. 마지막 결과는 이번 주에 붙인 기능입니다. 도구가 고칠 곳을 알려 주면 사람이 하네스를 고쳐 쓰던 단계를 Claude API에 맡겼습니다.
+    도구가 하네스와 제안, 막힌 분기의 코드를 보내면 Claude가 고친 하네스를 돌려주고, 도구가 컴파일하고 퍼징해서 노린 분기가 열렸는지, 크래시는 누구 탓인지 검사합니다. 실패하면 이유를 돌려주고 다시 고치게 합니다.
+    @@SCRIPT@@
+    중요한 건 LLM을 믿는 게 아니라 검사한다는 점입니다.
+  </aside>
+</section>
+

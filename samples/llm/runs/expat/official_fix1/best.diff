@@ -1,0 +1,17 @@
+--- 수정 전
++++ 시도 1
+@@ -81,7 +81,13 @@
+   }
+   XML_GetCurrentLineNumber64(p);
+   if (size % 2) {
+-    XML_ParserReset(p, NULL);
++    static const XML_Char *const reset_encodings[] = {
++        NULL, "UTF-8", "UTF-16", "ISO-8859-1", "US-ASCII", "UTF-16LE", "UTF-16BE"}; // [gapfuzz-llm] NULL 외에 실제 인코딩 이름 후보를 마련해 encodingName 참 분기 도달
++    const size_t reset_encoding_count
++        = sizeof(reset_encodings) / sizeof(reset_encodings[0]);
++    const XML_Char *reset_encoding
++        = reset_encodings[data[0] % reset_encoding_count]; // [gapfuzz-llm] 입력 첫 바이트로 인코딩을 고르며 NULL(원래 값)도 계속 나옴 (size가 홀수라 data[0] 접근 안전)
++    XML_ParserReset(p, reset_encoding); // [gapfuzz-llm] 고정된 NULL 대신 퍼저 입력에서 고른 encoding을 전달
+   }
+ }
+ 

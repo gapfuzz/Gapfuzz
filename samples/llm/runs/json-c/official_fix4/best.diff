@@ -1,0 +1,12 @@
+--- 수정 전
++++ 시도 1
+@@ -15,6 +15,9 @@
+ 		}
+ 	}
+ 	(void)json_object_to_json_string_ext(obj, JSON_C_TO_STRING_PRETTY | JSON_C_TO_STRING_SPACED);
++	size_t out_len = 0; // [gapfuzz-llm] length 출력 인자를 받을 변수 (직접 호출용)
++	(void)json_object_to_json_string_length(obj, JSON_C_TO_STRING_PRETTY | JSON_C_TO_STRING_SPACED, (size > 0 && (data[0] & 1)) ? &out_len : NULL); // [gapfuzz-llm] 입력 첫 바이트로 length를 널/비널 중에서 골라 612행의 참 분기를 열어줌
++	(void)out_len;
+ 	
+ 	json_object_put(obj);
+ 	json_tokener_free(tok);

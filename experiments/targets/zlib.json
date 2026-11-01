@@ -1,0 +1,127 @@
+{
+ "lib": "zlib",
+ "source": "samples/verify/zlib_official_to_v2.json",
+ "note": "수정 전(official, 2분 r1) 분석에서 '고칠 곳'이 겨냥한 분기. applied=false는 대조군.",
+ "branches": [
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+   "line": 36,
+   "col": 9,
+   "expr": "sourceLen == NULL",
+   "never": "참"
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+   "line": 37,
+   "col": 9,
+   "expr": "destLen == NULL",
+   "never": "참"
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+   "line": 37,
+   "col": 29,
+   "expr": "*destLen > 0",
+   "never": "거짓"
+  },
+  {
+   "fix": 2,
+   "applied": false,
+   "verdict": "NARROW",
+   "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+   "line": 36,
+   "col": 49,
+   "expr": "source == NULL",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "uncompress2_z(Bytef *, z_size_t *, const Bytef *, z_size_t *)",
+   "line": 37,
+   "col": 45,
+   "expr": "dest == NULL",
+   "never": "참"
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "inflate(z_streamp, int)",
+   "line": 717,
+   "col": 17,
+   "expr": "flush == Z_BLOCK",
+   "never": "참"
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "inflate(z_streamp, int)",
+   "line": 717,
+   "col": 37,
+   "expr": "flush == Z_TREES",
+   "never": "참"
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "inflate(z_streamp, int)",
+   "line": 739,
+   "col": 21,
+   "expr": "flush == Z_TREES",
+   "never": "참"
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "inflate(z_streamp, int)",
+   "line": 768,
+   "col": 17,
+   "expr": "flush == Z_TREES",
+   "never": "참"
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "inflate(z_streamp, int)",
+   "line": 917,
+   "col": 17,
+   "expr": "flush == Z_TREES",
+   "never": "참"
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "inflate(z_streamp, int)",
+   "line": 1142,
+   "col": 37,
+   "expr": "flush != Z_FINISH",
+   "never": "거짓"
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "inflate(z_streamp, int)",
+   "line": 1158,
+   "col": 35,
+   "expr": "flush == Z_FINISH",
+   "never": "참"
+  }
+ ]
+}

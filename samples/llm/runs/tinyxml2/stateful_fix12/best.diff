@@ -1,0 +1,14 @@
+--- 수정 전
++++ 시도 1
+@@ -177,6 +177,11 @@
+         case 14: {  // XMLPrinter 직접 사용
+             XMLPrinter printer(nullptr, fdp.ConsumeBool());
+             printer.PushHeader(fdp.ConsumeBool(), fdp.ConsumeBool());
++            XMLDocument bomDoc;  // [gapfuzz-llm] VisitEnter에 넘길 BOM 상태를 바꿔 볼 별도 문서
++            bomDoc.SetBOM(fdp.ConsumeBool());  // [gapfuzz-llm] doc.HasBOM()이 참/거짓 모두 나오도록 입력에서 BOM 설정을 고름
++            const int visitSel = fdp.ConsumeIntegralInRange<int>(0, 2);  // [gapfuzz-llm] VisitEnter 인자로 쓸 문서를 입력에서 선택
++            const XMLDocument &visitDoc = visitSel == 0 ? doc : (visitSel == 1 ? other : bomDoc);  // [gapfuzz-llm] 원래 doc도 계속 나오게 하면서 다른 문서도 선택
++            printer.VisitEnter(visitDoc);  // [gapfuzz-llm] 내부 Accept 경로 대신 VisitEnter(const XMLDocument&)를 직접 호출해 BOM 분기 도달
+             printer.OpenElement(str, fdp.ConsumeBool());
+             printer.PushAttribute("a", fdp.ConsumeIntegral<int>());
+             printer.PushText(fdp.ConsumeRandomLengthString(kMaxStr).c_str(), fdp.ConsumeBool());

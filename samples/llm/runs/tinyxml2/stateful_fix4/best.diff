@@ -1,0 +1,11 @@
+--- 수정 전
++++ 시도 1
+@@ -168,7 +168,7 @@
+         }
+         case 13: {  // 출력
+             XMLPrinter printer(nullptr, fdp.ConsumeBool(), fdp.ConsumeIntegralInRange<int>(0, 4));
+-            if (fdp.ConsumeBool()) doc.Print(&printer);
++            if (fdp.ConsumeBool()) doc.Print(fdp.ConsumeBool() ? &printer : nullptr);  // [gapfuzz-llm] streamer를 고정하지 않고 입력으로 &printer 또는 nullptr(문서상 허용, stdout 출력)을 골라 'streamer가 거짓'인 분기를 열기 위함
+             else cur->Accept(&printer);
+             printer.CStr();
+             printer.CStrSize();

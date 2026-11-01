@@ -1,0 +1,301 @@
+[
+ {
+  "verdict": "FIXED",
+  "apis": [
+   "cJSON_ParseWithOpts(const char *, const char **, cJSON_bool)"
+  ],
+  "param_index": 1,
+  "param_name": "return_parse_end",
+  "suggestions": [
+   "`cJSON_ParseWithOpts(const char *, const char **, cJSON_bool)`의 2번째 인자 `return_parse_end`를 하네스가 고정합니다(34행에서 항상 `0`) (라이브러리 내부 `cJSON_ParseWithLengthOpts`를 거쳐 조건에 쓰임) → 퍼저 입력으로 바꾸세요"
+  ],
+  "harness_lines": [
+   34
+  ],
+  "harness_source": [
+   "json = cJSON_ParseWithOpts((const char*)data + offset, NULL, require_termination);"
+  ],
+  "arg": [
+   {
+    "line": 34,
+    "kind": "literal",
+    "value": "0"
+   }
+  ],
+  "blocked": [
+   {
+    "api": "cJSON_ParseWithLengthOpts(const char *, size_t, const char **, cJSON_bool)",
+    "line": 1187,
+    "col": 9,
+    "expr": "return_parse_end",
+    "never": "참",
+    "source": "if (return_parse_end)"
+   },
+   {
+    "api": "cJSON_ParseWithLengthOpts(const char *, size_t, const char **, cJSON_bool)",
+    "line": 1215,
+    "col": 13,
+    "expr": "return_parse_end != NULL",
+    "never": "참",
+    "source": "if (return_parse_end != NULL)"
+   }
+  ],
+  "suggestion": "`cJSON_ParseWithOpts(const char *, const char **, cJSON_bool)`의 2번째 인자 `return_parse_end`를 하네스가 고정합니다(34행에서 항상 `0`) (라이브러리 내부 `cJSON_ParseWithLengthOpts`를 거쳐 조건에 쓰임) → 퍼저 입력으로 바꾸세요",
+  "checks": [
+   {
+    "api": "cJSON_ParseWithLengthOpts(const char *, size_t, const char **, cJSON_bool)",
+    "line": 1187,
+    "col": 9,
+    "expr": "return_parse_end",
+    "never": "참",
+    "source": "if (return_parse_end)",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "cJSON_ParseWithLengthOpts(const char *, size_t, const char **, cJSON_bool)",
+    "line": 1215,
+    "col": 13,
+    "expr": "return_parse_end != NULL",
+    "never": "참",
+    "source": "if (return_parse_end != NULL)",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   }
+  ],
+  "opened": 2,
+  "total": 2
+ },
+ {
+  "verdict": "FIXED",
+  "apis": [
+   "cJSON_PrintBuffered(const cJSON *, int, cJSON_bool)"
+  ],
+  "param_index": 1,
+  "param_name": "prebuffer",
+  "suggestions": [
+   "`cJSON_PrintBuffered(const cJSON *, int, cJSON_bool)`의 2번째 인자 `prebuffer`를 하네스가 고정합니다(40행에서 항상 `1`) → 퍼저 입력으로 바꾸세요"
+  ],
+  "harness_lines": [
+   40
+  ],
+  "harness_source": [
+   "printed_json = cJSON_PrintBuffered(json, 1, formatted);"
+  ],
+  "arg": [
+   {
+    "line": 40,
+    "kind": "literal",
+    "value": "1"
+   }
+  ],
+  "blocked": [
+   {
+    "api": "cJSON_PrintBuffered(const cJSON *, int, cJSON_bool)",
+    "line": 1321,
+    "col": 9,
+    "expr": "prebuffer < 0",
+    "never": "참",
+    "source": "if (prebuffer < 0)"
+   }
+  ],
+  "suggestion": "`cJSON_PrintBuffered(const cJSON *, int, cJSON_bool)`의 2번째 인자 `prebuffer`를 하네스가 고정합니다(40행에서 항상 `1`) → 퍼저 입력으로 바꾸세요",
+  "checks": [
+   {
+    "api": "cJSON_PrintBuffered(const cJSON *, int, cJSON_bool)",
+    "line": 1321,
+    "col": 9,
+    "expr": "prebuffer < 0",
+    "never": "참",
+    "source": "if (prebuffer < 0)",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   }
+  ],
+  "opened": 1,
+  "total": 1
+ },
+ {
+  "verdict": "NARROW",
+  "apis": [
+   "cJSON_ParseWithOpts(const char *, const char **, cJSON_bool)"
+  ],
+  "param_index": 0,
+  "param_name": "value",
+  "suggestions": [
+   "`cJSON_ParseWithOpts(const char *, const char **, cJSON_bool)`의 1번째 인자 `value`에 하네스가 null을 넘긴 적이 없습니다(34행) → nullptr도 넘겨 보세요"
+  ],
+  "harness_lines": [
+   34
+  ],
+  "harness_source": [
+   "json = cJSON_ParseWithOpts((const char*)data + offset, NULL, require_termination);"
+  ],
+  "arg": [
+   {
+    "line": 34,
+    "kind": "variable",
+    "value": null
+   }
+  ],
+  "blocked": [
+   {
+    "api": "cJSON_ParseWithOpts(const char *, const char **, cJSON_bool)",
+    "line": 1135,
+    "col": 9,
+    "expr": "NULL == value",
+    "never": "참",
+    "source": "if (NULL == value)"
+   },
+   {
+    "api": "cJSON_ParseWithLengthOpts(const char *, size_t, const char **, cJSON_bool)",
+    "line": 1156,
+    "col": 9,
+    "expr": "value == NULL",
+    "never": "참",
+    "source": "if (value == NULL || 0 == buffer_length)"
+   },
+   {
+    "api": "cJSON_ParseWithLengthOpts(const char *, size_t, const char **, cJSON_bool)",
+    "line": 1200,
+    "col": 9,
+    "expr": "value != NULL",
+    "never": "거짓",
+    "source": "if (value != NULL)"
+   }
+  ],
+  "suggestion": "`cJSON_ParseWithOpts(const char *, const char **, cJSON_bool)`의 1번째 인자 `value`에 하네스가 null을 넘긴 적이 없습니다(34행) → nullptr도 넘겨 보세요",
+  "checks": [
+   {
+    "api": "cJSON_ParseWithOpts(const char *, const char **, cJSON_bool)",
+    "line": 1135,
+    "col": 9,
+    "expr": "NULL == value",
+    "never": "참",
+    "source": "if (NULL == value)",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "cJSON_ParseWithLengthOpts(const char *, size_t, const char **, cJSON_bool)",
+    "line": 1156,
+    "col": 9,
+    "expr": "value == NULL",
+    "never": "참",
+    "source": "if (value == NULL || 0 == buffer_length)",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   },
+   {
+    "api": "cJSON_ParseWithLengthOpts(const char *, size_t, const char **, cJSON_bool)",
+    "line": 1200,
+    "col": 9,
+    "expr": "value != NULL",
+    "never": "거짓",
+    "source": "if (value != NULL)",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   }
+  ],
+  "opened": 1,
+  "total": 3
+ },
+ {
+  "verdict": "NARROW",
+  "apis": [
+   "cJSON_PrintBuffered(const cJSON *, int, cJSON_bool)"
+  ],
+  "param_index": 0,
+  "param_name": "item",
+  "suggestions": [
+   "`cJSON_PrintBuffered(const cJSON *, int, cJSON_bool)`의 1번째 인자 `item`에 하네스가 null을 넘긴 적이 없습니다(40행) → nullptr도 넘겨 보세요"
+  ],
+  "harness_lines": [
+   40
+  ],
+  "harness_source": [
+   "printed_json = cJSON_PrintBuffered(json, 1, formatted);"
+  ],
+  "arg": [
+   {
+    "line": 40,
+    "kind": "variable",
+    "value": null
+   }
+  ],
+  "blocked": [
+   {
+    "api": "cJSON_PrintBuffered(const cJSON *, int, cJSON_bool)",
+    "line": 1427,
+    "col": 9,
+    "expr": "(item == NULL)",
+    "never": "참",
+    "source": "if ((item == NULL) || (output_buffer == NULL))"
+   }
+  ],
+  "suggestion": "`cJSON_PrintBuffered(const cJSON *, int, cJSON_bool)`의 1번째 인자 `item`에 하네스가 null을 넘긴 적이 없습니다(40행) → nullptr도 넘겨 보세요",
+  "checks": [
+   {
+    "api": "cJSON_PrintBuffered(const cJSON *, int, cJSON_bool)",
+    "line": 1427,
+    "col": 9,
+    "expr": "(item == NULL)",
+    "never": "참",
+    "source": "if ((item == NULL) || (output_buffer == NULL))",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   }
+  ],
+  "opened": 1,
+  "total": 1
+ },
+ {
+  "verdict": "NARROW",
+  "apis": [
+   "cJSON_Minify(char *)"
+  ],
+  "param_index": 0,
+  "param_name": "json",
+  "suggestions": [
+   "`cJSON_Minify(char *)`의 1번째 인자 `json`에 하네스가 null을 넘긴 적이 없습니다(64행) → nullptr도 넘겨 보세요"
+  ],
+  "harness_lines": [
+   64
+  ],
+  "harness_source": [
+   "cJSON_Minify((char*)copied + offset);"
+  ],
+  "arg": [
+   {
+    "line": 64,
+    "kind": "variable",
+    "value": null
+   }
+  ],
+  "blocked": [
+   {
+    "api": "cJSON_Minify(char *)",
+    "line": 2928,
+    "col": 9,
+    "expr": "json == NULL",
+    "never": "참",
+    "source": "if (json == NULL)"
+   }
+  ],
+  "suggestion": "`cJSON_Minify(char *)`의 1번째 인자 `json`에 하네스가 null을 넘긴 적이 없습니다(64행) → nullptr도 넘겨 보세요",
+  "checks": [
+   {
+    "api": "cJSON_Minify(char *)",
+    "line": 2928,
+    "col": 9,
+    "expr": "json == NULL",
+    "never": "참",
+    "source": "if (json == NULL)",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   }
+  ],
+  "opened": 0,
+  "total": 1
+ }
+]

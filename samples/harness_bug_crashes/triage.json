@@ -1,0 +1,35 @@
+{
+ "meta": {
+  "name": "stateful_before_fix",
+  "binary": "(수정 전 하네스로 빌드한 fuzz 바이너리)",
+  "repeat": 3
+ },
+ "crashes": [
+  {
+   "files": [
+    "samples/harness_bug_crashes/crash-53ea33affa0f17847507da4a5615a21de43dafc4",
+    "samples/harness_bug_crashes/crash-fa82dabc3c6edc047ea5a64316b12c574669ffaa"
+   ],
+   "kind": "heap-use-after-free",
+   "summary": "AddressSanitizer: heap-use-after-free /home/claude/gapfuzz/third_party/tinyxml2/tinyxml2.h:2342:55 in tinyxml2::XMLPrinter::Write(char const*)",
+   "signature": "292bc79558ba",
+   "verdict": {
+    "cls": "HARNESS",
+    "confidence": "강",
+    "reason": "메모리를 해제한 곳이 하네스 — 하네스가 넘긴 메모리의 수명이 라이브러리 사용보다 짧음",
+    "evidence": [
+     "오류 지점: `tinyxml2::XMLPrinter::Write` @ third_party/tinyxml2/tinyxml2.h:2342 (library)",
+     "해제 위치: `LLVMFuzzerTestOneInput` @ ../../..samples/harness_bug_crashes/stateful_before_fix.cpp:236 (harness)",
+     "할당 위치: `FuzzedDataProvider::ConsumeRandomLengthString[abi:cxx11]` @ harnesses/include/fuzzer/FuzzedDataProvider.h:175 (harness)"
+    ]
+   },
+   "reproduced": "3/3",
+   "top_frames": [
+    "tinyxml2::XMLPrinter::Write [library]",
+    "tinyxml2::XMLPrinter::OpenElement [library]",
+    "tinyxml2::XMLPrinter::VisitEnter [library]",
+    "tinyxml2::XMLElement::Accept [library]"
+   ]
+  }
+ ]
+}

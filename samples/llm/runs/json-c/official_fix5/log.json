@@ -1,0 +1,99 @@
+{
+ "target": "json-c",
+ "harness": "official",
+ "fix": 5,
+ "model": "claude-sonnet-5-5",
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 11.5,
+   "usage": {
+    "input_tokens": 1396,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1434,
+    "output_tokens_details": {
+     "thinking_tokens": 697
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+   },
+   "harness": "harnesses/json-c/llm/official_fix5/try1.cc",
+   "stage": "fuzz",
+   "opened": 0,
+   "total": 1,
+   "still": [
+    "`json_object_array_shrink(struct json_object *, int)` 1849행 `empty_slots < 0`"
+   ],
+   "crashes": [],
+   "ok": false,
+   "complete": false
+  },
+  {
+   "try": 2,
+   "llm_seconds": 15.8,
+   "usage": {
+    "input_tokens": 2267,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 2029,
+    "output_tokens_details": {
+     "thinking_tokens": 1217
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+   },
+   "harness": "harnesses/json-c/llm/official_fix5/try2.cc",
+   "stage": "fuzz",
+   "opened": 0,
+   "total": 1,
+   "still": [
+    "`json_object_array_shrink(struct json_object *, int)` 1849행 `empty_slots < 0`"
+   ],
+   "crashes": [],
+   "ok": false,
+   "complete": false
+  },
+  {
+   "try": 3,
+   "llm_seconds": 9.6,
+   "usage": {
+    "input_tokens": 3213,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1290,
+    "output_tokens_details": {
+     "thinking_tokens": 510
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+   },
+   "harness": "harnesses/json-c/llm/official_fix5/try3.cc",
+   "stage": "fuzz",
+   "opened": 0,
+   "total": 1,
+   "still": [
+    "`json_object_array_shrink(struct json_object *, int)` 1849행 `empty_slots < 0`"
+   ],
+   "crashes": [],
+   "ok": false,
+   "complete": false
+  }
+ ],
+ "best": null
+}

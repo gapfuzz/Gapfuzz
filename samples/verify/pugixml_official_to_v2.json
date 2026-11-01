@@ -1,0 +1,767 @@
+[
+ {
+  "verdict": "FIXED",
+  "apis": [
+   "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)"
+  ],
+  "param_index": 3,
+  "param_name": "encoding",
+  "suggestions": [
+   "`xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)`의 4번째 인자 `encoding`를 하네스가 고정합니다(9행에서 기본값, 10행에서 기본값, 11행에서 기본값) (라이브러리 내부 `impl::{익명}::load_buffer_impl` → `impl::{익명}::get_buffer_encoding`를 거쳐 조건에 쓰임) → 퍼저 입력으로 바꾸세요"
+  ],
+  "harness_lines": [
+   9,
+   10,
+   11
+  ],
+  "harness_source": [
+   "doc.load_buffer(Data, Size);",
+   "doc.load_buffer(Data, Size, pugi::parse_minimal);"
+  ],
+  "arg": [
+   {
+    "line": 9,
+    "kind": "default",
+    "value": null
+   },
+   {
+    "line": 10,
+    "kind": "default",
+    "value": null
+   },
+   {
+    "line": 11,
+    "kind": "default",
+    "value": null
+   }
+  ],
+  "blocked": [
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2106,
+    "col": 7,
+    "expr": "encoding == encoding_wchar",
+    "never": "참",
+    "source": "if (encoding == encoding_wchar) return get_wchar_encoding();"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2109,
+    "col": 7,
+    "expr": "encoding == encoding_utf16",
+    "never": "참",
+    "source": "if (encoding == encoding_utf16) return is_little_endian() ? encoding_utf16_le : encoding_utf16_be;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2112,
+    "col": 7,
+    "expr": "encoding == encoding_utf32",
+    "never": "참",
+    "source": "if (encoding == encoding_utf32) return is_little_endian() ? encoding_utf32_le : encoding_utf32_be;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2115,
+    "col": 7,
+    "expr": "encoding != encoding_auto",
+    "never": "참",
+    "source": "if (encoding != encoding_auto) return encoding;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 4864,
+    "col": 7,
+    "expr": "!impl::convert_buffer(buffer, length, buffer_encoding, contents, size, is_mutable)",
+    "never": "참",
+    "source": "if (!impl::convert_buffer(buffer, length, buffer_encoding, contents, size, is_mutable)) return impl::make_parse_result(status_out_of_memory);"
+   }
+  ],
+  "suggestion": "`xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)`의 4번째 인자 `encoding`를 하네스가 고정합니다(9행에서 기본값, 10행에서 기본값, 11행에서 기본값) (라이브러리 내부 `impl::{익명}::load_buffer_impl` → `impl::{익명}::get_buffer_encoding`를 거쳐 조건에 쓰임) → 퍼저 입력으로 바꾸세요",
+  "checks": [
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2106,
+    "col": 7,
+    "expr": "encoding == encoding_wchar",
+    "never": "참",
+    "source": "if (encoding == encoding_wchar) return get_wchar_encoding();",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2109,
+    "col": 7,
+    "expr": "encoding == encoding_utf16",
+    "never": "참",
+    "source": "if (encoding == encoding_utf16) return is_little_endian() ? encoding_utf16_le : encoding_utf16_be;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2112,
+    "col": 7,
+    "expr": "encoding == encoding_utf32",
+    "never": "참",
+    "source": "if (encoding == encoding_utf32) return is_little_endian() ? encoding_utf32_le : encoding_utf32_be;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2115,
+    "col": 7,
+    "expr": "encoding != encoding_auto",
+    "never": "참",
+    "source": "if (encoding != encoding_auto) return encoding;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 4864,
+    "col": 7,
+    "expr": "!impl::convert_buffer(buffer, length, buffer_encoding, contents, size, is_mutable)",
+    "never": "참",
+    "source": "if (!impl::convert_buffer(buffer, length, buffer_encoding, contents, size, is_mutable)) return impl::make_parse_result(status_out_of_memory);",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   }
+  ],
+  "opened": 4,
+  "total": 5
+ },
+ {
+  "verdict": "SETTER_NOT_CALLED",
+  "apis": [
+   "xml_node::xml_node(xml_node_struct *)"
+  ],
+  "param_index": 0,
+  "param_name": "p",
+  "suggestions": [
+   "하네스가 `xml_node::xml_node(xml_node_struct *)`를 부르지 않아 1번째 인자 `p` 값이 들어가지 않습니다 (필드 `_root`를 거쳐 조건에 쓰임) → 호출을 추가하세요"
+  ],
+  "harness_lines": [],
+  "harness_source": [],
+  "arg": [],
+  "blocked": [
+   {
+    "api": "xml_document::reset()",
+    "line": 7680,
+    "col": 103,
+    "expr": "extra",
+    "never": "참",
+    "source": "for (impl::xml_extra_buffer* extra = static_cast<impl::xml_document_struct*>(_root)->extra_buffers; extra; extra = extra->next)"
+   }
+  ],
+  "suggestion": "하네스가 `xml_node::xml_node(xml_node_struct *)`를 부르지 않아 1번째 인자 `p` 값이 들어가지 않습니다 (필드 `_root`를 거쳐 조건에 쓰임) → 호출을 추가하세요",
+  "checks": [
+   {
+    "api": "xml_document::reset()",
+    "line": 7680,
+    "col": 103,
+    "expr": "extra",
+    "never": "참",
+    "source": "for (impl::xml_extra_buffer* extra = static_cast<impl::xml_document_struct*>(_root)->extra_buffers; extra; extra = extra->next)",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   }
+  ],
+  "opened": 0,
+  "total": 1
+ },
+ {
+  "verdict": "NARROW",
+  "apis": [
+   "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)"
+  ],
+  "param_index": 2,
+  "param_name": "options",
+  "suggestions": [
+   "`xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)`의 3번째 인자 `options`를 하네스가 `기본값`, `parse_minimal`, `parse_full` 중에서만 고릅니다(9행, 10행, 11행) (라이브러리 내부 `impl::{익명}::load_buffer_impl` → `impl::{익명}::xml_parser::parse` → `impl::{익명}::xml_parser::parse_tree` → `impl::{익명}::get_strconv_pcdata`를 거쳐 조건에 쓰임) → 나머지 값도 나오게 하세요"
+  ],
+  "harness_lines": [
+   9,
+   10,
+   11
+  ],
+  "harness_source": [
+   "doc.load_buffer(Data, Size);",
+   "doc.load_buffer(Data, Size, pugi::parse_minimal);"
+  ],
+  "arg": [
+   {
+    "line": 9,
+    "kind": "default",
+    "value": null
+   },
+   {
+    "line": 10,
+    "kind": "literal",
+    "value": "parse_minimal"
+   },
+   {
+    "line": 11,
+    "kind": "literal",
+    "value": "parse_full"
+   }
+  ],
+  "blocked": [
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2800,
+    "col": 3,
+    "expr": "case 1",
+    "never": "참",
+    "source": "case 1: return strconv_pcdata_impl<opt_false, opt_false, opt_true>::parse;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2801,
+    "col": 3,
+    "expr": "case 2",
+    "never": "참",
+    "source": "case 2: return strconv_pcdata_impl<opt_false, opt_true, opt_false>::parse;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2803,
+    "col": 3,
+    "expr": "case 4",
+    "never": "참",
+    "source": "case 4: return strconv_pcdata_impl<opt_true, opt_false, opt_false>::parse;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2804,
+    "col": 3,
+    "expr": "case 5",
+    "never": "참",
+    "source": "case 5: return strconv_pcdata_impl<opt_true, opt_false, opt_true>::parse;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2805,
+    "col": 3,
+    "expr": "case 6",
+    "never": "참",
+    "source": "case 6: return strconv_pcdata_impl<opt_true, opt_true, opt_false>::parse;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2806,
+    "col": 3,
+    "expr": "case 7",
+    "never": "참",
+    "source": "case 7: return strconv_pcdata_impl<opt_true, opt_true, opt_true>::parse;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2807,
+    "col": 3,
+    "expr": "default",
+    "never": "참",
+    "source": "default: assert(false); return NULL; // unreachable"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2969,
+    "col": 3,
+    "expr": "case 1",
+    "never": "참",
+    "source": "case 1:  return strconv_attribute_impl<opt_true>::parse_simple;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2970,
+    "col": 3,
+    "expr": "case 2",
+    "never": "참",
+    "source": "case 2:  return strconv_attribute_impl<opt_false>::parse_eol;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2971,
+    "col": 3,
+    "expr": "case 3",
+    "never": "참",
+    "source": "case 3:  return strconv_attribute_impl<opt_true>::parse_eol;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2972,
+    "col": 3,
+    "expr": "case 4",
+    "never": "참",
+    "source": "case 4:  return strconv_attribute_impl<opt_false>::parse_wconv;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2973,
+    "col": 3,
+    "expr": "case 5",
+    "never": "참",
+    "source": "case 5:  return strconv_attribute_impl<opt_true>::parse_wconv;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2974,
+    "col": 3,
+    "expr": "case 6",
+    "never": "참",
+    "source": "case 6:  return strconv_attribute_impl<opt_false>::parse_wconv;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2976,
+    "col": 3,
+    "expr": "case 8",
+    "never": "참",
+    "source": "case 8:  return strconv_attribute_impl<opt_false>::parse_wnorm;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2977,
+    "col": 3,
+    "expr": "case 9",
+    "never": "참",
+    "source": "case 9:  return strconv_attribute_impl<opt_true>::parse_wnorm;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2978,
+    "col": 3,
+    "expr": "case 10",
+    "never": "참",
+    "source": "case 10: return strconv_attribute_impl<opt_false>::parse_wnorm;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2979,
+    "col": 3,
+    "expr": "case 11",
+    "never": "참",
+    "source": "case 11: return strconv_attribute_impl<opt_true>::parse_wnorm;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2980,
+    "col": 3,
+    "expr": "case 12",
+    "never": "참",
+    "source": "case 12: return strconv_attribute_impl<opt_false>::parse_wnorm;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2981,
+    "col": 3,
+    "expr": "case 13",
+    "never": "참",
+    "source": "case 13: return strconv_attribute_impl<opt_true>::parse_wnorm;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2982,
+    "col": 3,
+    "expr": "case 14",
+    "never": "참",
+    "source": "case 14: return strconv_attribute_impl<opt_false>::parse_wnorm;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2983,
+    "col": 3,
+    "expr": "case 15",
+    "never": "참",
+    "source": "case 15: return strconv_attribute_impl<opt_true>::parse_wnorm;"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2984,
+    "col": 3,
+    "expr": "default",
+    "never": "참",
+    "source": "default: assert(false); return NULL; // unreachable"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 3515,
+    "col": 11,
+    "expr": "!PUGI_IMPL_OPTSET",
+    "never": "거짓",
+    "source": "if (!PUGI_IMPL_OPTSET(parse_ws_pcdata | parse_ws_pcdata_single) || PUGI_IMPL_OPTSET(parse_trim_pcdata))"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 3525,
+    "col": 10,
+    "expr": "!PUGI_IMPL_OPTSET",
+    "never": "거짓",
+    "source": "if (!PUGI_IMPL_OPTSET(parse_trim_pcdata))"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 3642,
+    "col": 9,
+    "expr": "!PUGI_IMPL_OPTSET",
+    "never": "거짓",
+    "source": "if (!PUGI_IMPL_OPTSET(parse_fragment) && !has_element_node_siblings(first_root_child_parsed))"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 4855,
+    "col": 48,
+    "expr": "(options & parse_fragment)",
+    "never": "참",
+    "source": "xml_parse_result result = make_parse_result((options & parse_fragment) ? status_ok : status_no_document_element);"
+   }
+  ],
+  "suggestion": "`xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)`의 3번째 인자 `options`를 하네스가 `기본값`, `parse_minimal`, `parse_full` 중에서만 고릅니다(9행, 10행, 11행) (라이브러리 내부 `impl::{익명}::load_buffer_impl` → `impl::{익명}::xml_parser::parse` → `impl::{익명}::xml_parser::parse_tree` → `impl::{익명}::get_strconv_pcdata`를 거쳐 조건에 쓰임) → 나머지 값도 나오게 하세요",
+  "checks": [
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2800,
+    "col": 3,
+    "expr": "case 1",
+    "never": "참",
+    "source": "case 1: return strconv_pcdata_impl<opt_false, opt_false, opt_true>::parse;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2801,
+    "col": 3,
+    "expr": "case 2",
+    "never": "참",
+    "source": "case 2: return strconv_pcdata_impl<opt_false, opt_true, opt_false>::parse;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2803,
+    "col": 3,
+    "expr": "case 4",
+    "never": "참",
+    "source": "case 4: return strconv_pcdata_impl<opt_true, opt_false, opt_false>::parse;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2804,
+    "col": 3,
+    "expr": "case 5",
+    "never": "참",
+    "source": "case 5: return strconv_pcdata_impl<opt_true, opt_false, opt_true>::parse;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2805,
+    "col": 3,
+    "expr": "case 6",
+    "never": "참",
+    "source": "case 6: return strconv_pcdata_impl<opt_true, opt_true, opt_false>::parse;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2806,
+    "col": 3,
+    "expr": "case 7",
+    "never": "참",
+    "source": "case 7: return strconv_pcdata_impl<opt_true, opt_true, opt_true>::parse;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2807,
+    "col": 3,
+    "expr": "default",
+    "never": "참",
+    "source": "default: assert(false); return NULL; // unreachable",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2969,
+    "col": 3,
+    "expr": "case 1",
+    "never": "참",
+    "source": "case 1:  return strconv_attribute_impl<opt_true>::parse_simple;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2970,
+    "col": 3,
+    "expr": "case 2",
+    "never": "참",
+    "source": "case 2:  return strconv_attribute_impl<opt_false>::parse_eol;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2971,
+    "col": 3,
+    "expr": "case 3",
+    "never": "참",
+    "source": "case 3:  return strconv_attribute_impl<opt_true>::parse_eol;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2972,
+    "col": 3,
+    "expr": "case 4",
+    "never": "참",
+    "source": "case 4:  return strconv_attribute_impl<opt_false>::parse_wconv;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2973,
+    "col": 3,
+    "expr": "case 5",
+    "never": "참",
+    "source": "case 5:  return strconv_attribute_impl<opt_true>::parse_wconv;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2974,
+    "col": 3,
+    "expr": "case 6",
+    "never": "참",
+    "source": "case 6:  return strconv_attribute_impl<opt_false>::parse_wconv;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2976,
+    "col": 3,
+    "expr": "case 8",
+    "never": "참",
+    "source": "case 8:  return strconv_attribute_impl<opt_false>::parse_wnorm;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2977,
+    "col": 3,
+    "expr": "case 9",
+    "never": "참",
+    "source": "case 9:  return strconv_attribute_impl<opt_true>::parse_wnorm;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2978,
+    "col": 3,
+    "expr": "case 10",
+    "never": "참",
+    "source": "case 10: return strconv_attribute_impl<opt_false>::parse_wnorm;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2979,
+    "col": 3,
+    "expr": "case 11",
+    "never": "참",
+    "source": "case 11: return strconv_attribute_impl<opt_true>::parse_wnorm;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2980,
+    "col": 3,
+    "expr": "case 12",
+    "never": "참",
+    "source": "case 12: return strconv_attribute_impl<opt_false>::parse_wnorm;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2981,
+    "col": 3,
+    "expr": "case 13",
+    "never": "참",
+    "source": "case 13: return strconv_attribute_impl<opt_true>::parse_wnorm;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2982,
+    "col": 3,
+    "expr": "case 14",
+    "never": "참",
+    "source": "case 14: return strconv_attribute_impl<opt_false>::parse_wnorm;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2983,
+    "col": 3,
+    "expr": "case 15",
+    "never": "참",
+    "source": "case 15: return strconv_attribute_impl<opt_true>::parse_wnorm;",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2984,
+    "col": 3,
+    "expr": "default",
+    "never": "참",
+    "source": "default: assert(false); return NULL; // unreachable",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 3515,
+    "col": 11,
+    "expr": "!PUGI_IMPL_OPTSET",
+    "never": "거짓",
+    "source": "if (!PUGI_IMPL_OPTSET(parse_ws_pcdata | parse_ws_pcdata_single) || PUGI_IMPL_OPTSET(parse_trim_pcdata))",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 3525,
+    "col": 10,
+    "expr": "!PUGI_IMPL_OPTSET",
+    "never": "거짓",
+    "source": "if (!PUGI_IMPL_OPTSET(parse_trim_pcdata))",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 3642,
+    "col": 9,
+    "expr": "!PUGI_IMPL_OPTSET",
+    "never": "거짓",
+    "source": "if (!PUGI_IMPL_OPTSET(parse_fragment) && !has_element_node_siblings(first_root_child_parsed))",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 4855,
+    "col": 48,
+    "expr": "(options & parse_fragment)",
+    "never": "참",
+    "source": "xml_parse_result result = make_parse_result((options & parse_fragment) ? status_ok : status_no_document_element);",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   }
+  ],
+  "opened": 24,
+  "total": 26
+ },
+ {
+  "verdict": "NARROW",
+  "apis": [
+   "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)"
+  ],
+  "param_index": 0,
+  "param_name": "contents",
+  "suggestions": [
+   "`xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)`의 1번째 인자 `contents`에 하네스가 null을 넘긴 적이 없습니다(9행, 10행, 11행) → nullptr도 넘겨 보세요"
+  ],
+  "harness_lines": [
+   9,
+   10,
+   11
+  ],
+  "harness_source": [
+   "doc.load_buffer(Data, Size);",
+   "doc.load_buffer(Data, Size, pugi::parse_minimal);"
+  ],
+  "arg": [
+   {
+    "line": 9,
+    "kind": "variable",
+    "value": null
+   },
+   {
+    "line": 10,
+    "kind": "variable",
+    "value": null
+   },
+   {
+    "line": 11,
+    "kind": "variable",
+    "value": null
+   }
+  ],
+  "blocked": [
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2138,
+    "col": 8,
+    "expr": "contents",
+    "never": "거짓",
+    "source": "if (contents)"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 4844,
+    "col": 7,
+    "expr": "!contents",
+    "never": "참",
+    "source": "if (!contents && size) return make_parse_result(status_io_error);"
+   }
+  ],
+  "suggestion": "`xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)`의 1번째 인자 `contents`에 하네스가 null을 넘긴 적이 없습니다(9행, 10행, 11행) → nullptr도 넘겨 보세요",
+  "checks": [
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 2138,
+    "col": 8,
+    "expr": "contents",
+    "never": "거짓",
+    "source": "if (contents)",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   },
+   {
+    "api": "xml_document::load_buffer(const void *, size_t, unsigned int, xml_encoding)",
+    "line": 4844,
+    "col": 7,
+    "expr": "!contents",
+    "never": "참",
+    "source": "if (!contents && size) return make_parse_result(status_io_error);",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   }
+  ],
+  "opened": 1,
+  "total": 2
+ }
+]

@@ -1,0 +1,172 @@
+[
+ {
+  "bug": "del",
+  "harness": "stateful_v3",
+  "trial": 1,
+  "found": true,
+  "crashed": true,
+  "seconds": 1.0,
+  "kind": "SEGV",
+  "top_lib_frame": "tinyxml2::XMLDocument::DeleteNode(tinyxml2::XMLNode*)",
+  "crash_file": "crash-0908d7e8b0bd89eec192d766ee100111a946a0f4",
+  "triage": "LIBRARY"
+ },
+ {
+  "bug": "del",
+  "harness": "official",
+  "trial": 1,
+  "found": false,
+  "crashed": false,
+  "seconds": null,
+  "kind": "",
+  "top_lib_frame": "",
+  "crash_file": null
+ },
+ {
+  "bug": "del",
+  "harness": "stateful",
+  "trial": 1,
+  "found": false,
+  "crashed": false,
+  "seconds": null,
+  "kind": "",
+  "top_lib_frame": "",
+  "crash_file": null
+ },
+ {
+  "bug": "del",
+  "harness": "stateful_v3",
+  "trial": 2,
+  "found": true,
+  "crashed": true,
+  "seconds": 0.6,
+  "kind": "SEGV",
+  "top_lib_frame": "tinyxml2::XMLDocument::DeleteNode(tinyxml2::XMLNode*)",
+  "crash_file": "crash-dead2f515c20d68fd91f029de1fc7ce5e92f83f6",
+  "triage": "LIBRARY"
+ },
+ {
+  "bug": "del",
+  "harness": "official",
+  "trial": 2,
+  "found": false,
+  "crashed": false,
+  "seconds": null,
+  "kind": "",
+  "top_lib_frame": "",
+  "crash_file": null
+ },
+ {
+  "bug": "del",
+  "harness": "stateful",
+  "trial": 2,
+  "found": false,
+  "crashed": false,
+  "seconds": null,
+  "kind": "",
+  "top_lib_frame": "",
+  "crash_file": null
+ },
+ {
+  "bug": "del",
+  "harness": "stateful_v3",
+  "trial": 3,
+  "found": true,
+  "crashed": true,
+  "seconds": 0.5,
+  "kind": "SEGV",
+  "top_lib_frame": "tinyxml2::XMLDocument::DeleteNode(tinyxml2::XMLNode*)",
+  "crash_file": "crash-5495b53a940ffce56d6dcd5dc35bd14f521bd6c9",
+  "triage": "LIBRARY"
+ },
+ {
+  "bug": "del",
+  "harness": "official",
+  "trial": 3,
+  "found": false,
+  "crashed": false,
+  "seconds": null,
+  "kind": "",
+  "top_lib_frame": "",
+  "crash_file": null
+ },
+ {
+  "bug": "del",
+  "harness": "stateful",
+  "trial": 3,
+  "found": false,
+  "crashed": false,
+  "seconds": null,
+  "kind": "",
+  "top_lib_frame": "",
+  "crash_file": null
+ },
+ {
+  "bug": "del",
+  "harness": "stateful_v3",
+  "trial": 4,
+  "found": true,
+  "crashed": true,
+  "seconds": 0.4,
+  "kind": "SEGV",
+  "top_lib_frame": "tinyxml2::XMLDocument::DeleteNode(tinyxml2::XMLNode*)",
+  "crash_file": "crash-28dc2bf7c67fa8f9be4a823bc7fd9b27dd9c9cb3",
+  "triage": "LIBRARY"
+ },
+ {
+  "bug": "del",
+  "harness": "official",
+  "trial": 4,
+  "found": false,
+  "crashed": false,
+  "seconds": null,
+  "kind": "",
+  "top_lib_frame": "",
+  "crash_file": null
+ },
+ {
+  "bug": "del",
+  "harness": "stateful",
+  "trial": 4,
+  "found": false,
+  "crashed": false,
+  "seconds": null,
+  "kind": "",
+  "top_lib_frame": "",
+  "crash_file": null
+ },
+ {
+  "bug": "del",
+  "harness": "stateful_v3",
+  "trial": 5,
+  "found": true,
+  "crashed": true,
+  "seconds": 0.3,
+  "kind": "SEGV",
+  "top_lib_frame": "tinyxml2::XMLDocument::DeleteNode(tinyxml2::XMLNode*)",
+  "crash_file": "crash-31e916433c48fb4b1fcb7509d4eb5dc4b7db9db4",
+  "triage": "LIBRARY"
+ },
+ {
+  "bug": "del",
+  "harness": "official",
+  "trial": 5,
+  "found": false,
+  "crashed": false,
+  "seconds": null,
+  "kind": "",
+  "top_lib_frame": "",
+  "crash_file": null
+ },
+ {
+  "bug": "del",
+  "harness": "stateful",
+  "trial": 5,
+  "found": false,
+  "crashed": false,
+  "seconds": null,
+  "kind": "",
+  "top_lib_frame": "",
+  "crash_file": null
+ }
+]

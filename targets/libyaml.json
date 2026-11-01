@@ -1,0 +1,33 @@
+{
+ "name": "libyaml",
+ "repo": "https://github.com/yaml/libyaml.git",
+ "commit": "90a56d4500aa1a1798514c5cb55c3ad4cb095f94",
+ "clone_dir": "third_party/libyaml",
+ "lang": "c",
+ "lib_dir": "third_party/libyaml",
+ "sources": [
+  "src/api.c",
+  "src/reader.c",
+  "src/scanner.c",
+  "src/parser.c",
+  "src/loader.c",
+  "src/writer.c",
+  "src/emitter.c",
+  "src/dumper.c"
+ ],
+ "header": "include/yaml.h",
+ "include_dirs": [
+  "include",
+  "src"
+ ],
+ "namespace": "",
+ "internal_classes": [],
+ "dict": "dicts/libyaml_yaml.dict",
+ "cflags": [
+  "-DYAML_VERSION_MAJOR=0",
+  "-DYAML_VERSION_MINOR=2",
+  "-DYAML_VERSION_PATCH=5",
+  "-DYAML_VERSION_STRING=\"0.2.5\""
+ ],
+ "internal_branches": true
+}

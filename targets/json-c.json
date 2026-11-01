@@ -1,0 +1,43 @@
+{
+ "name": "json-c",
+ "repo": "https://github.com/json-c/json-c.git",
+ "commit": "d9b375ff1b4ea0305566527e377ecf6545771e80",
+ "clone_dir": "third_party/json-c",
+ "lang": "c",
+ "lib_dir": "third_party/json-c",
+ "sources": [
+  "arraylist.c",
+  "debug.c",
+  "json_c_version.c",
+  "json_object.c",
+  "json_object_iterator.c",
+  "json_tokener.c",
+  "json_util.c",
+  "json_visit.c",
+  "linkhash.c",
+  "printbuf.c",
+  "random_seed.c",
+  "strerror_override.c",
+  "json_pointer.c",
+  "json_patch.c"
+ ],
+ "header": [
+  "json_object.h",
+  "json_tokener.h",
+  "json_util.h",
+  "json_pointer.h",
+  "json_patch.h",
+  "json_visit.h",
+  "json_object_iterator.h"
+ ],
+ "include_dirs": [
+  "../../harnesses/json-c/cfg"
+ ],
+ "namespace": "",
+ "internal_classes": [],
+ "dict": "dicts/jsonc_tokener.dict",
+ "cflags": [
+  "-D_GNU_SOURCE"
+ ],
+ "internal_branches": true
+}

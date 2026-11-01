@@ -1,0 +1,38 @@
+--- 수정 전
++++ 시도 1
+@@ -10,13 +10,34 @@
+ #include "zlib.h"
+ 
+ static Bytef buffer[256 * 1024] = { 0 };
++static Bytef inflate_out[256 * 1024] = { 0 };  // [gapfuzz-llm] inflate를 직접 호출할 때 쓸 출력 버퍼
+ 
+ // Entry point for LibFuzzer.
+ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
+   uLongf buffer_length = static_cast<uLongf>(sizeof(buffer));
+   if (Z_OK != uncompress(buffer, &buffer_length, data,
+                          static_cast<uLong>(size))) {
+-    return 0;
++    // [gapfuzz-llm] 기존에는 여기서 바로 return 했지만, 실패한 입력도 inflate 직접 호출에 쓰도록 아래로 이어서 진행
++  }
++
++  if (size > 1) {  // [gapfuzz-llm] 첫 바이트는 flush 선택용, 나머지는 압축 스트림으로 사용
++    static const int kFlushModes[] = {Z_NO_FLUSH, Z_SYNC_FLUSH, Z_FINISH,
++                                      Z_BLOCK, Z_TREES};  // [gapfuzz-llm] inflate가 문서상 허용하는 flush 값들(기존 Z_NO_FLUSH 포함)
++    int flush = kFlushModes[data[0] % (sizeof(kFlushModes) / sizeof(kFlushModes[0]))];  // [gapfuzz-llm] 퍼저 입력으로 flush 값을 골라 Z_BLOCK/Z_TREES/Z_FINISH 분기 도달
++
++    z_stream strm;
++    memset(&strm, 0, sizeof(strm));
++    if (inflateInit(&strm) == Z_OK) {
++      strm.next_in = const_cast<Bytef*>(data + 1);
++      strm.avail_in = static_cast<uInt>(size - 1);
++      for (int iter = 0; iter < 1024; ++iter) {  // [gapfuzz-llm] Z_BLOCK/Z_TREES는 경계마다 반환하므로 반복 호출(무한 루프 방지용 상한)
++        strm.next_out = inflate_out;
++        strm.avail_out = static_cast<uInt>(sizeof(inflate_out));
++        int ret = inflate(&strm, flush);  // [gapfuzz-llm] 하네스가 inflate를 직접 호출하여 다양한 flush 전달
++        if (ret != Z_OK) break;
++      }
++      inflateEnd(&strm);  // [gapfuzz-llm] 할당된 inflate 상태 해제
++    }
+   }
+   return 0;
+ }

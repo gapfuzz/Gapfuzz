@@ -1,0 +1,87 @@
+{
+ "lib": "expat",
+ "source": "samples/verify/expat_official_to_v2.json",
+ "note": "수정 전(official, 2분 r1) 분석에서 '고칠 곳'이 겨냥한 분기. applied=false는 대조군.",
+ "branches": [
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "XML_ParserReset(XML_Parser, const XML_Char *)",
+   "line": 1668,
+   "col": 7,
+   "expr": "encodingName",
+   "never": "참"
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+   "line": 8298,
+   "col": 7,
+   "expr": "context == NULL",
+   "never": "참"
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+   "line": 8306,
+   "col": 9,
+   "expr": "*s == CONTEXT_SEP",
+   "never": "참"
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+   "line": 8314,
+   "col": 11,
+   "expr": "*s != XML_T",
+   "never": "참"
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+   "line": 8345,
+   "col": 29,
+   "expr": "*context != CONTEXT_SEP",
+   "never": "거짓"
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+   "line": 8356,
+   "col": 11,
+   "expr": "*context != XML_T",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "verdict": "NARROW",
+   "api": "XML_Parse(XML_Parser, const char *, int, int)",
+   "line": 2339,
+   "col": 21,
+   "expr": "(s == NULL)",
+   "never": "참"
+  },
+  {
+   "fix": 4,
+   "applied": false,
+   "verdict": "NARROW",
+   "api": "XML_SetHashSalt16Bytes(XML_Parser, const uint8_t *)",
+   "line": 2316,
+   "col": 7,
+   "expr": "entropy == NULL",
+   "never": "참"
+  }
+ ]
+}

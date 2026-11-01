@@ -1,0 +1,5 @@
+out/
+third_party/
+results/
+presentation/shots/
+**/__pycache__/

@@ -1,0 +1,16 @@
+--- 수정 전
++++ 시도 1
+@@ -61,7 +61,7 @@
+ 
+         memcpy(copied, data, size);
+ 
+-        cJSON_Minify((char*)copied + offset);
++        cJSON_Minify((data[size-2] % 4 == 0) ? (char*)NULL : (char*)copied + offset); // [gapfuzz-llm] cJSON_Minify는 NULL을 허용하므로 입력 바이트(data[size-2])로 약 1/4 확률로 NULL을 넘겨 json == NULL 분기를 탐색
+ 
+         free(copied);
+     }
+@@ -74,4 +74,3 @@
+ #ifdef __cplusplus
+ }
+ #endif
+-

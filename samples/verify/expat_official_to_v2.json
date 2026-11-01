@@ -1,0 +1,284 @@
+[
+ {
+  "verdict": "FIXED",
+  "apis": [
+   "XML_ParserReset(XML_Parser, const XML_Char *)"
+  ],
+  "param_index": 1,
+  "param_name": "encoding",
+  "suggestions": [
+   "`XML_ParserReset(XML_Parser, const XML_Char *)`의 2번째 인자 `encoding`를 하네스가 고정합니다(84행에서 항상 `0`) → 퍼저 입력으로 바꾸세요"
+  ],
+  "harness_lines": [
+   84
+  ],
+  "harness_source": [
+   "XML_ParserReset(p, NULL);"
+  ],
+  "arg": [
+   {
+    "line": 84,
+    "kind": "literal",
+    "value": "0"
+   }
+  ],
+  "blocked": [
+   {
+    "api": "XML_ParserReset(XML_Parser, const XML_Char *)",
+    "line": 1668,
+    "col": 7,
+    "expr": "encodingName",
+    "never": "참",
+    "source": "if (encodingName && ! parser->m_protocolEncodingName) {"
+   }
+  ],
+  "suggestion": "`XML_ParserReset(XML_Parser, const XML_Char *)`의 2번째 인자 `encoding`를 하네스가 고정합니다(84행에서 항상 `0`) → 퍼저 입력으로 바꾸세요",
+  "checks": [
+   {
+    "api": "XML_ParserReset(XML_Parser, const XML_Char *)",
+    "line": 1668,
+    "col": 7,
+    "expr": "encodingName",
+    "never": "참",
+    "source": "if (encodingName && ! parser->m_protocolEncodingName) {",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   }
+  ],
+  "opened": 1,
+  "total": 1
+ },
+ {
+  "verdict": "NARROW",
+  "apis": [
+   "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)"
+  ],
+  "param_index": 1,
+  "param_name": "context",
+  "suggestions": [
+   "`XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)`의 2번째 인자 `context`를 하네스가 `\"e1\"`, `0` 중에서만 고릅니다(101행, 108행) (라이브러리 내부 `setContext`를 거쳐 조건에 쓰임) → 나머지 값도 나오게 하세요"
+  ],
+  "harness_lines": [
+   101,
+   108
+  ],
+  "harness_source": [
+   "= XML_ExternalEntityParserCreate(parentParser, \"e1\", NULL);",
+   "= XML_ExternalEntityParserCreate(parentParser, NULL, NULL);"
+  ],
+  "arg": [
+   {
+    "line": 101,
+    "kind": "literal",
+    "value": "\"e1\""
+   },
+   {
+    "line": 108,
+    "kind": "literal",
+    "value": "0"
+   }
+  ],
+  "blocked": [
+   {
+    "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+    "line": 8298,
+    "col": 7,
+    "expr": "context == NULL",
+    "never": "참",
+    "source": "if (context == NULL) {"
+   },
+   {
+    "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+    "line": 8306,
+    "col": 9,
+    "expr": "*s == CONTEXT_SEP",
+    "never": "참",
+    "source": "if (*s == CONTEXT_SEP || *s == XML_T('\\0')) {"
+   },
+   {
+    "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+    "line": 8314,
+    "col": 11,
+    "expr": "*s != XML_T",
+    "never": "참",
+    "source": "if (*s != XML_T('\\0'))"
+   },
+   {
+    "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+    "line": 8345,
+    "col": 29,
+    "expr": "*context != CONTEXT_SEP",
+    "never": "거짓",
+    "source": "for (context = s + 1; *context != CONTEXT_SEP && *context != XML_T('\\0');"
+   },
+   {
+    "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+    "line": 8356,
+    "col": 11,
+    "expr": "*context != XML_T",
+    "never": "참",
+    "source": "if (*context != XML_T('\\0'))"
+   }
+  ],
+  "suggestion": "`XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)`의 2번째 인자 `context`를 하네스가 `\"e1\"`, `0` 중에서만 고릅니다(101행, 108행) (라이브러리 내부 `setContext`를 거쳐 조건에 쓰임) → 나머지 값도 나오게 하세요",
+  "checks": [
+   {
+    "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+    "line": 8298,
+    "col": 7,
+    "expr": "context == NULL",
+    "never": "참",
+    "source": "if (context == NULL) {",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   },
+   {
+    "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+    "line": 8306,
+    "col": 9,
+    "expr": "*s == CONTEXT_SEP",
+    "never": "참",
+    "source": "if (*s == CONTEXT_SEP || *s == XML_T('\\0')) {",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+    "line": 8314,
+    "col": 11,
+    "expr": "*s != XML_T",
+    "never": "참",
+    "source": "if (*s != XML_T('\\0'))",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+    "line": 8345,
+    "col": 29,
+    "expr": "*context != CONTEXT_SEP",
+    "never": "거짓",
+    "source": "for (context = s + 1; *context != CONTEXT_SEP && *context != XML_T('\\0');",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   },
+   {
+    "api": "XML_ExternalEntityParserCreate(XML_Parser, const XML_Char *, const XML_Char *)",
+    "line": 8356,
+    "col": 11,
+    "expr": "*context != XML_T",
+    "never": "참",
+    "source": "if (*context != XML_T('\\0'))",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   }
+  ],
+  "opened": 4,
+  "total": 5
+ },
+ {
+  "verdict": "NARROW",
+  "apis": [
+   "XML_Parse(XML_Parser, const char *, int, int)"
+  ],
+  "param_index": 1,
+  "param_name": "s",
+  "suggestions": [
+   "`XML_Parse(XML_Parser, const char *, int, int)`의 2번째 인자 `s`에 하네스가 null을 넘긴 적이 없습니다(78행, 79행) → nullptr도 넘겨 보세요"
+  ],
+  "harness_lines": [
+   78,
+   79
+  ],
+  "harness_source": [
+   "XML_Parse(p, (const XML_Char *)data, (int)size, 0);",
+   "if (XML_Parse(p, (const XML_Char *)data, (int)size, 1) == XML_STATUS_ERROR) {"
+  ],
+  "arg": [
+   {
+    "line": 78,
+    "kind": "variable",
+    "value": null
+   },
+   {
+    "line": 79,
+    "kind": "variable",
+    "value": null
+   }
+  ],
+  "blocked": [
+   {
+    "api": "XML_Parse(XML_Parser, const char *, int, int)",
+    "line": 2339,
+    "col": 21,
+    "expr": "(s == NULL)",
+    "never": "참",
+    "source": "if ((len < 0) || ((s == NULL) && (len != 0))) {"
+   }
+  ],
+  "suggestion": "`XML_Parse(XML_Parser, const char *, int, int)`의 2번째 인자 `s`에 하네스가 null을 넘긴 적이 없습니다(78행, 79행) → nullptr도 넘겨 보세요",
+  "checks": [
+   {
+    "api": "XML_Parse(XML_Parser, const char *, int, int)",
+    "line": 2339,
+    "col": 21,
+    "expr": "(s == NULL)",
+    "never": "참",
+    "source": "if ((len < 0) || ((s == NULL) && (len != 0))) {",
+    "state": "OPENED",
+    "opened_runs": "5/5"
+   }
+  ],
+  "opened": 1,
+  "total": 1
+ },
+ {
+  "verdict": "NARROW",
+  "apis": [
+   "XML_SetHashSalt16Bytes(XML_Parser, const uint8_t *)"
+  ],
+  "param_index": 1,
+  "param_name": "entropy",
+  "suggestions": [
+   "`XML_SetHashSalt16Bytes(XML_Parser, const uint8_t *)`의 2번째 인자 `entropy`에 하네스가 null을 넘긴 적이 없습니다(71행) → nullptr도 넘겨 보세요"
+  ],
+  "harness_lines": [
+   71
+  ],
+  "harness_source": [
+   "XML_SetHashSalt16Bytes(p, entropy);"
+  ],
+  "arg": [
+   {
+    "line": 71,
+    "kind": "variable",
+    "value": null
+   }
+  ],
+  "blocked": [
+   {
+    "api": "XML_SetHashSalt16Bytes(XML_Parser, const uint8_t *)",
+    "line": 2316,
+    "col": 7,
+    "expr": "entropy == NULL",
+    "never": "참",
+    "source": "if (entropy == NULL)"
+   }
+  ],
+  "suggestion": "`XML_SetHashSalt16Bytes(XML_Parser, const uint8_t *)`의 2번째 인자 `entropy`에 하네스가 null을 넘긴 적이 없습니다(71행) → nullptr도 넘겨 보세요",
+  "checks": [
+   {
+    "api": "XML_SetHashSalt16Bytes(XML_Parser, const uint8_t *)",
+    "line": 2316,
+    "col": 7,
+    "expr": "entropy == NULL",
+    "never": "참",
+    "source": "if (entropy == NULL)",
+    "state": "STILL",
+    "opened_runs": "0/5"
+   }
+  ],
+  "opened": 0,
+  "total": 1
+ }
+]

@@ -1,0 +1,17 @@
+--- 수정 전
++++ 시도 2
+@@ -6,8 +6,13 @@
+ {
+     pugi::xml_document doc;
+ 
++	// 입력 앞 2바이트로 options 비트 조합을 만들고, 첫 바이트의 최하위 비트가 0이면 원래 값(parse_minimal)을 쓴다
++	unsigned int fuzz_options = pugi::parse_minimal; // [gapfuzz-llm] options를 퍼저 입력에서 고르기 위한 변수, 기본은 원래 값
++	if (Size >= 2 && (Data[0] & 1)) fuzz_options = ((unsigned int)Data[0] << 8) | Data[1]; // [gapfuzz-llm] 입력 앞 2바이트로 임의의 options 비트 조합(escapes, eol, wconv, wnorm, fragment 등)을 만듦
++
+ 	doc.load_buffer(Data, Size);
+-	doc.load_buffer(Data, Size, pugi::parse_minimal);
++	doc.load_buffer(Data, Size, fuzz_options); // [gapfuzz-llm] parse_minimal만 쓰면 pcdata/attribute 변환 분기가 막히므로 입력에서 고른 options 사용
++	doc.load_buffer(Data, 0, fuzz_options); // [gapfuzz-llm] 길이 0 버퍼에서 parse_fragment 옵션을 확인하는 분기는 빈 입력과 options가 함께 있어야 열리므로 추가
+ 	doc.load_buffer(Data, Size, pugi::parse_full);
+ 
+ 	return 0;

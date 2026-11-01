@@ -1,0 +1,9 @@
+--- 수정 전
++++ 시도 1
+@@ -11,5 +11,6 @@
+     std::string data_string(reinterpret_cast<const char *>(data), size);
+     XMLDocument doc;
+     doc.Parse(data_string.c_str());
++    const char *doc_value = doc.Value(); (void)doc_value; // [gapfuzz-llm] XMLDocument 객체에서 Value()를 호출해 ToDocument()가 참이 되는 분기(null 반환)를 실행. 반환값은 역참조하지 않음
+     return 0;
+ }
