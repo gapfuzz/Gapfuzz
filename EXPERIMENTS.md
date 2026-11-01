@@ -1,21 +1,6 @@
-# 팀 실험: 라이브러리 6개 × 1시간 × 10회
+# 실험: 1시간 × 10회
 
 공식 하네스와 "공식 하네스 + gapfuzz 수정"을 라이브러리마다 1시간씩 10번 돌려 비교합니다.
-TinyXML2에서 한 1시간 × 10회 실험을 나머지 라이브러리에도 똑같이 하는 것입니다.
-
-| 라이브러리 | 종류 | 걸리는 시간 (CPU 2개) |
-|---|---|---|
-| pugixml | XML, C++ | 약 11시간 |
-| expat | XML, C | 약 11시간 |
-| cjson | JSON, C | 약 11시간 |
-| jsoncpp | JSON, C++ | 약 11시간 |
-| json-c | JSON, C | 약 11시간 |
-| zlib | 압축, C | 약 11시간 |
-
-한 라이브러리는 **한 사람이 한 컴퓨터에서 끝까지** 돌립니다. 같은 회차의 두 하네스를 동시에 돌리기 때문에,
-컴퓨터마다 속도가 달라도 한 라이브러리 안의 비교(공식 vs 수정)는 공평합니다.
-
----
 
 ## 1. 환경 맞추기 (처음 한 번)
 
@@ -70,7 +55,7 @@ python3 scripts/exp.py claim expat       # 비어 있는 라이브러리 하나�
 ```
 
 `claim`은 `results/expat/OWNER.txt`에 이름을 적어 올립니다. 다른 사람이 먼저 맡았으면 거부되니 다른 라이브러리를 고르세요.
-Docker 안에서는 git 로그인이 없을 수 있으니, `claim`과 `submit`은 **컨테이너 밖(내 컴퓨터 터미널)**에서 실행하는 게 편합니다.
+Docker 안에서는 git 로그인이 없을 수 있으니, `claim`과 `submit`은 컨테이너 밖(내 컴퓨터 터미널)에서 실행하는 게 편합니다.
 컨테이너 밖에 Python이 없다면 `claim expat --no-push` 후 `git add results/expat && git commit -m "claim(expat)" && git push`로 대신합니다.
 
 ---
@@ -124,7 +109,7 @@ python3 scripts/exp.py submit expat
  "coverage": {"branches": {"pct": 32.4, "covered": 1234, "count": 3810}, "lines": {...}, ...},
  "execs": 41234567, "corpus": 2310, "crashes": [], "triage": [],
  "targets": [{"fix": 1, "applied": true, "line": 1668, "opened": true}, ...],
- "by": "김지윤", "env": {"clang": "Ubuntu clang version 18.1.3 ...", "cpu": "...", "tool_commit": "abc1234"}}
+ "by": "이름", "env": {"clang": "Ubuntu clang version 18.1.3 ...", "cpu": "...", "tool_commit": "abc1234"}}
 ```
 
 `targets`는 2분 실험에서 도구가 "고칠 곳"으로 짚은 분기(`experiments/targets/<라이브러리>.json`)가 이 회차에 열렸는지입니다.
