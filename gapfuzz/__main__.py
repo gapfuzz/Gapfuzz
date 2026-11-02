@@ -143,8 +143,9 @@ def cmd_llmfix(a) -> int:
         return 0
     if not a.fix:
         raise SystemExit("--fix 번호가 필요합니다 (--list로 확인)")
-    res = run(a.target, a.harness, a.fix, a.before, a.secs, a.trials, a.tries, a.model or DEFAULT_MODEL,
-              a.mock.split(",") if a.mock else None)
+    nos = [int(x) for x in str(a.fix).split(",")]
+    res = run(a.target, a.harness, nos[0] if len(nos) == 1 else nos, a.before, a.secs, a.trials, a.tries,
+              a.model or DEFAULT_MODEL, a.mock.split(",") if a.mock else None, hints=a.hints)
     return 0 if res["best"] else 1
 
 
@@ -227,7 +228,8 @@ def main(argv=None) -> int:
     lf = sub.add_parser("llmfix", help="'하네스에서 고칠 곳'을 Claude API로 하네스에 적용하고 검증·크래시 귀속으로 검사")
     lf.add_argument("target", help="targets/<이름>.json의 이름 (예: zlib, tinyxml2)")
     lf.add_argument("harness", help="수정할 하네스 이름 (예: official)")
-    lf.add_argument("--fix", type=int, help="적용할 제안 번호 (--list로 확인)")
+    lf.add_argument("--fix", help="적용할 제안 번호 (--list로 확인). 1,3,4처럼 여러 개면 한 하네스에 모두 적용")
+    lf.add_argument("--hints", action="store_true", help="제안별로 따로 검증을 통과한 수정(best.diff)을 참고로 함께 보냄")
     lf.add_argument("--list", action="store_true", help="제안 목록만 출력")
     lf.add_argument("--before", help="수정 전 gap.json (기본 out/targets/<이름>/<하네스>/r1/gap/gap.json)")
     lf.add_argument("--secs", type=int, default=60, help="검사용 퍼징 시간(초, 회당)")

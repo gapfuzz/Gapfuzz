@@ -1,0 +1,74 @@
+--- 수정 전
++++ 시도 2
+@@ -10,13 +10,69 @@
+ #include "zlib.h"
+ 
+ static Bytef buffer[256 * 1024] = { 0 };
++static Bytef inflate_out[256 * 1024] = { 0 };  // [gapfuzz-llm] inflate를 직접 호출할 때 쓸 출력 버퍼
+ 
+ // Entry point for LibFuzzer.
+ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
+   uLongf buffer_length = static_cast<uLongf>(sizeof(buffer));
+-  if (Z_OK != uncompress(buffer, &buffer_length, data,
++  uint8_t sel = 1;  // [gapfuzz-llm] 입력이 짧을 때는 원래 동작(dest=buffer, destLen=전체)이 되도록 하는 기본 선택값
++  uint8_t flush_sel = 0;  // [gapfuzz-llm] 기본값은 Z_NO_FLUSH(원래 내부 호출과 동일)
++  uint8_t null_sel = 0xFF;  // [gapfuzz-llm] 기본값은 sourceLen/destLen 포인터 모두 non-null(uncompress2_z 직접 호출 안 함)
++  if (size >= 3) {  // [gapfuzz-llm] 앞 3바이트를 헤더(dest/destLen 선택, flush 선택, 길이 포인터 null 선택)로 순서대로 배분
++    sel = data[0];  // [gapfuzz-llm] 첫 바이트: dest와 destLen 선택용
++    flush_sel = data[1];  // [gapfuzz-llm] 둘째 바이트: inflate flush 선택용
++    null_sel = data[2];  // [gapfuzz-llm] 셋째 바이트: uncompress2_z의 sourceLen/destLen 포인터 null 선택용
++    data += 3;  // [gapfuzz-llm] 헤더 바이트 소비
++    size -= 3;  // [gapfuzz-llm] 소비한 만큼 입력 크기 감소
++  }
++  Bytef* dest = ((sel & 0x07) == 0) ? nullptr : buffer;  // [gapfuzz-llm] 약 1/8 확률로 dest에 nullptr 전달(나머지는 원래 buffer)
++  int len_mode = (sel >> 3) & 0x03;  // [gapfuzz-llm] destLen 선택 방식: 0=원래 값, 1=0, 2~3=입력에서 가져옴
++  if (len_mode == 1) {  // [gapfuzz-llm] destLen이 0인 경우도 만들어 *destLen > 0 거짓 분기 도달
++    buffer_length = 0;  // [gapfuzz-llm] destLen=0 (dest가 null이어도 문서상 허용)
++  } else if (len_mode >= 2 && size >= 3) {  // [gapfuzz-llm] 입력 3바이트로 destLen 결정
++    uint32_t v = (static_cast<uint32_t>(data[0]) << 16) |
++                 (static_cast<uint32_t>(data[1]) << 8) |
++                 static_cast<uint32_t>(data[2]);  // [gapfuzz-llm] destLen 후보 값 생성
++    buffer_length = static_cast<uLongf>(v % (sizeof(buffer) + 1));  // [gapfuzz-llm] 0~버퍼 크기로 제한해 오버플로 방지
++    data += 3;  // [gapfuzz-llm] destLen용으로 쓴 바이트 소비
++    size -= 3;  // [gapfuzz-llm] 소비한 만큼 입력 크기 감소
++  }
++
++  {  // [gapfuzz-llm] uncompress는 내부에서 항상 non-null 포인터를 넘기므로 uncompress2_z를 직접 호출해 null 포인터 분기 도달
++    bool null_src_len = (null_sel & 0x07) == 0;  // [gapfuzz-llm] 약 1/8 확률로 sourceLen에 nullptr 전달
++    bool null_dest_len = ((null_sel >> 3) & 0x07) == 0;  // [gapfuzz-llm] 약 1/8 확률로 destLen에 nullptr 전달
++    if (null_src_len || null_dest_len) {  // [gapfuzz-llm] null을 고른 경우에만 직접 호출(나머지는 아래 원래 uncompress 경로)
++      z_size_t direct_dest_len = static_cast<z_size_t>(buffer_length);  // [gapfuzz-llm] 직접 호출용 destLen 복사본(원래 호출에 영향 없게 분리)
++      z_size_t direct_src_len = static_cast<z_size_t>(size);  // [gapfuzz-llm] 직접 호출용 sourceLen
++      z_size_t* dest_len_ptr = null_dest_len ? nullptr : &direct_dest_len;  // [gapfuzz-llm] destLen == NULL 분기용
++      z_size_t* src_len_ptr = null_src_len ? nullptr : &direct_src_len;  // [gapfuzz-llm] sourceLen == NULL 분기용
++      (void)uncompress2_z(buffer, dest_len_ptr, data, src_len_ptr);  // [gapfuzz-llm] 라이브러리가 null 포인터를 Z_STREAM_ERROR로 처리하므로 안전(dest는 유효한 buffer, destLen은 버퍼 크기 이내)
++    }
++  }
++
++  if (Z_OK != uncompress(dest, &buffer_length, data,  // [gapfuzz-llm] 고정 buffer 대신 입력으로 고른 dest 사용
+                          static_cast<uLong>(size))) {
+-    return 0;
++    // [gapfuzz-llm] 기존에는 여기서 바로 return 했지만, 실패한 입력도 inflate 직접 호출에 쓰도록 아래로 이어서 진행
++  }
++
++  {  // [gapfuzz-llm] inflate를 하네스가 직접 호출하는 블록
++    static const int kFlushModes[] = {Z_NO_FLUSH, Z_SYNC_FLUSH, Z_FINISH,
++                                      Z_BLOCK, Z_TREES};  // [gapfuzz-llm] inflate가 문서상 허용하는 flush 값들(기존 Z_NO_FLUSH 포함)
++    int flush = kFlushModes[flush_sel % (sizeof(kFlushModes) / sizeof(kFlushModes[0]))];  // [gapfuzz-llm] 퍼저 입력으로 flush 값을 골라 Z_BLOCK/Z_TREES/Z_FINISH 분기 도달
++
++    z_stream strm;
++    memset(&strm, 0, sizeof(strm));
++    if (inflateInit(&strm) == Z_OK) {
++      strm.next_in = const_cast<Bytef*>(data);
++      strm.avail_in = static_cast<uInt>(size);
++      for (int iter = 0; iter < 1024; ++iter) {  // [gapfuzz-llm] Z_BLOCK/Z_TREES는 경계마다 반환하므로 반복 호출(무한 루프 방지용 상한)
++        strm.next_out = inflate_out;
++        strm.avail_out = static_cast<uInt>(sizeof(inflate_out));
++        int ret = inflate(&strm, flush);  // [gapfuzz-llm] 하네스가 inflate를 직접 호출하여 다양한 flush 전달
++        if (ret != Z_OK) break;
++      }
++      inflateEnd(&strm);  // [gapfuzz-llm] 할당된 inflate 상태 해제
++    }
+   }
+   return 0;
+ }

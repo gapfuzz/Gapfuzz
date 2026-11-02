@@ -1,6 +1,6 @@
 """LLM(Claude API)으로 '하네스에서 고칠 곳'을 실제 하네스 코드에 적용하고, gapfuzz가 그 결과를 검사한다.
 
-흐름 (제안 하나마다)
+흐름 (제안 하나마다, 또는 --fix 1,3,4처럼 여러 제안을 한 하네스에 한꺼번에)
   1. 수정 전 gap.json의 harness_fixes에서 제안 하나를 고른다.
   2. 하네스 코드(줄 번호 포함), 제안 문장, 막힌 라이브러리 분기의 코드, 지킬 규칙을 Claude에게 주고 고친 하네스 전체를 받는다.
   3. gapfuzz가 검사한다: 컴파일 → 짧은 퍼징(기본 60초 × 2회) → 그 제안이 겨냥한 분기가 열렸는지(verify) → 크래시가 나면 귀속(triage).
@@ -33,13 +33,15 @@ API_URL = "https://api.anthropic.com/v1/messages"
 DEFAULT_MODEL = "claude-sonnet-5-5"
 
 SYSTEM = """당신은 libFuzzer 퍼징 하네스를 고치는 보안 엔지니어입니다.
-커버리지 분석 도구 gapfuzz가 하네스 때문에 막힌 라이브러리 분기와 그 원인을 찾았습니다. 그 제안 하나만 하네스에 적용하세요.
+커버리지 분석 도구 gapfuzz가 하네스 때문에 막힌 라이브러리 분기와 그 원인을 찾았습니다. 주어진 제안만 하네스에 적용하세요.
 
 규칙
 - 제안이 말하는 부분만 바꾸고 나머지 코드는 그대로 둡니다. LLVMFuzzerTestOneInput의 시그니처는 바꾸지 않습니다.
 - 새 값은 상수가 아니라 퍼저 입력에서 고르게 합니다(입력 앞쪽 바이트나 FuzzedDataProvider). 원래 값도 계속 나올 수 있게 둡니다.
 - 하네스가 스스로 잘못 써서 생기는 크래시를 만들지 않습니다: 라이브러리 문서상 금지된 인자(예: null 금지 인자에 null)를 넘기지 말고,
   C++ 라이브러리가 예외를 던질 수 있는 호출은 try/catch로 감싸고, 할당한 것은 해제합니다.
+- 제안이 여러 개면 모두 한 하네스에 적용합니다. 여러 수정이 퍼저 입력 바이트를 쓸 때는 서로 겹치지 않게 나눠 씁니다
+  (예: 앞쪽 바이트를 순서대로 배분하거나 FuzzedDataProvider 하나로 차례로 꺼냄). 원래 하네스가 쓰던 입력 부분도 계속 쓰이게 둡니다.
 - 바꾼 줄 끝에 `// [gapfuzz-llm] 이유` 주석을 한국어로 답니다.
 - 답은 고친 하네스 파일 전체를 코드 블록 하나(```cpp 또는 ```c)로만 주고, 그 뒤에 무엇을 바꿨는지 한두 문장으로 씁니다."""
 
@@ -64,20 +66,32 @@ def context(path: str, line: int, n: int = 4) -> str:
     return "\n".join(f"{i:5d}{'>' if i == line else ' '} {src[i - 1]}" for i in range(lo, hi + 1))
 
 
-def build_request(harness_src: str, harness_name: str, fix: dict, before: dict, lib_name: str) -> str:
+def build_request(harness_src: str, harness_name: str, fix, before: dict, lib_name: str,
+                  nos: list[int] | None = None, hints: dict[int, str] | None = None) -> str:
+    """fix: 제안 하나(dict) 또는 여러 개(list). nos: 제안 번호, hints: 번호 → 그 제안만 따로 적용해 검증을 통과한 diff."""
+    fixes = fix if isinstance(fix, list) else [fix]
+    nos = nos or list(range(1, len(fixes) + 1))
     files = {}
     for r in before["results"]:
         for b in r.get("stuck_branches", []):
             files[(r["api"], b["line"], b.get("col", 0))] = b["file"]
-    parts = [f"라이브러리: {lib_name}", f"하네스 파일: {harness_name}", "",
-             "## gapfuzz의 제안", fix.get("suggestion", ""), "",
-             f"## 이 제안 때문에 막혀 있던 라이브러리 분기 ({len(fix['blocked'])}개)"]
-    for b in fix["blocked"][:8]:
-        f = files.get((b["api"], b["line"], b.get("col", 0)))
-        parts += [f"- `{b['api']}` {b['line']}행, 조건 `{b.get('expr') or b.get('source')}`가 퍼징 중 한 번도 '{b['never']}'이 되지 않음"]
-        if f:
-            parts += ["```", context(f, b["line"]), "```"]
-    parts += ["", "## 지금 하네스 (줄 번호는 참고용, 답에는 넣지 마세요)", "```", numbered(harness_src), "```"]
+    parts = [f"라이브러리: {lib_name}", f"하네스 파일: {harness_name}", ""]
+    multi = len(fixes) > 1
+    if multi:
+        parts += [f"아래 제안 {len(fixes)}개를 **모두 한 하네스에** 적용하세요.", ""]
+    for no, fx in zip(nos, fixes):
+        head = f"## 제안 {no}" if multi else "## gapfuzz의 제안"
+        parts += [head, fx.get("suggestion", ""), "", f"### 이 제안 때문에 막혀 있던 라이브러리 분기 ({len(fx['blocked'])}개)"]
+        for b in fx["blocked"][:8]:
+            f = files.get((b["api"], b["line"], b.get("col", 0)))
+            parts += [f"- `{b['api']}` {b['line']}행, 조건 `{b.get('expr') or b.get('source')}`가 퍼징 중 한 번도 '{b['never']}'이 되지 않음"]
+            if f:
+                parts += ["```", context(f, b["line"]), "```"]
+        if hints and hints.get(no):
+            parts += ["", "### 참고: 이 제안 하나만 따로 적용해 검증을 통과했던 수정 (그대로 합치면 입력 바이트가 겹칠 수 있음)",
+                      "```diff", hints[no].rstrip(), "```"]
+        parts.append("")
+    parts += ["## 지금 하네스 (줄 번호는 참고용, 답에는 넣지 마세요)", "```", numbered(harness_src), "```"]
     return "\n".join(parts)
 
 
@@ -116,7 +130,7 @@ def _compile(tg, t: dict, src: Path, out: Path) -> str | None:
     return None
 
 
-def check(tg, t: dict, name: str, src: Path, before: dict, fix_idx: int, secs: int, trials: int) -> dict:
+def check(tg, t: dict, name: str, src: Path, before: dict, fix_idx, secs: int, trials: int) -> dict:
     out = ROOT / "out" / "targets" / t["name"] / name
     err = _compile(tg, t, src, out)
     if err:
@@ -130,9 +144,13 @@ def check(tg, t: dict, name: str, src: Path, before: dict, fix_idx: int, secs: i
         if g.exists():
             afters.append(json.load(open(g)))
         crashes += [str(d / f) for f in os.listdir(d) if f.split("-")[0] in ("crash", "leak", "timeout", "oom")]
-    v = verify(before, afters)[fix_idx] if afters else {"opened": 0, "total": 0, "checks": []}
-    res = {"stage": "fuzz", "opened": v["opened"], "total": v["total"],
-           "still": [f"`{c['api']}` {c['line']}행 `{c.get('expr') or c.get('source')}`" for c in v["checks"] if c["state"] != "OPENED"],
+    idxs = fix_idx if isinstance(fix_idx, list) else [fix_idx]
+    vs = verify(before, afters) if afters else []
+    per = [vs[i] if vs else {"opened": 0, "total": 0, "checks": []} for i in idxs]
+    res = {"stage": "fuzz", "opened": sum(v["opened"] for v in per), "total": sum(v["total"] for v in per),
+           "per_fix": {str(i + 1): [v["opened"], v["total"]] for i, v in zip(idxs, per)},
+           "still": [f"{'제안 ' + str(i + 1) + ': ' if len(idxs) > 1 else ''}`{c['api']}` {c['line']}행 `{c.get('expr') or c.get('source')}`"
+                     for i, v in zip(idxs, per) for c in v["checks"] if c["state"] != "OPENED"],
            "crashes": []}
     if crashes:
         tri = triage(str(out / "fuzz"), crashes[:5], [str(src)], [str(t["lib"])], [str(src.parent), str(ROOT / "harnesses")],
@@ -158,30 +176,40 @@ def feedback(res: dict) -> str:
     return "\n".join(lines)
 
 
-def run(target: str, harness: str, fix_no: int, before_path: str | None, secs: int, trials: int, tries: int,
-        model: str, mock: list[str] | None) -> dict:
+def run(target: str, harness: str, fix_no, before_path: str | None, secs: int, trials: int, tries: int,
+        model: str, mock: list[str] | None, out_name: str | None = None, hints: bool = False) -> dict:
+    """fix_no: 번호 하나 또는 목록. 목록이면 모든 제안을 한 하네스에 적용한다(out_name: 결과 폴더 이름)."""
     tg = _tgt()
     t = tg.load(target)
     hp = tg.harness_path(t, harness)
     bp = Path(before_path) if before_path else ROOT / "out" / "targets" / target / harness / "r1" / "gap" / "gap.json"
     before = json.load(open(bp))
     fixes = before.get("harness_fixes", [])
-    if not 1 <= fix_no <= len(fixes):
+    nos = fix_no if isinstance(fix_no, list) else [fix_no]
+    if not nos or not all(1 <= n <= len(fixes) for n in nos):
         raise SystemExit(f"[llmfix] 제안 번호는 1~{len(fixes)} (--list로 확인)")
-    fix = fixes[fix_no - 1]
+    fix = fixes[nos[0] - 1] if len(nos) == 1 else [fixes[n - 1] for n in nos]
+    tag = out_name or (f"{harness}_fix{nos[0]}" if len(nos) == 1 else f"{harness}_fix{'_'.join(map(str, nos))}")
+    hint = {}
+    if hints:
+        for n in nos:
+            for d in (ROOT / "out" / "llm" / target / f"{harness}_fix{n}", ROOT / "samples" / "llm" / "runs" / target / f"{harness}_fix{n}"):
+                if (d / "best.diff").exists():
+                    hint[n] = (d / "best.diff").read_text(encoding="utf-8")
+                    break
     key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not mock and not key:
         raise SystemExit("[llmfix] ANTHROPIC_API_KEY 환경 변수가 없습니다 (키 없이 시험하려면 --mock 응답파일)")
 
     base = ROOT / t.get("harness_dir", f"harnesses/{t['name']}")
-    rel_dir = Path("llm") / f"{harness}_fix{fix_no}"
-    work = ROOT / "out" / "llm" / target / f"{harness}_fix{fix_no}"
+    rel_dir = Path("llm") / tag
+    work = ROOT / "out" / "llm" / target / tag
     if work.exists():
         shutil.rmtree(work)
     work.mkdir(parents=True)
     (base / rel_dir).mkdir(parents=True, exist_ok=True)
     orig = hp.read_text(encoding="utf-8")
-    messages = [{"role": "user", "content": build_request(orig, hp.name, fix, before, target)}]
+    messages = [{"role": "user", "content": build_request(orig, hp.name, fix, before, target, nos, hint)}]
     (work / "request.md").write_text(messages[0]["content"], encoding="utf-8")
     log, best = [], None
     for k in range(1, tries + 1):
@@ -202,11 +230,11 @@ def run(target: str, harness: str, fix_no: int, before_path: str | None, secs: i
             src = base / rel_dir / f"try{k}{hp.suffix}"
             src.write_text(code if code.endswith("\n") else code + "\n", encoding="utf-8")
             shutil.copy(src, work / src.name)
-            res = check(tg, t, name, src, before, fix_no - 1, secs, trials)
+            res = check(tg, t, name, src, before, [n - 1 for n in nos] if len(nos) > 1 else nos[0] - 1, secs, trials)
             entry["harness"] = str(src.relative_to(ROOT))
         entry.update(res)
         log.append(entry)
-        print(f"[llmfix] {target}/{harness} 제안 {fix_no} 시도 {k}: "
+        print(f"[llmfix] {target}/{harness} 제안 {','.join(map(str, nos))} 시도 {k}: "
               + (f"컴파일 실패" if res["stage"] == "compile" else
                  f"열림 {res['opened']}/{res['total']}, 크래시 {[c['cls'] for c in res['crashes']]}"), flush=True)
         if res.get("ok") and (best is None or res["opened"] > best["opened"]):
@@ -219,23 +247,26 @@ def run(target: str, harness: str, fix_no: int, before_path: str | None, secs: i
         fb = feedback(res)
         (work / f"try{k}_feedback.md").write_text(fb, encoding="utf-8")
         messages += [{"role": "assistant", "content": text}, {"role": "user", "content": fb}]
-    report = write_report(work, target, harness, fix_no, fix, orig, log, best, model if not mock else "mock")
-    json.dump({"target": target, "harness": harness, "fix": fix_no, "model": model if not mock else "mock",
+    report = write_report(work, target, harness, ",".join(map(str, nos)), fix, orig, log, best, model if not mock else "mock")
+    json.dump({"target": target, "harness": harness, "fix": nos[0] if len(nos) == 1 else nos, "model": model if not mock else "mock",
                "tries": log, "best": best and best["try"]}, open(work / "log.json", "w"), ensure_ascii=False, indent=1)
     print(f"[llmfix] -> {report}")
     return {"best": best, "log": log}
 
 
-def write_report(work: Path, target: str, harness: str, fix_no: int, fix: dict, orig: str, log: list, best: dict | None,
+def write_report(work: Path, target: str, harness: str, fix_no, fix, orig: str, log: list, best: dict | None,
                  model: str) -> Path:
-    L = [f"# LLM 하네스 수정 — {target}/{harness}, 제안 {fix_no}", "",
-         f"- 모델: `{model}`", f"- 제안: {fix.get('suggestion', '')}", f"- 겨냥한 분기: {len(fix['blocked'])}개", "",
-         "| 시도 | 결과 | 열림 | 크래시 귀속 | 토큰(입력/출력) |", "|---:|---|---:|---|---|"]
+    fx = fix if isinstance(fix, list) else [fix]
+    L = [f"# LLM 하네스 수정 — {target}/{harness}, 제안 {fix_no}", "", f"- 모델: `{model}`"]
+    L += [f"- 제안: {f.get('suggestion', '')}" for f in fx]
+    L += [f"- 겨냥한 분기: {sum(len(f['blocked']) for f in fx)}개", "",
+          "| 시도 | 결과 | 열림 | 제안별 열림 | 크래시 귀속 | 토큰(입력/출력) |", "|---:|---|---:|---|---|---|"]
     for e in log:
         st = "컴파일 실패" if e["stage"] == "compile" else ("통과" if e.get("ok") else "실패")
         cr = ", ".join(f"{c['cls']}({c['conf']})" for c in e.get("crashes", [])) or "-"
         u = e.get("usage") or {}
-        L.append(f"| {e['try']} | {st} | {e.get('opened', '-')}/{e.get('total', '-')} | {cr} | "
+        pf = ", ".join(f"{k}: {v[0]}/{v[1]}" for k, v in (e.get("per_fix") or {}).items()) or "-"
+        L.append(f"| {e['try']} | {st} | {e.get('opened', '-')}/{e.get('total', '-')} | {pf} | {cr} | "
                  f"{u.get('input_tokens', '-')}/{u.get('output_tokens', '-')} |")
     L.append("")
     if best:

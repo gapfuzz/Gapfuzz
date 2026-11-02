@@ -1,0 +1,110 @@
+{
+ "target": "json-c",
+ "harness": "official",
+ "fix": [
+  2,
+  3,
+  4,
+  5
+ ],
+ "model": "claude-sonnet-5-5",
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 24.3,
+   "usage": {
+    "input_tokens": 5478,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 3947,
+    "output_tokens_details": {
+     "thinking_tokens": 1258
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+   },
+   "harness": "harnesses/json-c/llm/official_combined/try1.cc",
+   "stage": "fuzz",
+   "opened": 4,
+   "total": 5,
+   "per_fix": {
+    "2": [
+     2,
+     2
+    ],
+    "3": [
+     1,
+     1
+    ],
+    "4": [
+     1,
+     1
+    ],
+    "5": [
+     0,
+     1
+    ]
+   },
+   "still": [
+    "제안 5: `json_object_array_shrink(struct json_object *, int)` 1849행 `empty_slots < 0`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  },
+  {
+   "try": 2,
+   "llm_seconds": 19.0,
+   "usage": {
+    "input_tokens": 8307,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 3332,
+    "output_tokens_details": {
+     "thinking_tokens": 671
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+   },
+   "harness": "harnesses/json-c/llm/official_combined/try2.cc",
+   "stage": "fuzz",
+   "opened": 4,
+   "total": 5,
+   "per_fix": {
+    "2": [
+     2,
+     2
+    ],
+    "3": [
+     1,
+     1
+    ],
+    "4": [
+     1,
+     1
+    ],
+    "5": [
+     0,
+     1
+    ]
+   },
+   "still": [
+    "제안 5: `json_object_array_shrink(struct json_object *, int)` 1849행 `empty_slots < 0`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  }
+ ],
+ "best": 1
+}

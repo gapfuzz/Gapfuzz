@@ -5,7 +5,7 @@
     python3 scripts/exp.py libs                   # 라이브러리 목록, 진행 상황, 담당
     python3 scripts/exp.py claim expat            # 이 라이브러리를 맡는다고 표시하고 push
     python3 scripts/exp.py fetch expat            # 라이브러리 소스를 고정 커밋으로 받기
-    python3 scripts/exp.py run expat              # 1시간 × 10회 (공식 vs 공식 + gapfuzz 수정)
+    python3 scripts/exp.py run expat              # 1시간 × 10회 (공식 vs gapfuzz 제안을 Claude가 고친 하네스)
     python3 scripts/exp.py run expat --trials 1-5 # 회차 일부만 (나머지는 나중에)
     python3 scripts/exp.py run expat --plan 24h   # 24시간 × 1회, 시간에 따른 커버리지 기록
     python3 scripts/exp.py report expat           # results/expat/REPORT.md 만들기
@@ -39,8 +39,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 RESULTS = Path(os.environ.get("GAPFUZZ_RESULTS", ROOT / "results"))   # 시험용으로 바꿀 수 있음
 EXPECTED_CLANG_MAJOR = 18
-LIBS = ["pugixml", "cjson", "jsoncpp", "zlib", "expat", "json-c"]   # 공식 vs 공식 + gapfuzz 수정 비교 대상
-HARNESSES = ["official", "official_v2"]
+LIBS = ["pugixml", "cjson", "jsoncpp", "zlib", "expat", "json-c"]   # 공식 vs Claude 수정 비교 대상
+FIXED = "official_llm"                  # gapfuzz 제안을 Claude API가 고치고 gapfuzz가 검증한 하네스 (scripts/make_llm_harness.py)
+HARNESSES = ["official", FIXED]
 SEED_BASE = 1000                                                    # 회차 r의 시드 = 1000 + r (두 하네스 같음)
 
 _spec = importlib.util.spec_from_file_location("tgt", ROOT / "scripts" / "tgt.py")
@@ -385,7 +386,7 @@ def run_day(a, t: dict, env: dict) -> int:
     if all(v <= 0 for v in left.values()):
         print(f"[24h] {a.lib}: 이미 끝났습니다 → python3 scripts/exp.py report {a.lib}")
         return 0
-    print(f"[24h] {a.lib}: 공식과 수정본을 동시에 {sum(schedule) / 60:.1f}시간 (남은 시간 약 {max(left.values()) / 3600:.1f}시간). "
+    print(f"[24h] {a.lib}: 공식과 Claude 수정본을 동시에 {sum(schedule) / 60:.1f}시간 (남은 시간 약 {max(left.values()) / 3600:.1f}시간). "
           "구간이 끝날 때마다 커버리지를 재서 results/에 저장합니다.")
     for h in HARNESSES:
         tg.build(t, h)
@@ -415,6 +416,8 @@ def run(a) -> int:
         raise SystemExit(f"clang {EXPECTED_CLANG_MAJOR}.x가 아닙니다: {env['clang']}  (python3 scripts/exp.py doctor)")
     if env["tool_commit"] and sh(["git", "-C", str(ROOT), "status", "--porcelain", "--", "gapfuzz", "scripts", "harnesses", "targets"]).stdout.strip():
         print("[run] 주의: 도구·하네스 코드에 커밋하지 않은 변경이 있습니다. 결과가 팀원과 달라질 수 있습니다.")
+    if not any((ROOT / "harnesses" / a.lib / f"{FIXED}{x}").exists() for x in (".c", ".cc", ".cpp")):
+        raise SystemExit(f"[run] harnesses/{a.lib}/{FIXED}.* 가 없습니다. git pull로 받으세요 (만드는 법: scripts/make_llm_harness.py)")
     if a.plan == "24h":
         return run_day(a, t, env)
     trials = parse_range(a.trials)
@@ -496,12 +499,12 @@ def load(lib: str, h: str, plan: str = "1h") -> list[dict]:
 
 
 def report_lib(lib: str) -> dict:
-    A, B = load(lib, "official"), load(lib, "official_v2")
+    A, B = load(lib, "official"), load(lib, FIXED)
     # 같은 회차끼리만 비교 (짝이 맞는 회차)
     common = sorted({r["trial"] for r in A} & {r["trial"] for r in B})
     A = [r for r in A if r["trial"] in common]
     B = [r for r in B if r["trial"] in common]
-    L = [f"# {lib}: 공식 하네스 vs 공식 + gapfuzz 수정", ""]
+    L = [f"# {lib}: 공식 하네스 vs gapfuzz 제안을 Claude가 고친 하네스", ""]
     day = day_section(lib)
     if not common:
         L += ["## 1시간 × 10회", "", "아직 두 하네스가 모두 끝난 회차가 없습니다.", "", *day]
@@ -513,13 +516,13 @@ def report_lib(lib: str) -> dict:
     cpus = sorted({r["env"]["cpu"] for r in A + B})
     L += [f"회차 {len(common)}개 ({', '.join(map(str, common))}), 회당 {', '.join(str(s) for s in secs)}초, 같은 회차는 같은 시드. "
           "커버리지는 라이브러리 소스만 집계.", "",
-          "| 지표 | 공식 | + gapfuzz 수정 | A12 | p (Mann-Whitney U, 양측 정확) |", "|---|---|---|---:|---:|"]
+          "| 지표 | 공식 | Claude 수정 | A12 | p (Mann-Whitney U, 양측 정확) |", "|---|---|---|---:|---:|"]
     stats = {}
     for key, ko in (("branches", "분기"), ("lines", "라인"), ("functions", "함수"), ("regions", "영역")):
         xa = [r["coverage"][key]["pct"] for r in A]
         xb = [r["coverage"][key]["pct"] for r in B]
         e, p = a12(xa, xb), mwu_p(xa, xb)
-        stats[key] = {"official": xa, "official_v2": xb, "a12": e, "p": p}
+        stats[key] = {"official": xa, FIXED: xb, "a12": e, "p": p}
         L.append(f"| {ko} | {_fmt(xa)} | {_fmt(xb)} | {e:.2f} | {p:.4g} |")
     L += ["", "값은 중앙값 [최솟값–최댓값]. A12는 무작위로 하나씩 뽑았을 때 수정본이 더 높을 확률(0.5면 차이 없음).", ""]
 
@@ -527,7 +530,7 @@ def report_lib(lib: str) -> dict:
     if tgt:
         L += ["## 제안이 겨냥한 분기", "", "회차마다 따로 셌습니다. 대조군은 일부러 적용하지 않은 제안의 분기입니다.", "",
               "| 하네스 | 겨냥한 분기(적용) 열린 수, 회차별 | 대조군 열린 수, 회차별 |", "|---|---|---|"]
-        for name, runs in (("공식", A), ("+ gapfuzz 수정", B)):
+        for name, runs in (("공식", A), ("Claude 수정", B)):
             app = [sum(x["opened"] for x in r["targets"] if x["applied"]) for r in runs]
             ctl = [sum(x["opened"] for x in r["targets"] if not x["applied"]) for r in runs]
             n_app = sum(1 for x in runs[0]["targets"] if x["applied"])
@@ -535,7 +538,7 @@ def report_lib(lib: str) -> dict:
             L.append(f"| {name} | {', '.join(f'{v}/{n_app}' for v in app)} | {', '.join(f'{v}/{n_ctl}' for v in ctl) if n_ctl else '–'} |")
         L.append("")
     L += ["## 크래시", "", "| 하네스 | 크래시가 난 회차 | 판정 |", "|---|---:|---|"]
-    for name, runs in (("공식", A), ("+ gapfuzz 수정", B)):
+    for name, runs in (("공식", A), ("Claude 수정", B)):
         n = sum(1 for r in runs if r["crashes"])
         verdicts = sorted({f"{t['verdict']}({t['confidence']})" for r in runs for t in r["triage"]})
         L.append(f"| {name} | {n}/{len(runs)} | {', '.join(verdicts) or '–'} |")
@@ -550,7 +553,7 @@ def report_lib(lib: str) -> dict:
 
 
 def day_section(lib: str) -> list[str]:
-    A, B = day_state(lib, "official"), day_state(lib, "official_v2")
+    A, B = day_state(lib, "official"), day_state(lib, FIXED)
     if not A.get("points") and not B.get("points"):
         return []
     L = ["## 24시간 × 1회", "", "같은 코퍼스로 구간을 이어 붙여 24시간 돌리고, 구간이 끝날 때마다 코퍼스 전체로 커버리지를 쟀습니다. "
@@ -578,19 +581,19 @@ def report(a) -> int:
     targets = LIBS if a.all else [a.lib]
     rows = []
     for lib in targets:
-        if not (load(lib, "official") or load(lib, "official_v2") or day_state(lib, "official") or day_state(lib, "official_v2")):
+        if not (load(lib, "official") or load(lib, FIXED) or day_state(lib, "official") or day_state(lib, FIXED)):
             continue
         st = report_lib(lib)
         print(f"[report] results/{lib}/REPORT.md")
         if st:
             b = st["branches"]
-            rows.append(f"| {lib} | {len(b['official'])} | {_fmt(b['official'])} | {_fmt(b['official_v2'])} | {b['a12']:.2f} | {b['p']:.4g} |")
+            rows.append(f"| {lib} | {len(b['official'])} | {_fmt(b['official'])} | {_fmt(b[FIXED])} | {b['a12']:.2f} | {b['p']:.4g} |")
     if a.all:
-        L = ["# 팀 실험 요약 (분기 커버리지)", "", "## 1시간 × 10회", "", "| 라이브러리 | 회차 | 공식 | + gapfuzz 수정 | A12 | p |",
+        L = ["# 팀 실험 요약 (분기 커버리지)", "", "## 1시간 × 10회", "", "| 라이브러리 | 회차 | 공식 | Claude 수정 | A12 | p |",
              "|---|---:|---|---|---:|---:|", *rows, "", "## 24시간 × 1회 (마지막 측정)", "",
-             "| 라이브러리 | 경과 | 공식 | + gapfuzz 수정 |", "|---|---:|---:|---:|"]
+             "| 라이브러리 | 경과 | 공식 | Claude 수정 |", "|---|---:|---:|---:|"]
         for lib in LIBS:
-            A, B = day_state(lib, "official"), day_state(lib, "official_v2")
+            A, B = day_state(lib, "official"), day_state(lib, FIXED)
             if A.get("points") and B.get("points"):
                 L.append(f"| {lib} | {min(A['done_secs'], B['done_secs']) / 3600:.1f}시간 | "
                          f"{A['points'][-1]['coverage']['branches']['pct']:.2f}% | {B['points'][-1]['coverage']['branches']['pct']:.2f}% |")

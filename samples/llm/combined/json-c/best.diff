@@ -1,0 +1,65 @@
+--- 수정 전
++++ 시도 1
+@@ -1,11 +1,29 @@
+ #include <stdint.h>
++#include <string.h>
+ 
+ #include <json.h>
+ 
+ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ {
++	int depth = JSON_TOKENER_DEFAULT_DEPTH; // [gapfuzz-llm] 헤더가 없으면 기존 기본 depth를 그대로 사용
++	unsigned int opt_sel = 0; // [gapfuzz-llm] json_object_object_add_ex의 opts 선택값 (0이면 원래 동작)
++	bool use_length = false; // [gapfuzz-llm] json_object_to_json_string_length의 length 인자를 널/비널 중 선택
++	int shrink_slots = 0; // [gapfuzz-llm] json_object_array_shrink에 넘길 empty_slots (음수는 abort되므로 사용하지 않음)
++	bool has_header = false; // [gapfuzz-llm] 입력 앞 4바이트를 제어용으로 썼는지 표시
++	char keybuf[33] = {0}; // [gapfuzz-llm] CONSTANT_KEY는 키가 객체보다 오래 살아야 하므로 함수 범위의 널 종료 버퍼를 둠
++	if (size >= 4) { // [gapfuzz-llm] 제어용 4바이트를 순서대로 나눠 써서 서로 겹치지 않게 함
++		depth = static_cast<int>(data[0] % 70) - 5; // [gapfuzz-llm] 첫 바이트: depth를 -5~64에서 선택 (기본값 32와 depth < 1 모두 가능)
++		opt_sel = data[1] % 4; // [gapfuzz-llm] 두 번째 바이트: add_ex의 opts 조합 선택
++		use_length = (data[2] & 1) != 0; // [gapfuzz-llm] 세 번째 바이트: length 인자를 널/비널 중 선택
++		shrink_slots = data[3] % 16; // [gapfuzz-llm] 네 번째 바이트: 0 이상의 empty_slots 선택
++		has_header = true; // [gapfuzz-llm] 헤더 사용 표시
++		data += 4; // [gapfuzz-llm] 제어에 쓴 바이트는 JSON 입력에서 제외
++		size -= 4; // [gapfuzz-llm] 소비한 만큼 길이 감소
++	}
+ 	const char *data1 = reinterpret_cast<const char *>(data);
+-	json_tokener *tok = json_tokener_new();
++	json_tokener *tok = json_tokener_new_ex(depth); // [gapfuzz-llm] depth < 1 분기를 타도록 json_tokener_new_ex를 직접 호출
++	if (tok == NULL) // [gapfuzz-llm] depth < 1이면 NULL이 반환되며 parse_ex에 NULL을 넘기면 안 되므로 종료
++		return 0;
+ 	json_object *obj = json_tokener_parse_ex(tok, data1, size);
+ 	
+ 	if (json_object_is_type(obj, json_type_object)) {
+@@ -13,8 +31,31 @@
+ 			(void)json_object_get_type(val);
+ 			(void)json_object_get_string(val);
+ 		}
++		if (has_header && size > 0) { // [gapfuzz-llm] json_object_object_add_ex를 직접 호출해 opts 값을 다양하게 시험
++			size_t klen = size < 32 ? size : 32; // [gapfuzz-llm] 키 길이를 제한해 입력에서 키를 고름
++			memcpy(keybuf, data, klen); // [gapfuzz-llm] 키를 퍼저 입력에서 가져옴 (기존 키와 겹칠 수도 있음)
++			keybuf[klen] = '\0'; // [gapfuzz-llm] 널 종료 보장
++			unsigned int opts = 0; // [gapfuzz-llm] opts 0(원래 동작)도 계속 나오게 함
++			switch (opt_sel) { // [gapfuzz-llm] 선택값으로 opts 조합 결정
++			case 1: opts = JSON_C_OBJECT_ADD_CONSTANT_KEY; break; // [gapfuzz-llm] 키 복사 생략 분기 도달
++			case 2: opts = JSON_C_OBJECT_ADD_KEY_IS_NEW; break; // [gapfuzz-llm] 새 키 표시 분기 도달
++			case 3: opts = JSON_C_OBJECT_ADD_KEY_IS_NEW | JSON_C_OBJECT_ADD_CONSTANT_KEY; break; // [gapfuzz-llm] 두 옵션 조합
++			default: break;
++			}
++			json_object *tmp = NULL; // [gapfuzz-llm] 키 존재 여부 확인용
++			if ((opts & JSON_C_OBJECT_ADD_KEY_IS_NEW) && json_object_object_get_ex(obj, keybuf, &tmp)) // [gapfuzz-llm] 이미 있는 키에 KEY_IS_NEW를 쓰면 문서상 잘못된 사용이므로 제거
++				opts &= ~(unsigned int)JSON_C_OBJECT_ADD_KEY_IS_NEW; // [gapfuzz-llm] 중복 키 삽입 방지
++			json_object *newval = json_object_new_int(opt_sel); // [gapfuzz-llm] 추가할 값 생성
++			if (newval && json_object_object_add_ex(obj, keybuf, newval, opts) < 0) // [gapfuzz-llm] 직접 호출
++				json_object_put(newval); // [gapfuzz-llm] 실패 시 소유권이 넘어가지 않으므로 해제
++		}
+ 	}
++	if (has_header && json_object_is_type(obj, json_type_array)) // [gapfuzz-llm] array_shrink는 배열 타입에만 호출해야 함(assert)
++		(void)json_object_array_shrink(obj, shrink_slots); // [gapfuzz-llm] 0 이상의 empty_slots를 직접 넘김 (음수는 json_abort가 호출되어 하네스 오용이므로 제외)
+ 	(void)json_object_to_json_string_ext(obj, JSON_C_TO_STRING_PRETTY | JSON_C_TO_STRING_SPACED);
++	size_t out_len = 0; // [gapfuzz-llm] length 출력 인자를 받을 변수 (직접 호출용)
++	(void)json_object_to_json_string_length(obj, JSON_C_TO_STRING_PRETTY | JSON_C_TO_STRING_SPACED, use_length ? &out_len : NULL); // [gapfuzz-llm] length를 널/비널 중에서 골라 612행의 참 분기를 열어줌
++	(void)out_len; // [gapfuzz-llm] 미사용 경고 방지
+ 	
+ 	json_object_put(obj);
+ 	json_tokener_free(tok);
