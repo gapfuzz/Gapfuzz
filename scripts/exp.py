@@ -6,7 +6,8 @@
     python3 scripts/exp.py claim expat            # 이 라이브러리를 맡는다고 표시하고 push
     python3 scripts/exp.py fetch expat            # 라이브러리 소스를 고정 커밋으로 받기
     python3 scripts/exp.py run expat              # 1시간 × 10회 (공식 vs 공식 + gapfuzz 수정)
-    python3 scripts/exp.py run expat --trials 1-5 # 회차 일부만 (나머지는 다른 사람이나 나중에)
+    python3 scripts/exp.py run expat --trials 1-5 # 회차 일부만 (나머지는 나중에)
+    python3 scripts/exp.py run expat --plan 24h   # 24시간 × 1회, 시간에 따른 커버리지 기록
     python3 scripts/exp.py report expat           # results/expat/REPORT.md 만들기
     python3 scripts/exp.py submit expat           # results/expat/만 커밋하고 push
 
@@ -14,9 +15,11 @@
   - 한 라이브러리는 한 사람이 한 컴퓨터에서 돌린다. 같은 회차의 두 하네스를 동시에(CPU 2개) 돌려
     컴퓨터 속도 차이가 비교에 섞이지 않게 한다.
   - 큰 파일(코퍼스, 커버리지, 바이너리)은 out/에 남고 git에 올라가지 않는다(.gitignore).
-    git에 올리는 것은 회차마다 1KB 남짓한 results/<라이브러리>/<하네스>/rNN.json뿐이라, 서로 다른 라이브러리를
+    git에 올리는 것은 작은 JSON뿐이라(results/<라이브러리>/1h/<하네스>/rNN.json, results/<라이브러리>/24h/<하네스>.json), 서로 다른 라이브러리를
     맡은 사람끼리는 같은 파일을 건드리지 않아 충돌이 나지 않는다.
   - 이미 결과 파일이 있는 회차는 건너뛰므로, 중간에 끊겨도 같은 명령을 다시 실행하면 이어서 돈다.
+    24시간 실험은 구간(10분, 20분, 30분, 그 뒤 1시간씩)이 끝날 때마다 커버리지를 재서 저장하므로,
+    끊기면 마지막으로 끝난 구간 다음부터 같은 코퍼스로 이어서 돈다.
 """
 import argparse
 import concurrent.futures as cf
@@ -140,18 +143,28 @@ def fetch(a) -> int:
     return 0
 
 
-def done_trials(lib: str, h: str) -> list[int]:
-    d = RESULTS / lib / h
+def plan_dir(secs: int) -> str:
+    return f"{secs // 3600}h" if secs % 3600 == 0 else f"{secs}s"
+
+
+def done_trials(lib: str, h: str, secs: int = 3600) -> list[int]:
+    d = RESULTS / lib / plan_dir(secs) / h
     return sorted(int(p.stem[1:]) for p in d.glob("r*.json")) if d.exists() else []
 
 
+def day_state(lib: str, h: str) -> dict:
+    p = RESULTS / lib / "24h" / f"{h}.json"
+    return json.load(open(p)) if p.exists() else {}
+
+
 def libs(_a) -> int:
-    print(f"{'라이브러리':10} {'커밋':10}  " + "  ".join(f"{h:>12}" for h in HARNESSES) + "  소스       담당")
+    print(f"{'라이브러리':10} {'커밋':10}  {'1시간 × 10회':>14}  {'24시간':>12}  소스       담당")
     for lib in LIBS:
         t = target(lib)
         have = (ROOT / t["clone_dir"]).exists()
-        cols = "  ".join(f"{len(done_trials(lib, h)):>9}/10" for h in HARNESSES)
-        print(f"{lib:10} {t['commit'][:10]}  {cols}  {'받음' if have else 'fetch 필요':10} {owner_of(lib) or '-'}")
+        one = min(len(done_trials(lib, h)) for h in HARNESSES)
+        day = min((day_state(lib, h).get("done_secs", 0) for h in HARNESSES)) / 3600
+        print(f"{lib:10} {t['commit'][:10]}  {one:>11}/10  {day:>9.1f}/24  {'받음' if have else 'fetch 필요':10} {owner_of(lib) or '-'}")
     return 0
 
 
@@ -258,7 +271,7 @@ def run_trial(lib: str, h: str, r: int, secs: int, env: dict) -> str:
     t = target(lib)
     tg.run_one(t, h, r, secs, SEED_BASE, 0, None, sub=f"long{secs}")
     res = summarize_run(lib, h, r, secs, started, env)
-    out = RESULTS / lib / h / f"r{r:02d}.json"
+    out = RESULTS / lib / plan_dir(secs) / h / f"r{r:02d}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     opened = sum(x["opened"] for x in res["targets"] if x["applied"])
@@ -273,6 +286,118 @@ def parse_range(s: str) -> list[int]:
         a, _, b = part.partition("-")
         out += list(range(int(a), int(b or a) + 1))
     return out
+
+
+# ------------------------------------------------------------------ 24시간 실험
+DAY_SCHEDULE_MIN = [10, 20, 30] + [60] * 23          # 구간 길이(분). 합계 24시간. 앞쪽은 곡선을 촘촘히 보려고 짧게
+DAY_SEED_BASE = 5000
+
+
+def measure_corpus(lib: str, h: str, d: Path) -> dict:
+    """코퍼스 전체를 커버리지 바이너리로 다시 실행해 라이브러리 소스의 커버리지와 겨냥 분기를 잰다."""
+    t = target(lib)
+    b = ROOT / "out" / "targets" / lib / h
+    for f in d.glob("cov-*.profraw"):
+        f.unlink()
+    env = dict(os.environ, LLVM_PROFILE_FILE=str(d / "cov-%p.profraw"))
+    subprocess.run([str(b / "cov"), "-runs=0", str(d / "corpus")], env=env,
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    raws = [str(p) for p in d.glob("cov-*.profraw")]
+    subprocess.run(["llvm-profdata", "merge", "-sparse", *raws, "-o", str(d / "cov.profdata")], check=True)
+    files = [str(x) for x in t["srcs"]] + [str(x) for x in t["headers"]]
+    with open(d / "coverage.json", "w") as f:
+        subprocess.run(["llvm-cov", "export", "-format=text", f"-instr-profile={d / 'cov.profdata'}", str(b / "cov"), *files],
+                       stdout=f, check=True)
+    cov, br = coverage_map(d / "coverage.json")
+    targets = []
+    tp = ROOT / "experiments" / "targets" / f"{lib}.json"
+    if tp.exists():
+        for x in json.load(open(tp))["branches"]:
+            seen = br.get((x["line"], x["col"]))
+            side = 0 if x["never"] == "참" else 1
+            targets.append({"fix": x["fix"], "applied": x["applied"], "line": x["line"], "opened": bool(seen and seen[side] > 0)})
+    crashes = sorted(p.name for p in d.iterdir() if p.name.split("-")[0] in ("crash", "leak", "timeout", "oom"))
+    return {"coverage": cov, "targets": targets, "corpus": len(os.listdir(d / "corpus")), "crashes": crashes}
+
+
+def day_one(lib: str, h: str, schedule: list[int], env: dict) -> str:
+    t = target(lib)
+    b = ROOT / "out" / "targets" / lib / h
+    d = b / "day"
+    out = RESULTS / lib / "24h" / f"{h}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    st = day_state(lib, h) or {"lib": lib, "harness": h, "schedule_min": schedule, "done_secs": 0, "chunks": 0,
+                               "points": [], "by": who_am_i(), "env": env}
+    if st["chunks"] and st["chunks"] < len(schedule) and not (d / "corpus").exists():
+        raise RuntimeError(f"{lib}/{h}: 이어서 돌릴 코퍼스(out/targets/{lib}/{h}/day/corpus)가 없습니다. "
+                           "처음 돌리던 컴퓨터에서 이어 주세요")
+    if not st["chunks"]:
+        subprocess.run(["rm", "-rf", str(d)], check=True)          # 결과가 없으면 이전 찌꺼기 없이 새로 시작
+    (d / "corpus").mkdir(parents=True, exist_ok=True)
+    dct = str(ROOT / t["dict"]) if t.get("dict") else None
+    while st["chunks"] < len(schedule):
+        k = st["chunks"]
+        secs = schedule[k] * 60
+        t0, runs = time.time(), 0
+        with open(d / "fuzz.log", "a") as log:
+            left = secs
+            while left > 30 and runs < 50:                         # 크래시가 끝없이 반복되면 구간을 넘김
+                runs += 1
+                log.write(f"\n=== {time.strftime('%m-%d %H:%M')} 구간 {k + 1} 시작 (남은 {left}초) ===\n")
+                log.flush()
+                args = [str(b / "fuzz"), f"-max_total_time={left}", f"-seed={DAY_SEED_BASE + k * 100 + runs}",
+                        "-rss_limit_mb=2048", "-timeout=10", f"-artifact_prefix={d}/", str(d / "corpus")]
+                if dct:
+                    args.insert(-1, f"-dict={dct}")
+                subprocess.run(args, stdout=log, stderr=subprocess.STDOUT)   # 크래시로 멈추면 남은 시간만큼 다시
+                left = secs - int(time.time() - t0)
+            if runs >= 50:
+                log.write("\n=== 크래시가 50번 반복되어 이 구간을 멈춥니다 ===\n")
+        st["done_secs"] += secs
+        st["chunks"] += 1
+        m = measure_corpus(lib, h, d)
+        m.update({"hours": round(st["done_secs"] / 3600, 3), "restarts": runs - 1,
+                  "at": time.strftime("%Y-%m-%dT%H:%M:%S%z")})
+        st["points"].append(m)
+        out.write_text(json.dumps(st, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        opened = sum(x["opened"] for x in m["targets"] if x["applied"])
+        total = sum(1 for x in m["targets"] if x["applied"])
+        print(f"[24h] {time.strftime('%m-%d %H:%M')} {lib}/{h} {m['hours']:.2f}시간: 분기 {m['coverage']['branches']['pct']:.2f}% "
+              f"겨냥 분기 {opened}/{total} 크래시 {len(m['crashes'])}", flush=True)
+    last = st["points"][-1] if st["points"] else {}
+    if last.get("crashes") and not st.get("triage"):
+        out_md = d / "triage.md"
+        sh([sys.executable, "-m", "gapfuzz", "triage", "--binary", str(b / "fuzz"), "--harness", str(tg.harness_path(t, h)),
+            "--lib-dir", str(ROOT / t["lib_dir"]), "--name", f"{lib}-{h}-24h", "--root", str(ROOT), "--out", str(out_md),
+            *[str(d / c) for c in last["crashes"]]], cwd=ROOT)
+        tj = out_md.with_suffix(".json")
+        if tj.exists():
+            st["triage"] = [{"verdict": (c.get("verdict") or {}).get("cls"), "confidence": (c.get("verdict") or {}).get("confidence"),
+                             "reason": (c.get("verdict") or {}).get("reason", "")[:200], "files": c.get("files", [])}
+                            for c in json.load(open(tj)).get("crashes", [])]
+            out.write_text(json.dumps(st, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return f"[24h] {lib}/{h} 끝 ({st['done_secs'] / 3600:.1f}시간)"
+
+
+def run_day(a, t: dict, env: dict) -> int:
+    schedule = [int(x) for x in a.schedule.split(",")] if a.schedule else DAY_SCHEDULE_MIN
+    left = {h: sum(schedule) * 60 - day_state(a.lib, h).get("done_secs", 0) for h in HARNESSES}
+    if all(v <= 0 for v in left.values()):
+        print(f"[24h] {a.lib}: 이미 끝났습니다 → python3 scripts/exp.py report {a.lib}")
+        return 0
+    print(f"[24h] {a.lib}: 공식과 수정본을 동시에 {sum(schedule) / 60:.1f}시간 (남은 시간 약 {max(left.values()) / 3600:.1f}시간). "
+          "구간이 끝날 때마다 커버리지를 재서 results/에 저장합니다.")
+    for h in HARNESSES:
+        tg.build(t, h)
+    with cf.ThreadPoolExecutor(max_workers=len(HARNESSES)) as ex:
+        for f in cf.as_completed([ex.submit(day_one, a.lib, h, schedule, env) for h in HARNESSES]):
+            try:
+                print(f.result(), flush=True)
+            except Exception as e:
+                print(f"[24h] 실패: {e!r}", flush=True)
+    report_lib(a.lib)
+    print(f"[24h] 결과 올리기: python3 scripts/exp.py submit {a.lib}")
+    return 0
 
 
 def run(a) -> int:
@@ -290,8 +415,10 @@ def run(a) -> int:
         raise SystemExit(f"clang {EXPECTED_CLANG_MAJOR}.x가 아닙니다: {env['clang']}  (python3 scripts/exp.py doctor)")
     if env["tool_commit"] and sh(["git", "-C", str(ROOT), "status", "--porcelain", "--", "gapfuzz", "scripts", "harnesses", "targets"]).stdout.strip():
         print("[run] 주의: 도구·하네스 코드에 커밋하지 않은 변경이 있습니다. 결과가 팀원과 달라질 수 있습니다.")
+    if a.plan == "24h":
+        return run_day(a, t, env)
     trials = parse_range(a.trials)
-    todo = [(h, r) for r in trials for h in HARNESSES if not (RESULTS / a.lib / h / f"r{r:02d}.json").exists()]
+    todo = [(h, r) for r in trials for h in HARNESSES if not (RESULTS / a.lib / plan_dir(a.secs) / h / f"r{r:02d}.json").exists()]
     if not todo:
         print(f"[run] {a.lib}: 요청한 회차가 모두 끝났습니다 → python3 scripts/exp.py report {a.lib}")
         return 0
@@ -363,8 +490,8 @@ def _fmt(v: list[float]) -> str:
     return f"{med:.2f}% [{s[0]:.2f}–{s[-1]:.2f}]"
 
 
-def load(lib: str, h: str) -> list[dict]:
-    d = RESULTS / lib / h
+def load(lib: str, h: str, plan: str = "1h") -> list[dict]:
+    d = RESULTS / lib / plan / h
     return [json.load(open(p)) for p in sorted(d.glob("r*.json"))] if d.exists() else []
 
 
@@ -375,10 +502,12 @@ def report_lib(lib: str) -> dict:
     A = [r for r in A if r["trial"] in common]
     B = [r for r in B if r["trial"] in common]
     L = [f"# {lib}: 공식 하네스 vs 공식 + gapfuzz 수정", ""]
+    day = day_section(lib)
     if not common:
-        L.append("아직 두 하네스가 모두 끝난 회차가 없습니다.")
+        L += ["## 1시간 × 10회", "", "아직 두 하네스가 모두 끝난 회차가 없습니다.", "", *day]
         (RESULTS / lib / "REPORT.md").write_text("\n".join(L) + "\n", encoding="utf-8")
         return {}
+    L += ["## 1시간 × 10회", ""]
     secs = sorted({r["secs"] for r in A + B})
     clangs = sorted({r["env"]["clang"] for r in A + B})
     cpus = sorted({r["env"]["cpu"] for r in A + B})
@@ -414,16 +543,42 @@ def report_lib(lib: str) -> dict:
           f"- clang: {'; '.join(clangs)}" + (" **(서로 다름: 비교에 주의)**" if len(clangs) > 1 else ""),
           f"- CPU: {'; '.join(cpus)}" + (" **(서로 다름)**" if len(cpus) > 1 else ""),
           f"- 실행한 사람: {', '.join(sorted({r['by'] for r in A + B}))}",
-          f"- 실행 수 중앙값: 공식 {sorted(r['execs'] or 0 for r in A)[len(A) // 2]:,}, 수정 {sorted(r['execs'] or 0 for r in B)[len(B) // 2]:,}"]
+          f"- 실행 수 중앙값: 공식 {sorted(r['execs'] or 0 for r in A)[len(A) // 2]:,}, 수정 {sorted(r['execs'] or 0 for r in B)[len(B) // 2]:,}", ""]
+    L += day
     (RESULTS / lib / "REPORT.md").write_text("\n".join(L) + "\n", encoding="utf-8")
     return stats
+
+
+def day_section(lib: str) -> list[str]:
+    A, B = day_state(lib, "official"), day_state(lib, "official_v2")
+    if not A.get("points") and not B.get("points"):
+        return []
+    L = ["## 24시간 × 1회", "", "같은 코퍼스로 구간을 이어 붙여 24시간 돌리고, 구간이 끝날 때마다 코퍼스 전체로 커버리지를 쟀습니다. "
+         "하네스마다 1회라 통계 검정은 없습니다(통계는 1시간 × 10회).", "",
+         "| 경과 | 공식 분기 | 수정 분기 | 공식 라인 | 수정 라인 | 겨냥 분기(수정) |", "|---:|---:|---:|---:|---:|---:|"]
+    pa, pb = A.get("points", []), B.get("points", [])
+    for i in range(max(len(pa), len(pb))):
+        x = pa[i] if i < len(pa) else None
+        y = pb[i] if i < len(pb) else None
+        hrs = (x or y)["hours"]
+        cell = lambda p, k: f"{p['coverage'][k]['pct']:.2f}%" if p else ""
+        tg_cell = (f"{sum(t['opened'] for t in y['targets'] if t['applied'])}/{sum(1 for t in y['targets'] if t['applied'])}"
+                   if y and y["targets"] else "")
+        L.append(f"| {f'{round(hrs * 60)}분' if hrs < 1 else f'{hrs:g}시간'} | {cell(x, 'branches')} | {cell(y, 'branches')} | {cell(x, 'lines')} | {cell(y, 'lines')} | {tg_cell} |")
+    for name, s in (("공식", A), ("수정", B)):
+        if s.get("points"):
+            last = s["points"][-1]
+            tri = ", ".join(f"{t['verdict']}({t['confidence']})" for t in s.get("triage", [])) or "–"
+            L.append(f"\n- {name}: 크래시 {len(last['crashes'])}개 (판정 {tri}), 코퍼스 {last['corpus']:,}개, 실행: {s.get('by', '')}")
+    L.append("")
+    return L
 
 
 def report(a) -> int:
     targets = LIBS if a.all else [a.lib]
     rows = []
     for lib in targets:
-        if not load(lib, "official") and not load(lib, "official_v2"):
+        if not (load(lib, "official") or load(lib, "official_v2") or day_state(lib, "official") or day_state(lib, "official_v2")):
             continue
         st = report_lib(lib)
         print(f"[report] results/{lib}/REPORT.md")
@@ -431,8 +586,14 @@ def report(a) -> int:
             b = st["branches"]
             rows.append(f"| {lib} | {len(b['official'])} | {_fmt(b['official'])} | {_fmt(b['official_v2'])} | {b['a12']:.2f} | {b['p']:.4g} |")
     if a.all:
-        L = ["# 1시간 반복 실험 요약 (분기 커버리지)", "", "| 라이브러리 | 회차 | 공식 | + gapfuzz 수정 | A12 | p |",
-             "|---|---:|---|---|---:|---:|", *rows]
+        L = ["# 팀 실험 요약 (분기 커버리지)", "", "## 1시간 × 10회", "", "| 라이브러리 | 회차 | 공식 | + gapfuzz 수정 | A12 | p |",
+             "|---|---:|---|---|---:|---:|", *rows, "", "## 24시간 × 1회 (마지막 측정)", "",
+             "| 라이브러리 | 경과 | 공식 | + gapfuzz 수정 |", "|---|---:|---:|---:|"]
+        for lib in LIBS:
+            A, B = day_state(lib, "official"), day_state(lib, "official_v2")
+            if A.get("points") and B.get("points"):
+                L.append(f"| {lib} | {min(A['done_secs'], B['done_secs']) / 3600:.1f}시간 | "
+                         f"{A['points'][-1]['coverage']['branches']['pct']:.2f}% | {B['points'][-1]['coverage']['branches']['pct']:.2f}% |")
         (RESULTS / "SUMMARY.md").write_text("\n".join(L) + "\n", encoding="utf-8")
         print("[report] results/SUMMARY.md")
     return 0
@@ -453,9 +614,10 @@ def submit(a) -> int:
     if not g("diff", "--cached", "--name-only", "--", path).stdout.strip():
         print("[submit] 올릴 새 결과가 없습니다")
         return 0
-    n = {h: len(done_trials(lib, h)) for h in HARNESSES}
+    n = min(len(done_trials(lib, h)) for h in HARNESSES)
+    dh = min(day_state(lib, h).get("done_secs", 0) for h in HARNESSES) / 3600
     who = who_am_i()
-    msg = f"results({lib}): official {n['official']}회, official_v2 {n['official_v2']}회 ({who})"
+    msg = f"results({lib}): 1시간 {n}/10회, 24시간 {dh:.1f}/24시간 ({who})"
     r = g("commit", "-m", msg)
     if r.returncode:
         raise SystemExit(r.stderr or r.stdout)
@@ -488,6 +650,8 @@ def main() -> int:
     r.add_argument("--secs", type=int, default=3600, help="회당 퍼징 시간(초)")
     r.add_argument("--jobs", type=int, default=2, help="동시에 돌릴 개수 (CPU 수 이하)")
     r.add_argument("--force", action="store_true", help="다른 사람이 맡은 라이브러리라도 실행")
+    r.add_argument("--plan", choices=["1h", "24h"], default="1h", help="1h: 1시간 × 10회 (기본), 24h: 24시간 × 1회")
+    r.add_argument("--schedule", help=argparse.SUPPRESS)          # 시험용: 24h 구간 길이(분), 예: 1,1
     p = sub.add_parser("report", help="results/<lib>/REPORT.md 만들기")
     p.add_argument("lib", nargs="?")
     p.add_argument("--all", action="store_true", help="모든 라이브러리 + results/SUMMARY.md")

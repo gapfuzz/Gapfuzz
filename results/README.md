@@ -4,7 +4,8 @@
 
 ```
 results/<라이브러리>/OWNER.txt                 담당자 (exp.py claim)
-results/<라이브러리>/<하네스>/rNN.json          회차 하나의 결과 (exp.py run)
+results/<라이브러리>/1h/<하네스>/rNN.json       1시간 회차 하나의 결과 (exp.py run)
+results/<라이브러리>/24h/<하네스>.json         24시간 실험, 구간마다 측정값이 쌓임 (exp.py run --plan 24h)
 results/<라이브러리>/REPORT.md                 라이브러리 보고서 (exp.py report)
 results/SUMMARY.md                            전체 요약 (exp.py report --all, 정리 담당만)
 ```
