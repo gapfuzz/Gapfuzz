@@ -1,4 +1,4 @@
-// [gapfuzz-llm] 이 파일은 Claude(claude-sonnet-5-5)가 gapfuzz 제안 2,3,4,5를 공식 하네스에 적용하고
+// [gapfuzz-llm] 이 파일은 Claude(claude-sonnet-5-5)가 gapfuzz 제안 2,3,4,5를 OSS-Fuzz 하네스에 적용하고
 // [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness.py, 기록: samples/llm/combined/json-c/).
 #include <stdint.h>
 #include <string.h>

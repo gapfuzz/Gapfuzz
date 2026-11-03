@@ -1,6 +1,6 @@
-// [gapfuzz-llm] 이 파일은 Claude(claude-sonnet-5-5)가 gapfuzz 제안 1,3를 공식 하네스에 적용하고
+// [gapfuzz-llm] 이 파일은 Claude(claude-sonnet-5-5)가 gapfuzz 제안 1,3를 OSS-Fuzz 하네스에 적용하고
 // [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness.py, 기록: samples/llm/combined/jsoncpp/).
-// OSS-Fuzz 공식 하네스: jsoncpp 저장소 src/test_lib_json/fuzz.cpp (커밋 93acc7b) 그대로. fuzz.h 포함만 뺌.
+// OSS-Fuzz 하네스: jsoncpp 저장소 src/test_lib_json/fuzz.cpp (커밋 93acc7b) 그대로. fuzz.h 포함만 뺌.
 // Copyright 2007-2019 The JsonCpp Authors
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.

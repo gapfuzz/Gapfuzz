@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """팀 실험용 Claude 하네스 만들기: 라이브러리마다 gapfuzz의 '하네스에서 고칠 곳'을 Claude API에 한꺼번에 맡겨
-공식 하네스를 고치게 하고, gapfuzz가 검사(컴파일 → 퍼징 → 겨냥 분기가 열렸나 → 크래시 귀속)한 뒤 통과한 것을
+OSS-Fuzz 하네스를 고치게 하고, gapfuzz가 검사(컴파일 → 퍼징 → 겨냥 분기가 열렸나 → 크래시 귀속)한 뒤 통과한 것을
 harnesses/<라이브러리>/official_llm.* 로 저장한다.
 
   ANTHROPIC_API_KEY=... python3 scripts/make_llm_harness.py --all
@@ -56,7 +56,7 @@ def make(lib: str, a) -> dict:
         src = ROOT / best["harness"]
         out = ROOT / "harnesses" / lib / f"official_llm{src.suffix}"
         model = "mock" if a.mock else a.model
-        head = (f"// [gapfuzz-llm] 이 파일은 Claude({model})가 gapfuzz 제안 {','.join(map(str, on))}를 공식 하네스에 적용하고\n"
+        head = (f"// [gapfuzz-llm] 이 파일은 Claude({model})가 gapfuzz 제안 {','.join(map(str, on))}를 OSS-Fuzz 하네스에 적용하고\n"
                 f"// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness.py, 기록: samples/llm/combined/{lib}/).\n")
         out.write_text(head + src.read_text(encoding="utf-8"), encoding="utf-8")
         row.update({"opened": best["opened"], "total": best["total"], "per_fix": best.get("per_fix", {}),
@@ -73,8 +73,8 @@ def make(lib: str, a) -> dict:
 def summary() -> None:
     rows = [json.load(open(p)) for p in sorted(OUT.glob("*/summary.json"))]
     L = ["# Claude가 만든 팀 실험용 하네스 (official_llm)", "",
-         "라이브러리마다 gapfuzz의 '하네스에서 고칠 곳'(대조군 제외)을 Claude API에 한꺼번에 맡겨 공식 하네스를 고치게 하고,",
-         "gapfuzz가 컴파일 → 퍼징 → 겨냥 분기 확인 → 크래시 귀속으로 검사해 통과한 하네스입니다. 팀 실험은 이 하네스를 공식 하네스와 비교합니다.", "",
+         "라이브러리마다 gapfuzz의 '하네스에서 고칠 곳'(대조군 제외)을 Claude API에 한꺼번에 맡겨 OSS-Fuzz 하네스를 고치게 하고,",
+         "gapfuzz가 컴파일 → 퍼징 → 겨냥 분기 확인 → 크래시 귀속으로 검사해 통과한 하네스입니다. 팀 실험은 이 하네스를 OSS-Fuzz 하네스와 비교합니다.", "",
          "| 라이브러리 | 맡긴 제안 | 대조군 | 결과 | 겨냥 분기 열림 | 제안별 | 시도 | 토큰(입력/출력) |", "|---|---|---|---|---:|---|---:|---|"]
     for r in rows:
         pf = ", ".join(f"{k}: {v[0]}/{v[1]}" for k, v in r.get("per_fix", {}).items()) or "–"
