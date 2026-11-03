@@ -1,0 +1,96 @@
+{
+ "lib": "cjson",
+ "harness": "official",
+ "trial": 3,
+ "secs": 3600,
+ "seed": 1003,
+ "coverage": {
+  "lines": {
+   "pct": 42.732,
+   "covered": 979,
+   "count": 2291
+  },
+  "branches": {
+   "pct": 45.541,
+   "covered": 480,
+   "count": 1054
+  },
+  "functions": {
+   "pct": 27.434,
+   "covered": 31,
+   "count": 113
+  },
+  "regions": {
+   "pct": 47.503,
+   "covered": 780,
+   "count": 1642
+  }
+ },
+ "execs": 50077248,
+ "corpus": 793,
+ "crashes": [],
+ "triage": [],
+ "targets": [
+  {
+   "fix": 1,
+   "applied": true,
+   "line": 1187,
+   "opened": false
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "line": 1215,
+   "opened": false
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "line": 1321,
+   "opened": false
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "line": 1135,
+   "opened": false
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "line": 1156,
+   "opened": false
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "line": 1200,
+   "opened": false
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "line": 1427,
+   "opened": false
+  },
+  {
+   "fix": 5,
+   "applied": false,
+   "line": 2928,
+   "opened": false
+  }
+ ],
+ "started": "2026-11-03T13:43:39+0000",
+ "wall_secs": 3603,
+ "by": "jihyun",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "13th Gen Intel(R) Core(TM) i5-1340P",
+  "cores": 16,
+  "tool_commit": "2327384"
+ }
+}
