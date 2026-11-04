@@ -1,0 +1,2725 @@
+{
+ "lib": "zlib",
+ "harness": "official_llm",
+ "schedule_min": [
+  10,
+  20,
+  30,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60
+ ],
+ "done_secs": 86400,
+ "chunks": 26,
+ "points": [
+  {
+   "coverage": {
+    "lines": {
+     "pct": 26.745,
+     "covered": 1042,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 21.787,
+     "covered": 512,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 21.943,
+     "covered": 1014,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 654,
+   "crashes": [],
+   "hours": 0.167,
+   "restarts": 0,
+   "at": "2026-11-03T01:14:41+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 21.957,
+     "covered": 516,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 2114,
+   "crashes": [],
+   "hours": 0.5,
+   "restarts": 0,
+   "at": "2026-11-03T01:34:43+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 21.957,
+     "covered": 516,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 3844,
+   "crashes": [],
+   "hours": 1.0,
+   "restarts": 0,
+   "at": "2026-11-03T02:04:45+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 21.957,
+     "covered": 516,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 5713,
+   "crashes": [],
+   "hours": 2.0,
+   "restarts": 0,
+   "at": "2026-11-03T03:04:47+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 21.957,
+     "covered": 516,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 6889,
+   "crashes": [],
+   "hours": 3.0,
+   "restarts": 0,
+   "at": "2026-11-03T04:04:49+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 21.957,
+     "covered": 516,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 7729,
+   "crashes": [],
+   "hours": 4.0,
+   "restarts": 0,
+   "at": "2026-11-03T05:04:51+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 21.957,
+     "covered": 516,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 8335,
+   "crashes": [],
+   "hours": 5.0,
+   "restarts": 0,
+   "at": "2026-11-03T06:04:53+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 8849,
+   "crashes": [],
+   "hours": 6.0,
+   "restarts": 0,
+   "at": "2026-11-03T07:04:55+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 9284,
+   "crashes": [],
+   "hours": 7.0,
+   "restarts": 0,
+   "at": "2026-11-03T08:04:58+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 9595,
+   "crashes": [],
+   "hours": 8.0,
+   "restarts": 0,
+   "at": "2026-11-03T09:05:00+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 9867,
+   "crashes": [],
+   "hours": 9.0,
+   "restarts": 0,
+   "at": "2026-11-03T10:05:02+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 10104,
+   "crashes": [],
+   "hours": 10.0,
+   "restarts": 0,
+   "at": "2026-11-03T11:14:33+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 10332,
+   "crashes": [],
+   "hours": 11.0,
+   "restarts": 0,
+   "at": "2026-11-03T12:14:35+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 10549,
+   "crashes": [],
+   "hours": 12.0,
+   "restarts": 0,
+   "at": "2026-11-03T13:14:38+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 10740,
+   "crashes": [],
+   "hours": 13.0,
+   "restarts": 0,
+   "at": "2026-11-03T14:14:40+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 10921,
+   "crashes": [],
+   "hours": 14.0,
+   "restarts": 0,
+   "at": "2026-11-03T15:14:43+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 11108,
+   "crashes": [],
+   "hours": 15.0,
+   "restarts": 0,
+   "at": "2026-11-03T16:14:45+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 11257,
+   "crashes": [],
+   "hours": 16.0,
+   "restarts": 0,
+   "at": "2026-11-03T17:14:47+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 11416,
+   "crashes": [],
+   "hours": 17.0,
+   "restarts": 0,
+   "at": "2026-11-03T18:14:50+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 11554,
+   "crashes": [],
+   "hours": 18.0,
+   "restarts": 0,
+   "at": "2026-11-03T19:14:52+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 11678,
+   "crashes": [],
+   "hours": 19.0,
+   "restarts": 0,
+   "at": "2026-11-03T20:14:55+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 11781,
+   "crashes": [],
+   "hours": 20.0,
+   "restarts": 0,
+   "at": "2026-11-03T21:14:57+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 11891,
+   "crashes": [],
+   "hours": 21.0,
+   "restarts": 0,
+   "at": "2026-11-03T22:15:00+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 11966,
+   "crashes": [],
+   "hours": 22.0,
+   "restarts": 0,
+   "at": "2026-11-03T23:15:03+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 12081,
+   "crashes": [],
+   "hours": 23.0,
+   "restarts": 0,
+   "at": "2026-11-04T00:15:05+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 27.053,
+     "covered": 1054,
+     "count": 3896
+    },
+    "branches": {
+     "pct": 22,
+     "covered": 517,
+     "count": 2350
+    },
+    "functions": {
+     "pct": 17.117,
+     "covered": 19,
+     "count": 111
+    },
+    "regions": {
+     "pct": 22.225,
+     "covered": 1027,
+     "count": 4621
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 36,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": false,
+     "line": 36,
+     "opened": false
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 37,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 717,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 739,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 768,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 917,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1142,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1158,
+     "opened": true
+    }
+   ],
+   "corpus": 12193,
+   "crashes": [],
+   "hours": 24.0,
+   "restarts": 0,
+   "at": "2026-11-04T01:15:08+0000"
+  }
+ ],
+ "by": "xxn9k",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+  "cores": 6,
+  "tool_commit": "3093fb1"
+ }
+}
