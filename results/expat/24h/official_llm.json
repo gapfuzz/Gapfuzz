@@ -1,0 +1,1390 @@
+{
+ "lib": "expat",
+ "harness": "official_llm",
+ "schedule_min": [
+  10,
+  20,
+  30,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60
+ ],
+ "done_secs": 54000,
+ "chunks": 17,
+ "points": [
+  {
+   "coverage": {
+    "lines": {
+     "pct": 42.355,
+     "covered": 3737,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 37.383,
+     "covered": 1843,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 49.346,
+     "covered": 151,
+     "count": 306
+    },
+    "regions": {
+     "pct": 43.305,
+     "covered": 2885,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 8261,
+   "crashes": [],
+   "hours": 0.167,
+   "restarts": 0,
+   "at": "2026-11-03T14:43:43+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 44.951,
+     "covered": 3966,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 40.345,
+     "covered": 1989,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 51.307,
+     "covered": 157,
+     "count": 306
+    },
+    "regions": {
+     "pct": 46.653,
+     "covered": 3108,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 18125,
+   "crashes": [],
+   "hours": 0.5,
+   "restarts": 0,
+   "at": "2026-11-03T15:03:47+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 47.297,
+     "covered": 4173,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 42.576,
+     "covered": 2099,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 52.614,
+     "covered": 161,
+     "count": 306
+    },
+    "regions": {
+     "pct": 49.295,
+     "covered": 3284,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 27041,
+   "crashes": [],
+   "hours": 1.0,
+   "restarts": 0,
+   "at": "2026-11-03T15:33:51+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 48.782,
+     "covered": 4304,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 43.793,
+     "covered": 2159,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 53.595,
+     "covered": 164,
+     "count": 306
+    },
+    "regions": {
+     "pct": 50.645,
+     "covered": 3374,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 36856,
+   "crashes": [],
+   "hours": 2.0,
+   "restarts": 0,
+   "at": "2026-11-03T16:33:56+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 50.459,
+     "covered": 4452,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 45.517,
+     "covered": 2244,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 54.575,
+     "covered": 167,
+     "count": 306
+    },
+    "regions": {
+     "pct": 52.507,
+     "covered": 3498,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 42961,
+   "crashes": [],
+   "hours": 3.0,
+   "restarts": 0,
+   "at": "2026-11-03T17:34:01+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 51.978,
+     "covered": 4586,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 46.815,
+     "covered": 2308,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 56.863,
+     "covered": 174,
+     "count": 306
+    },
+    "regions": {
+     "pct": 53.843,
+     "covered": 3587,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 47783,
+   "crashes": [],
+   "hours": 4.0,
+   "restarts": 0,
+   "at": "2026-11-03T18:34:07+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 52.624,
+     "covered": 4643,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 47.505,
+     "covered": 2342,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 57.843,
+     "covered": 177,
+     "count": 306
+    },
+    "regions": {
+     "pct": 54.593,
+     "covered": 3637,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 51567,
+   "crashes": [],
+   "hours": 5.0,
+   "restarts": 0,
+   "at": "2026-11-03T19:34:12+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 52.998,
+     "covered": 4676,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 47.89,
+     "covered": 2361,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 58.497,
+     "covered": 179,
+     "count": 306
+    },
+    "regions": {
+     "pct": 54.953,
+     "covered": 3661,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 54588,
+   "crashes": [],
+   "hours": 6.0,
+   "restarts": 0,
+   "at": "2026-11-03T20:34:19+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 53.667,
+     "covered": 4735,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 48.398,
+     "covered": 2386,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 58.824,
+     "covered": 180,
+     "count": 306
+    },
+    "regions": {
+     "pct": 55.569,
+     "covered": 3702,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 57218,
+   "crashes": [],
+   "hours": 7.0,
+   "restarts": 0,
+   "at": "2026-11-03T21:34:25+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 53.905,
+     "covered": 4756,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 48.722,
+     "covered": 2402,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 58.824,
+     "covered": 180,
+     "count": 306
+    },
+    "regions": {
+     "pct": 55.929,
+     "covered": 3726,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 59511,
+   "crashes": [],
+   "hours": 8.0,
+   "restarts": 0,
+   "at": "2026-11-03T22:34:32+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 54.097,
+     "covered": 4773,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 48.864,
+     "covered": 2409,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 59.15,
+     "covered": 181,
+     "count": 306
+    },
+    "regions": {
+     "pct": 56.079,
+     "covered": 3736,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 61529,
+   "crashes": [],
+   "hours": 9.0,
+   "restarts": 0,
+   "at": "2026-11-03T23:34:39+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 54.358,
+     "covered": 4796,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 49.128,
+     "covered": 2422,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 59.477,
+     "covered": 182,
+     "count": 306
+    },
+    "regions": {
+     "pct": 56.319,
+     "covered": 3752,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 63386,
+   "crashes": [],
+   "hours": 10.0,
+   "restarts": 0,
+   "at": "2026-11-04T00:34:46+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 55.174,
+     "covered": 4868,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 49.757,
+     "covered": 2453,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 59.804,
+     "covered": 183,
+     "count": 306
+    },
+    "regions": {
+     "pct": 57.25,
+     "covered": 3814,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 65183,
+   "crashes": [],
+   "hours": 11.0,
+   "restarts": 0,
+   "at": "2026-11-04T01:34:53+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 55.231,
+     "covered": 4873,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 49.939,
+     "covered": 2462,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 59.804,
+     "covered": 183,
+     "count": 306
+    },
+    "regions": {
+     "pct": 57.325,
+     "covered": 3819,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 66713,
+   "crashes": [],
+   "hours": 12.0,
+   "restarts": 0,
+   "at": "2026-11-04T02:35:01+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 55.605,
+     "covered": 4906,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 50.223,
+     "covered": 2476,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 59.804,
+     "covered": 183,
+     "count": 306
+    },
+    "regions": {
+     "pct": 57.655,
+     "covered": 3841,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 68173,
+   "crashes": [],
+   "hours": 13.0,
+   "restarts": 0,
+   "at": "2026-11-04T03:35:09+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 56.035,
+     "covered": 4944,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 50.568,
+     "covered": 2493,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 60.131,
+     "covered": 184,
+     "count": 306
+    },
+    "regions": {
+     "pct": 58.061,
+     "covered": 3868,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 69489,
+   "crashes": [],
+   "hours": 14.0,
+   "restarts": 0,
+   "at": "2026-11-04T04:35:16+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 56.183,
+     "covered": 4957,
+     "count": 8823
+    },
+    "branches": {
+     "pct": 50.751,
+     "covered": 2502,
+     "count": 4930
+    },
+    "functions": {
+     "pct": 60.131,
+     "covered": 184,
+     "count": 306
+    },
+    "regions": {
+     "pct": 58.241,
+     "covered": 3880,
+     "count": 6662
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1668,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8298,
+     "opened": false
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8306,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8314,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8345,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 8356,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 2339,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": false,
+     "line": 2316,
+     "opened": false
+    }
+   ],
+   "corpus": 71034,
+   "crashes": [],
+   "hours": 15.0,
+   "restarts": 0,
+   "at": "2026-11-04T05:35:24+0000"
+  }
+ ],
+ "by": "ttzero25",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz",
+  "cores": 8,
+  "tool_commit": "2327384"
+ }
+}
