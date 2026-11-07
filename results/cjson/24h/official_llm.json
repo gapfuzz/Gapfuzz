@@ -29,8 +29,8 @@
   60,
   60
  ],
- "done_secs": 75600,
- "chunks": 23,
+ "done_secs": 86400,
+ "chunks": 26,
  "points": [
   {
    "coverage": {
@@ -1848,6 +1848,243 @@
    "hours": 21.0,
    "restarts": 0,
    "at": "2026-11-04T20:39:54+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 43.736,
+     "covered": 1002,
+     "count": 2291
+    },
+    "branches": {
+     "pct": 46.49,
+     "covered": 490,
+     "count": 1054
+    },
+    "functions": {
+     "pct": 27.434,
+     "covered": 31,
+     "count": 113
+    },
+    "regions": {
+     "pct": 48.051,
+     "covered": 789,
+     "count": 1642
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1187,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1215,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 1321,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 1135,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 1156,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 1200,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1427,
+     "opened": true
+    },
+    {
+     "fix": 5,
+     "applied": false,
+     "line": 2928,
+     "opened": false
+    }
+   ],
+   "corpus": 14799,
+   "crashes": [],
+   "hours": 22.0,
+   "restarts": 0,
+   "at": "2026-11-06T12:06:51+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 43.736,
+     "covered": 1002,
+     "count": 2291
+    },
+    "branches": {
+     "pct": 46.49,
+     "covered": 490,
+     "count": 1054
+    },
+    "functions": {
+     "pct": 27.434,
+     "covered": 31,
+     "count": 113
+    },
+    "regions": {
+     "pct": 48.051,
+     "covered": 789,
+     "count": 1642
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1187,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1215,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 1321,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 1135,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 1156,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 1200,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1427,
+     "opened": true
+    },
+    {
+     "fix": 5,
+     "applied": false,
+     "line": 2928,
+     "opened": false
+    }
+   ],
+   "corpus": 14835,
+   "crashes": [],
+   "hours": 23.0,
+   "restarts": 0,
+   "at": "2026-11-06T13:06:55+0000"
+  },
+  {
+   "coverage": {
+    "lines": {
+     "pct": 43.736,
+     "covered": 1002,
+     "count": 2291
+    },
+    "branches": {
+     "pct": 46.49,
+     "covered": 490,
+     "count": 1054
+    },
+    "functions": {
+     "pct": 27.434,
+     "covered": 31,
+     "count": 113
+    },
+    "regions": {
+     "pct": 48.051,
+     "covered": 789,
+     "count": 1642
+    }
+   },
+   "targets": [
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1187,
+     "opened": true
+    },
+    {
+     "fix": 1,
+     "applied": true,
+     "line": 1215,
+     "opened": true
+    },
+    {
+     "fix": 2,
+     "applied": true,
+     "line": 1321,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 1135,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 1156,
+     "opened": true
+    },
+    {
+     "fix": 3,
+     "applied": true,
+     "line": 1200,
+     "opened": true
+    },
+    {
+     "fix": 4,
+     "applied": true,
+     "line": 1427,
+     "opened": true
+    },
+    {
+     "fix": 5,
+     "applied": false,
+     "line": 2928,
+     "opened": false
+    }
+   ],
+   "corpus": 14915,
+   "crashes": [],
+   "hours": 24.0,
+   "restarts": 0,
+   "at": "2026-11-06T14:06:59+0000"
   }
  ],
  "by": "jihyun",
