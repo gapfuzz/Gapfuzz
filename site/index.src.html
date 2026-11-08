@@ -332,23 +332,115 @@ td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; white-space:
 .links a, .links span { font-size: 14.5px; border: 1px solid var(--line); border-radius: 10px; padding: 9px 14px; text-decoration: none; color: var(--ink); background: var(--surface); }
 .links span { color: var(--muted); }
 footer { padding-block: 40px 56px; color: var(--faint); font-size: 13px; border-top: 1px solid var(--line); }
+
+.top nav.views { gap: 4px; }
+.top nav.views a { padding: 6px 12px; }
+.bug.one { grid-template-columns: 1fr; }
+.pf { padding: 24px 26px; }
+.pf-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 18px; }
+.pf-avg span { display: block; font-size: 14px; color: var(--muted); }
+.pf-avg b { font-family: var(--f-display); font-size: 34px; font-weight: 800; color: var(--accent-ink); letter-spacing: -0.02em; }
+.pf-avg em { font-style: normal; color: var(--faint); font-weight: 500; }
+.pf-legend { display: flex; gap: 16px; font-size: 13.5px; color: var(--muted); }
+.pf-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.pf-legend i.base, .pf-bar.base i { background: #B7B2CC; }
+.pf-legend i.llm, .pf-bar.llm i { background: var(--accent); }
+.pf-row { display: grid; grid-template-columns: 130px 1fr 72px; align-items: center; gap: 14px; padding: 10px 0; border-top: 1px solid var(--line); }
+.pf-name { font-weight: 650; }
+.pf-bars { display: flex; flex-direction: column; gap: 4px; }
+.pf-bar { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.pf-bar i { display: block; height: 14px; border-radius: 4px; }
+.pf-bar.llm span { color: var(--accent-ink); font-weight: 650; }
+.pf-note { display: block; font-size: 12px; font-weight: 500; color: var(--faint); }
+.pf-diff { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pf-diff.up { color: var(--accent-ink); }
+.pf-diff.down { color: var(--faint); }
+@media (max-width: 600px) { .pf-row { grid-template-columns: 1fr 60px; } .pf-name { grid-column: 1 / -1; } }
+.lrun { margin-top: 28px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); padding: 20px 22px; }
+.team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
+.tm { background: var(--bg); border-radius: 12px; padding: 12px 14px; }
+.tm > span { display: block; font-size: 13px; color: var(--muted); }
+.tm > span small { color: var(--faint); }
+.tm b { display: block; font-family: var(--f-display); font-size: 22px; font-weight: 800; color: var(--accent-ink); margin-top: 4px; letter-spacing: -0.01em; }
+.tm b em { font-style: normal; color: var(--faint); font-weight: 500; }
+.tm > small { display: block; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.tm > small.up { color: var(--accent-ink); font-weight: 650; }
+.team-chart { margin-top: 16px; }
+.team-chart svg { width: 100%; height: auto; display: block; margin-top: 6px; }
+.team-chart .pf-legend { margin-top: 6px; }
+@media (max-width: 900px) { .team-grid { grid-template-columns: repeat(2, 1fr); } }
+/* 홈 배너 */
+.banner { position: relative; overflow: hidden; margin-top: 28px; border-radius: 22px; color: #fff;
+  background: radial-gradient(120% 140% at 85% 10%, #8B74FF 0%, #6A4BF2 42%, #4A2FCC 100%); padding: clamp(36px, 7vw, 76px) clamp(22px, 6vw, 64px); }
+.b-ring { position: absolute; border: 1px solid rgba(255,255,255,.22); border-radius: 50%; pointer-events: none; }
+.b-ring.r1 { width: 620px; height: 620px; right: -220px; top: -300px; }
+.b-ring.r2 { width: 760px; height: 760px; left: -480px; bottom: -560px; }
+.b-in { position: relative; max-width: 760px; }
+.b-course { font-size: 14px; color: rgba(255,255,255,.78); }
+.b-word { font-family: var(--f-display); font-weight: 800; font-size: clamp(48px, 9vw, 88px); letter-spacing: -0.04em; line-height: 1; margin: 14px 0 18px; }
+.banner h1 { font-size: clamp(24px, 3.6vw, 36px); line-height: 1.32; }
+.b-lede { margin-top: 14px; font-size: var(--s1); line-height: 1.65; color: rgba(255,255,255,.88); max-width: 640px; }
+.b-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.b-btn { display: inline-block; padding: 12px 20px; border-radius: 12px; font-weight: 650; font-size: 15.5px; text-decoration: none; color: #fff; border: 1px solid rgba(255,255,255,.5); }
+.b-btn.primary { background: #fff; color: #4A2FCC; border-color: #fff; }
+.b-btn:hover { background: rgba(255,255,255,.12); }
+.b-btn.primary:hover { background: #F1EDFF; }
+.b-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.h-facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 22px; }
+.h-facts > div { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+.h-facts b { display: block; font-family: var(--f-display); font-size: 30px; font-weight: 800; color: var(--accent-ink); letter-spacing: -0.02em; line-height: 1.15; }
+.h-facts span { display: block; margin-top: 4px; font-size: 14px; color: var(--muted); line-height: 1.5; }
+.h-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 14px 0 64px; }
+.h-step { display: block; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+.h-n { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-size: 13px; font-weight: 700; margin-right: 8px; }
+.h-step b { font-size: var(--s1); }
+.h-step p { margin-top: 8px; font-size: 14.5px; color: var(--muted); line-height: 1.6; }
+@media (max-width: 860px) { .h-facts { grid-template-columns: repeat(2, 1fr); } .h-steps { grid-template-columns: 1fr; } }
 </style>
 
 <header class="top">
   <div class="wrap">
-    <a class="logo" href="#top">gapfuzz</a>
+    <a class="logo" href="#home">gapfuzz</a>
     <nav class="views" aria-label="화면">
-      <a href="#analyzer" data-view="analyzer">분석기</a><a href="#about" data-view="about">프로젝트 소개</a>
+      <a href="#home" data-view="home">홈</a><a href="#analyzer" data-view="analyzer">분석기</a><a href="#about" data-view="about">프로젝트 소개</a>
     </nav>
   </div>
 </header>
 
 <main id="top">
-<div id="view-analyzer">
+<div id="view-home" hidden>
+  <div class="wrap">
+    <section class="banner" aria-labelledby="bannerTitle">
+      <div class="b-ring r1" aria-hidden="true"></div><div class="b-ring r2" aria-hidden="true"></div>
+      <div class="b-in">
+        <p class="b-course">정보보호프로젝트2 팀 프로젝트 · 2026년 가을</p>
+        <div class="b-word">gapfuzz</div>
+        <h1 id="bannerTitle">퍼징 하네스가 놓친 코드를 찾고, 고치고, 확인합니다</h1>
+        <p class="b-lede">하네스가 부르지 않는 코드는 아무리 오래 퍼징해도 테스트되지 않습니다. gapfuzz는 그 사각지대와 원인이 된 하네스 코드를 짚고, 고친 뒤 정말 열렸는지 검증합니다.</p>
+        <div class="b-cta">
+          <a class="b-btn primary" href="#analyzer">분석기 열기</a>
+          <a class="b-btn" href="#about">프로젝트 소개</a>
+        </div>
+      </div>
+    </section>
+    <div class="h-facts">
+      <div><b class="num">8개</b><span>OSS-Fuzz에 등록된 C/C++ 라이브러리에 적용</span></div>
+      <div><b class="num">85/97</b><span>도구가 짚은 곳을 고치자 열린 분기</span></div>
+      <div><b class="num">5/6</b><span>Claude 수정 하네스가 1시간 × 10회 모두 커버리지 상승</span></div>
+      <div><b class="num">0/71</b><span>24시간을 돌려도 OSS-Fuzz 하네스가 연 짚은 분기</span></div>
+    </div>
+    <div class="h-steps">
+      <div class="h-step"><span class="h-n">1</span><b>진단</b><p>공개 API마다 퍼징 중에 불렸는지, 안쪽 분기까지 실행됐는지 표시합니다.</p></div>
+      <div class="h-step"><span class="h-n">2</span><b>원인 추적</b><p>막힌 분기에서 거슬러 올라가 하네스의 몇 번째 줄, 몇 번째 인자를 고칠지 짚습니다.</p></div>
+      <div class="h-step"><span class="h-n">3</span><b>검증</b><p>고친 하네스로 같은 조건의 퍼징을 반복해 막혀 있던 분기가 정말 열렸는지 셉니다.</p></div>
+    </div>
+  </div>
+</div>
+<div id="view-analyzer" hidden>
   <div class="wrap tool-hero">
     <p class="course">정보보호프로젝트2 · gapfuzz 분석기</p>
     <h1 class="tool-title">퍼징 하네스가 놓친 코드를 찾아 드립니다</h1>
-    <p class="lede">라이브러리 이름을 입력하면 OSS-Fuzz 공식 하네스로 퍼징했을 때 한 번도 실행되지 않은 기능과 분기, 그 원인이 된 하네스 코드, 고친 뒤의 결과를 보여 줍니다.</p>
+    <p class="lede">라이브러리 이름을 입력하면 OSS-Fuzz 하네스로 퍼징했을 때 한 번도 실행되지 않은 기능과 분기, 그 원인이 된 하네스 코드, 고친 뒤의 결과를 보여 줍니다.</p>
     <form class="search" id="libForm" autocomplete="off">
       <label for="libInput" class="sr">라이브러리 이름 또는 GitHub 주소</label>
       <input id="libInput" name="lib" type="text" placeholder="라이브러리 이름 또는 GitHub 주소 (예: tinyxml2, github.com/madler/zlib)" list="libList">
@@ -369,14 +461,14 @@ footer { padding-block: 40px 56px; color: var(--faint); font-size: 13px; border-
       <h1>퍼징의 한계는 시간이 아니라 하네스에 있습니다</h1>
       <p class="lede">퍼징 하네스가 부르지 않는 코드는 아무리 오래 돌려도 테스트되지 않습니다. gapfuzz는 그 사각지대를 찾고, 원인이 된 하네스 코드의 줄과 인자를 짚고, 고친 뒤 정말 열렸는지 확인합니다.</p>
       <div class="facts">
-        <div class="fact"><b class="num">5개</b><span>C/C++ 라이브러리에 적용</span></div>
+        <div class="fact"><b class="num">8개</b><span>C/C++ 라이브러리에 적용</span></div>
         <div class="fact"><b class="num" id="factOpened">85/97</b><span>제안이 겨냥한 분기가 열림</span></div>
         <div class="fact"><b class="num">5/5</b><span>고쳐진 버그를 다시 찾음</span></div>
       </div>
     </div>
     <div>
-      <div class="cov" role="img" aria-label="공식 TinyXML2 하네스의 실행 횟수: Parse만 601번, 나머지 API는 0번">
-        <div class="ln"><span class="n"></span><span class="cm">// OSS-Fuzz 공식 TinyXML2 하네스</span></div>
+      <div class="cov" role="img" aria-label="OSS-Fuzz TinyXML2 하네스의 실행 횟수: Parse만 601번, 나머지 API는 0번">
+        <div class="ln"><span class="n"></span><span class="cm">// OSS-Fuzz TinyXML2 하네스</span></div>
         <div class="ln hit"><span class="n">601</span><span>XMLDocument doc;</span></div>
         <div class="ln hit"><span class="n">601</span><span>doc.Parse(input);</span></div>
         <div class="ln"><span class="n"></span><span class="cm">// 하네스가 부르지 않는 API</span></div>
@@ -386,7 +478,7 @@ footer { padding-block: 40px 56px; color: var(--faint); font-size: 13px; border-
         <div class="ln zero"><span class="n">0</span><span>doc.SaveFile("out.xml");</span></div>
         <div class="ln zero"><span class="n">0</span><span class="cm">… 공개 API 303개 중 261개</span></div>
       </div>
-      <p class="cap">왼쪽 숫자는 실제 실행 횟수입니다. 공식 하네스로 모은 입력 600개를 다시 실행하면 Parse는 601번 실행되지만, 나머지 공개 API 261개는 한 번도 실행되지 않습니다.</p>
+      <p class="cap">왼쪽 숫자는 실제 실행 횟수입니다. OSS-Fuzz 하네스로 모은 입력 600개를 다시 실행하면 Parse는 601번 실행되지만, 나머지 공개 API 261개는 한 번도 실행되지 않습니다.</p>
     </div>
   </div>
 
@@ -402,18 +494,44 @@ footer { padding-block: 40px 56px; color: var(--faint); font-size: 13px; border-
       <div class="indent split">
         <div class="panel">
           <h3>TinyXML2 공개 API 303개, 퍼징 2분 뒤</h3>
-          <p class="sub">공식 하네스(파싱만 함)와 우리 하네스(상태를 쌓는 스테이트풀, 연산 22종)</p>
+          <p class="sub">OSS-Fuzz 하네스(파싱만 함)와 상태 기반 하네스(상태를 쌓음, 연산 22종)</p>
           <div class="bars" style="margin-top:16px">
-            <div class="bar miss"><span>공식: 호출 안 함</span><div class="track"><div class="fill" style="width:86.1%"></div></div><b>261</b></div>
-            <div class="bar"><span>공식: 완전 도달</span><div class="track"><div class="fill" style="width:9.9%"></div></div><b>30</b></div>
-            <div class="bar miss"><span>우리 하네스: 호출 안 함</span><div class="track"><div class="fill" style="width:34%"></div></div><b>103</b></div>
-            <div class="bar"><span>우리 하네스: 완전 도달</span><div class="track"><div class="fill" style="width:53.8%"></div></div><b>163</b></div>
+            <div class="bar miss"><span>OSS-Fuzz: 호출 안 함</span><div class="track"><div class="fill" style="width:86.1%"></div></div><b>261</b></div>
+            <div class="bar"><span>OSS-Fuzz: 완전 도달</span><div class="track"><div class="fill" style="width:9.9%"></div></div><b>30</b></div>
+            <div class="bar miss"><span>상태 기반: 호출 안 함</span><div class="track"><div class="fill" style="width:34%"></div></div><b>103</b></div>
+            <div class="bar"><span>상태 기반: 완전 도달</span><div class="track"><div class="fill" style="width:53.8%"></div></div><b>163</b></div>
           </div>
         </div>
         <div class="plain panel">
           <h3>기존 도구가 알려 주는 것</h3>
           <p><b style="color:var(--ink)">llvm-cov</b>는 몇 번째 줄이 몇 번 실행됐는지, OSS-Fuzz의 <b style="color:var(--ink)">Fuzz Introspector</b>는 어느 함수와 분기가 막혔는지 보여 줍니다. 그런데 왜 막혔는지, 하네스의 어느 줄을 고쳐야 하는지는 사람이 콜 트리를 따라가며 찾아야 합니다.</p>
           <p style="margin-top:12px">gapfuzz는 막힌 조건이 읽는 값을 거슬러 올라가 하네스가 넘긴 인자까지 연결합니다. 아래에서 실제 사례로 직접 확인해 보세요.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="compare">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="sec-label">기존 도구</p>
+        <div>
+          <h2>Fuzz Introspector와 무엇이 다른가</h2>
+          <p>OSS-Fuzz의 Fuzz Introspector는 프로젝트 전체를 다루는 성숙한 진단 도구입니다. 겹치지 않는 부분은 원인을 하네스 코드까지 내려가 짚는 단계와, 고친 뒤의 검증입니다. Fuzz Introspector의 사례 문서에도 “콜 트리를 보면 인자가 항상 상수로 고정돼 있다”는 원인을 사람이 찾아내는 과정이 나옵니다.</p>
+        </div>
+      </div>
+      <div class="indent panel">
+        <div class="tbl-wrap" style="margin-top:0">
+          <table class="cmp">
+            <thead><tr><th></th><th>Fuzz Introspector</th><th>gapfuzz</th></tr></thead>
+            <tbody>
+              <tr><td>알려 주는 것</td><td>어느 함수·분기가 막혔나, 새로 노릴 함수</td><td>하네스의 어느 줄, 어느 인자 때문에 막혔나</td></tr>
+              <tr><td>막힌 원인</td><td>위치까지 제시, 원인은 사람이 판단</td><td>고정 인자, 좁은 값 범위, 안 부른 API 등으로 자동 분류</td></tr>
+              <tr><td>고친 뒤</td><td>다시 돌려 보고서 비교</td><td>제안 단위로 막힌 분기가 열렸는지 대조군과 함께 검증</td></tr>
+              <tr><td>크래시</td><td>다루지 않음</td><td>하네스 실수와 라이브러리 결함을 자동 귀속</td></tr>
+              <tr><td>범위</td><td>OSS-Fuzz 프로젝트 전체, 여러 언어</td><td>C/C++ 라이브러리의 공개 API</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -475,171 +593,79 @@ footer { padding-block: 40px 56px; color: var(--faint); font-size: 13px; border-
   <section class="block" id="results">
     <div class="wrap">
       <div class="sec-head">
-        <p class="sec-label">결과</p>
+        <p class="sec-label">성능</p>
         <div>
-          <h2>제안대로 고치면 막힌 분기가 열리고, 놓친 버그를 찾습니다</h2>
-          <p>모든 실험은 2코어 클라우드 환경에서 같은 시드로 반복했고, 커버리지는 라이브러리 소스만 집계했습니다. 차이는 Mann-Whitney U 검정과 A12 효과 크기로 판단했습니다.</p>
+          <h2>gapfuzz의 제안으로 고친 하네스가 커버리지를 높였습니다</h2>
+          <p>라이브러리마다 고치기 전 하네스와, gapfuzz가 짚은 곳을 고친 하네스를 같은 조건으로 1시간씩 10번 돌렸습니다. 값은 10번의 분기 커버리지 평균입니다.</p>
         </div>
       </div>
-
-      <div class="res-grid">
-        <div class="panel">
-          <h3>TinyXML2, 하네스마다 1시간 × 10회</h3>
-          <p class="sub">점 하나가 한 번의 실행, 가로선과 숫자는 중앙값</p>
-          <svg class="chart" id="dotChart" viewBox="0 0 560 300" role="img" aria-label="하네스별 라인·분기 커버리지 10회"></svg>
-          <div class="legend"><span><i style="background:var(--accent)"></i>라인 커버리지</span><span><i style="background:var(--ink)"></i>분기 커버리지</span></div>
-          <div class="effects">
-            <div><b>하네스 설계의 효과</b>공식 하네스 → 우리 하네스: 라인 38.1% → 77.5%. 도구의 기여가 아니라 상태를 쌓는 하네스의 효과입니다.</div>
-            <div><b>도구 제안의 효과</b>우리 하네스 → + gapfuzz 수정(제안 10개): 분기 79.8% → 83.1%, 라인 77.5% → 78.5%. 10회 모두, p &lt; 0.0001.</div>
+      <div class="panel pf">
+        <div class="pf-top">
+          <div class="pf-avg"><span>7개 라이브러리 평균</span><b class="num">39.3% <em>→</em> 40.8%</b></div>
+          <div class="pf-legend"><span><i class="base"></i>고치기 전 하네스</span><span><i class="llm"></i>gapfuzz 제안을 반영한 하네스</span></div>
+        </div>
+          <div class="pf-row">
+            <div class="pf-name">TinyXML2 <span class="lang">C++</span> <span class="pf-note">상태 기반 하네스 기준</span></div>
+            <div class="pf-bars">
+              <div class="pf-bar base"><i style="width:79.7%"></i><span>79.7%</span></div>
+              <div class="pf-bar llm"><i style="width:83.1%"></i><span>83.1%</span></div>
+            </div>
+            <div class="pf-diff up">+3.4%p</div>
           </div>
-        </div>
-        <div class="panel">
-          <h3>제안 검증: 고친 뒤 막혀 있던 분기가 열렸나</h3>
-          <p class="sub">대조군은 일부러 적용하지 않은 제안의 분기</p>
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr><th>라이브러리 (하네스)</th><th class="r">적용</th><th class="r">열림</th><th class="r">대조군</th></tr></thead>
-              <tbody id="verifyRows">
-                <tr><td>TinyXML2 <span class="lang">우리 하네스</span></td><td class="r">10개</td><td class="r"><span class="pill">18/18</span></td><td class="r ctrl">0/1</td></tr>
-                <tr><td>TinyXML2 <span class="lang">공식 하네스</span></td><td class="r">6개</td><td class="r"><span class="pill">8/8</span></td><td class="r ctrl">0/2</td></tr>
-                <tr><td>pugixml <span class="lang">C++</span></td><td class="r">3개</td><td class="r"><span class="pill">29/33</span></td><td class="r ctrl">0/1</td></tr>
-                <tr><td>cJSON <span class="lang">C</span></td><td class="r">4개</td><td class="r"><span class="pill">5/7</span></td><td class="r ctrl">0/1</td></tr>
-                <tr><td>jsoncpp <span class="lang">C++</span></td><td class="r">2개</td><td class="r"><span class="pill">6/8</span></td><td class="r ctrl">0/1</td></tr>
-                <tr><td>zlib <span class="lang">C</span></td><td class="r">3개</td><td class="r"><span class="pill">9/11</span></td><td class="r ctrl">0/1</td></tr>
-                <tr><td>expat <span class="lang">C</span></td><td class="r">3개</td><td class="r"><span class="pill">6/7</span></td><td class="r ctrl">0/1</td></tr>
-                <tr><td>json-c <span class="lang">C</span></td><td class="r">4개</td><td class="r"><span class="pill">4/5</span></td><td class="r ctrl">0/2</td></tr>
-                <tr class="total"><td>합계</td><td class="r">35개</td><td class="r"><b>85/97</b></td><td class="r"><b>0/10</b></td></tr>
-              </tbody>
-            </table>
+          <div class="pf-row">
+            <div class="pf-name">pugixml <span class="lang">C++</span></div>
+            <div class="pf-bars">
+              <div class="pf-bar base"><i style="width:17.7%"></i><span>17.7%</span></div>
+              <div class="pf-bar llm"><i style="width:20.7%"></i><span>20.7%</span></div>
+            </div>
+            <div class="pf-diff up">+3.0%p</div>
           </div>
-        </div>
-      </div>
-
-      <div class="bug">
-        <div class="panel">
-          <h3>24시간을 돌려도 차이가 그대로</h3>
-          <p class="sub">TinyXML2, 우리 하네스와 + gapfuzz 수정을 24시간씩 1회, 분기 커버리지</p>
-          <svg class="chart" id="dayChart" viewBox="0 0 560 220" role="img" aria-label="24시간 동안 두 하네스의 분기 커버리지 추이: 우리 하네스 80.2%, gapfuzz 수정 83.6%"></svg>
-        </div>
-        <div class="panel">
-          <h3>오래 돌리면 결국 열리지 않나</h3>
-          <p style="margin-top:12px;font-size:14.5px">퍼징을 오래 돌리면 도구 없이도 같은 분기가 열리지 않을까 해서 두 하네스를 하루씩 돌렸습니다. 우리 하네스는 4시간 반쯤에 80.2%에서 멈췄고, 24시간 뒤에도 <b>수정한 하네스가 첫 10분에 낸 83.0%</b>에 못 미쳤습니다. 둘의 차이(분기 25개)는 시간을 더 준다고 메워지지 않았고, 하네스를 고쳐야 열렸습니다.</p>
-          <p class="sub" style="margin-top:12px">하네스마다 1회라 통계 검정은 위의 1시간 × 10회에서 했습니다. 크래시는 둘 다 0건.</p>
-        </div>
-      </div>
-
-      <div class="bug">
-        <div class="panel">
-          <h3>이미 고쳐진 버그를 다시 찾기</h3>
-          <p class="sub">TinyXML2 #1048, DeleteNode(nullptr) 세그폴트. 고친 커밋 바로 앞 버전으로 하네스마다 10분 × 5회</p>
-          <div class="tbl-wrap">
-            <table class="found">
-              <thead><tr><th>하네스</th><th class="r">찾은 회차</th><th class="r">걸린 시간</th></tr></thead>
-              <tbody>
-                <tr><td>공식</td><td class="r">0/5</td><td class="r ctrl">못 찾음</td></tr>
-                <tr><td>우리 하네스</td><td class="r">0/5</td><td class="r ctrl">못 찾음</td></tr>
-                <tr class="win"><td>+ gapfuzz 수정 <span class="lang">“null을 넘긴 적 없음” 반영</span></td><td class="r"><span class="pill">5/5</span></td><td class="r">1초 이하</td></tr>
-              </tbody>
-            </table>
+          <div class="pf-row">
+            <div class="pf-name">zlib <span class="lang">C</span></div>
+            <div class="pf-bars">
+              <div class="pf-bar base"><i style="width:19.4%"></i><span>19.4%</span></div>
+              <div class="pf-bar llm"><i style="width:21.9%"></i><span>21.9%</span></div>
+            </div>
+            <div class="pf-diff up">+2.5%p</div>
           </div>
-        </div>
-        <div class="panel ink-panel">
-          <h3>CVE-2024-50614/50615는 빌드 설정의 사각지대였습니다</h3>
-          <p>두 CVE는 assert 실패입니다. assert를 켠 빌드에서는 공식 하네스가 <b>5회 모두 18초 안에</b> 찾습니다. 그런데 OSS-Fuzz는 assert가 꺼진 빌드를 쓰고, 같은 입력을 그 빌드에 넣으면 <b>오류가 0건</b>입니다. 하네스가 아니라 빌드 설정 때문에 보이지 않았습니다.</p>
-        </div>
-      </div>
-
-      <div class="bug">
-        <div class="panel">
-          <h3>판단이 얼마나 맞나</h3>
-          <p class="sub">정답은 막힌 분기마다 사람이 소스를 읽고 단 것. 표본이 작다는 점을 밝혀 둡니다.</p>
-          <div class="acc">
-            <div class="row"><span>원인 판정 정확도<small>공식 하네스, 막힌 분기 20개 (새 판정 추가 전 → 후)</small></span><span>14/20 → 19/20</span></div>
-            <div class="row"><span>“고칠 곳” 제안 중 틀린 것</span><span>0/29</span></div>
-            <div class="row"><span>크래시 귀속<small>실제 TinyXML2 크래시 9건 (규칙 개선 전 → 후)</small></span><span>6/9 → 9/9</span></div>
+          <div class="pf-row">
+            <div class="pf-name">cJSON <span class="lang">C</span></div>
+            <div class="pf-bars">
+              <div class="pf-bar base"><i style="width:45.4%"></i><span>45.4%</span></div>
+              <div class="pf-bar llm"><i style="width:46.3%"></i><span>46.3%</span></div>
+            </div>
+            <div class="pf-diff up">+1.0%p</div>
           </div>
-          <p class="sub" style="margin-top:12px">19/20은 그 20개를 보고 만든 규칙이라 낙관적입니다. 그래서 제안대로 고쳐 실제로 열리는지(5/5)를 따로 확인했고, 정답은 팀원이 독립적으로 다시 달 예정입니다.</p>
-        </div>
-        <div class="panel">
-          <h3>가짜 크래시를 걸러 낸 사례</h3>
-          <p class="sub">jsoncpp에 제안을 적용하던 중</p>
-          <p style="margin-top:12px;font-size:14.5px">설정값에 음수를 넣어 보라는 제안을 적용하자 매 실행이 즉시 죽었습니다. gapfuzz의 크래시 귀속은 이를 <b>하네스 버그(확신 강)</b>로 판정했습니다. 라이브러리 API <code>newCharReader</code>가 잘못된 설정을 예외로 알렸는데 하네스가 그 예외를 받지 않았다는 근거와 함께입니다. 하네스를 고쳐 다시 돌렸고, 라이브러리 개발자에게 잘못 보고할 뻔한 일을 막았습니다.</p>
-        </div>
-      </div>
-
-      <div class="bug">
-        <div class="panel">
-          <h3>고칠 곳을 Claude가 코드로 옮기면</h3>
-          <p class="sub">라이브러리 7개의 고칠 곳 45개를 하나씩 Claude API(claude-sonnet-5-5)에 맡기고, gapfuzz가 컴파일 → 60초 × 2회 퍼징 → 열렸나 → 크래시 귀속으로 검사</p>
-          <div class="acc">
-            <div class="row"><span>통과한 제안<small>실패하면 이유를 돌려주고 최대 3번까지 다시 고치게 함</small></span><span>44/45 (첫 시도 42)</span></div>
-            <div class="row"><span>겨냥한 분기 중 열림</span><span>100/108</span></div>
-            <div class="row"><span>사람도 적용한 제안 35개<small>사람은 120초 × 5회, Claude는 60초 × 2회로 검사</small></span><span>사람 85/97, Claude 89/97</span></div>
+          <div class="pf-row">
+            <div class="pf-name">json-c <span class="lang">C</span></div>
+            <div class="pf-bars">
+              <div class="pf-bar base"><i style="width:41.6%"></i><span>41.6%</span></div>
+              <div class="pf-bar llm"><i style="width:42.2%"></i><span>42.2%</span></div>
+            </div>
+            <div class="pf-diff up">+0.6%p</div>
           </div>
-        </div>
-        <div class="panel">
-          <h3>LLM을 믿지 않고 검사합니다</h3>
-          <p style="margin-top:12px;font-size:14.5px">Claude가 낸 코드는 그대로 쓰지 않습니다. 열렸는지는 실제 퍼징으로 재고, 크래시가 나면 하네스 탓인지 가립니다. 이번에는 컴파일 실패 1번을 오류와 함께 돌려줘 고치게 했고, cJSON에서는 아직 막힌 분기를 알려 주자 Claude가 앞의 null 검사를 피해 안쪽 함수를 직접 불러, 사람이 못 열었던 분기까지 열었습니다. 유일하게 통과하지 못한 json-c 제안은 음수를 넘겨야 열리는 분기인데, Claude도 사람처럼 “음수는 라이브러리가 프로그램을 종료시키는 잘못된 인자”라며 넘기지 않았습니다. 통과한 수정안도 사람이 읽고 넣습니다.</p>
-        </div>
+          <div class="pf-row">
+            <div class="pf-name">jsoncpp <span class="lang">C++</span></div>
+            <div class="pf-bars">
+              <div class="pf-bar base"><i style="width:28.8%"></i><span>28.8%</span></div>
+              <div class="pf-bar llm"><i style="width:29.2%"></i><span>29.2%</span></div>
+            </div>
+            <div class="pf-diff up">+0.4%p</div>
+          </div>
+          <div class="pf-row">
+            <div class="pf-name">expat <span class="lang">C</span></div>
+            <div class="pf-bars">
+              <div class="pf-bar base"><i style="width:42.4%"></i><span>42.4%</span></div>
+              <div class="pf-bar llm"><i style="width:42.1%"></i><span>42.1%</span></div>
+            </div>
+            <div class="pf-diff down">−0.3%p</div>
+          </div>
+        <p class="sub" style="margin-top:14px">TinyXML2는 상태 기반 하네스에 사람이 제안을 반영했고, 나머지 6개는 OSS-Fuzz 하네스에 Claude가 제안을 반영했습니다. expat은 고친 분기(7개)가 전체 4,930개 중 아주 작은 부분이라 회차마다의 흔들림에 묻혀 평균 차이가 나지 않았습니다.</p>
       </div>
     </div>
   </section>
 
-  <section class="block" id="compare">
-    <div class="wrap">
-      <div class="sec-head">
-        <p class="sec-label">기존 도구</p>
-        <div>
-          <h2>Fuzz Introspector와 무엇이 다른가</h2>
-          <p>OSS-Fuzz의 Fuzz Introspector는 프로젝트 전체를 다루는 성숙한 진단 도구입니다. 겹치지 않는 부분은 원인을 하네스 코드까지 내려가 짚는 단계와, 고친 뒤의 검증입니다. Fuzz Introspector의 공식 사례 문서에도 “콜 트리를 보면 인자가 항상 상수로 고정돼 있다”는 원인을 사람이 찾아내는 과정이 나옵니다.</p>
-        </div>
-      </div>
-      <div class="indent panel">
-        <div class="tbl-wrap" style="margin-top:0">
-          <table class="cmp">
-            <thead><tr><th></th><th>Fuzz Introspector</th><th>gapfuzz</th></tr></thead>
-            <tbody>
-              <tr><td>알려 주는 것</td><td>어느 함수·분기가 막혔나, 새로 노릴 함수</td><td>하네스의 어느 줄, 어느 인자 때문에 막혔나</td></tr>
-              <tr><td>막힌 원인</td><td>위치까지 제시, 원인은 사람이 판단</td><td>고정 인자, 좁은 값 범위, 안 부른 API 등으로 자동 분류</td></tr>
-              <tr><td>고친 뒤</td><td>다시 돌려 보고서 비교</td><td>제안 단위로 막힌 분기가 열렸는지 대조군과 함께 검증</td></tr>
-              <tr><td>크래시</td><td>다루지 않음</td><td>하네스 실수와 라이브러리 결함을 자동 귀속</td></tr>
-              <tr><td>범위</td><td>OSS-Fuzz 프로젝트 전체, 여러 언어</td><td>C/C++ 라이브러리의 공개 API</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <section class="block" id="next">
-    <div class="wrap">
-      <div class="sec-head">
-        <p class="sec-label">한계와 계획</p>
-        <div>
-          <h2>아직 못 하는 것과 최종 발표까지 할 일</h2>
-        </div>
-      </div>
-      <div class="indent two">
-        <div>
-          <ul class="list">
-            <li><b>호출 순서와 상태에 달린 분기</b>는 아직 원인을 짚지 못합니다. 예: 노드를 트리에 붙이지 않은 채 문서를 비워야 열리는 분기.</li>
-            <li><b>원인을 잘못 묶는 경우가 있습니다.</b> zlib에서 라이브러리 내부 지역 변수를 하네스 인자 탓으로 묶었고, null을 넘겨야 열리는 분기에 “값을 바꾸라”고 제안했습니다. 제안이 겨냥한 분기 97개 중 열리지 않은 12개는 이런 오판이거나, 앞선 조건이 먼저 걸러 내 하네스로는 닿지 않는 분기, json-c처럼 열면 라이브러리가 일부러 종료하는 분기입니다.</li>
-            <li><b>새 라이브러리마다 규칙이 더 필요했습니다.</b> libyaml과 expat에서는 처음에 메모리 할당 실패 처리 분기와 라이브러리가 상태를 쌓는 객체를 하네스 탓으로 잘못 묶었습니다(규칙을 넣기 전 “고칠 곳”이 겨냥한 분기: libyaml 169개 → 0개, expat 19개 → 8개). 규칙 두 개를 더해 고쳤고, 기존 라이브러리 5개의 결과는 바뀌지 않았습니다.</li>
-            <li><b>정답을 도구를 만든 저희가 달았습니다.</b> 표본도 작습니다. 팀원이 도구 판정을 가린 채 다시 답니다.</li>
-            <li><b>Claude가 고친 하네스도 사람이 읽고 넣어야 합니다.</b> 검사는 60초 × 2회 짧은 퍼징이고, 하네스와 라이브러리 일부 코드가 Anthropic으로 전송됩니다.</li>
-            <li><b>이 사이트에서는 분석을 직접 돌릴 수 없습니다.</b> 미리 분석한 라이브러리 8개와 올린 결과 파일만 보여 줍니다.</li>
-            <li><b>Fuzz Introspector와의 정량 비교</b>는 간이 방식으로만 했고, <b>새 버그</b>는 아직 없습니다(최신 버전 3개를 1시간씩 퍼징, 크래시 0건).</li>
-          </ul>
-        </div>
-        <div class="plan">
-          <div class="p"><span class="w">1–2주</span><p><b>팀원 독립 라벨링</b>도구 판정을 가린 시트로 두 명이 각자 정답을 달고 일치도를 잰 뒤 정확도를 다시 측정</p></div>
-          <div class="p"><span class="w">2–3주</span><p><b>LLM 연동 확장</b>지금은 고칠 곳을 하나씩 Claude에게 맡깁니다. 호출 안 하는 API의 연산 추가와 처음 보는 라이브러리의 하네스 초안까지 넓히고, 데이터가 밖으로 안 나가는 로컬 모델과 비교</p></div>
-          <div class="p"><span class="w">3–4주</span><p><b>놓치는 원인 보완, 기존 도구 비교</b>호출 순서·상태 의존 분기와 잘못 묶는 경우를 원인 추적에서 고치고, Fuzz Introspector 정식 방식과 같은 하네스로 대조</p></div>
-          <div class="p"><span class="w">4–5주</span><p><b>외부 기여와 공개</b>pugixml·TinyXML2 하네스 개선안과 assert를 켠 빌드를 OSS-Fuzz에 제안하고, 이 사이트를 GitHub에 올리고, 라이브러리 주소를 넣으면 GitHub Actions가 실제로 분석하게 연결</p></div>
-        </div>
-      </div>
-    </div>
-  </section>
 
 </div>
 </main>
@@ -730,6 +756,35 @@ footer { padding-block: 40px 56px; color: var(--faint); font-size: 13px; border-
     render();
   }
 
+  // ---------- 팀 장시간 실험 (results/: OSS-Fuzz 하네스 vs Claude 수정 하네스) ----------
+  function teamBlock(t) {
+    const A = t.h1.base, B = t.h1.llm; if (!A || !B) return "";
+    const mean = a => a.reduce((p, q) => p + q, 0) / a.length;
+    const rng = a => { const lo = Math.min(...a), hi = Math.max(...a); return lo === hi ? String(lo) : lo + "–" + hi; };
+    const d = mean(B.br) - mean(A.br);
+    const wins = B.br.filter((v, i) => v > A.br[i]).length;
+    let h = '<div class="lrun r-sec"><div class="team-head"><div><h3>장시간 실험: OSS-Fuzz 하네스와 Claude 수정 하네스</h3>' +
+      '<p class="sub">gapfuzz가 짚은 곳을 Claude가 고친 하네스를 OSS-Fuzz 하네스와 같은 조건으로 1시간씩 10번, 24시간씩 1번 돌렸습니다' + (t.by ? " · 실험 " + esc(t.by) : "") + '</p></div></div>';
+    h += '<div class="team-grid">' +
+      '<div class="tm"><span>분기 커버리지 <small>1시간 × 10회 평균</small></span><b>' + mean(A.br).toFixed(1) + '% <em>→</em> ' + mean(B.br).toFixed(1) + '%</b><small class="' + (d > 0 ? "up" : "flat") + '">' + (d >= 0 ? "+" : "−") + Math.abs(d).toFixed(2) + "%p" + (wins === 10 ? ", 10회 모두 높음" : "") + '</small></div>' +
+      '<div class="tm"><span>짚은 분기 중 열림 <small>회차마다, ' + B.tot + '개 중</small></span><b>' + rng(A.open) + ' <em>→</em> ' + rng(B.open) + '</b><small>대조군 ' + rng(A.copen) + ' → ' + rng(B.copen) + ' / ' + B.ctot + '</small></div>' +
+      '<div class="tm"><span>크래시 <small>20회 실행</small></span><b>' + (A.crash + B.crash) + '건</b><small>두 하네스 모두</small></div>';
+    const X = t.h24.base, Y = t.h24.llm;
+    if (X && Y) h += '<div class="tm"><span>24시간 뒤 <small>분기 커버리지, 짚은 분기</small></span><b>' + X.br[X.br.length - 1].toFixed(1) + '% <em>→</em> ' + Y.br[Y.br.length - 1].toFixed(1) + '%</b><small>짚은 분기 ' + X.open + ' → ' + Y.open + ' / ' + Y.tot + '</small></div>';
+    h += "</div>";
+    if (X && Y) {
+      const all = X.br.concat(Y.br), lo = Math.floor(Math.min(...all) - 0.5), hi = Math.ceil(Math.max(...all) + 0.5);
+      const W = 1000, H = 200, x0 = 50, x1 = W - 10, y0 = 14, y1 = H - 26;
+      const px = m => x0 + (x1 - x0) * m / 1440, py = v => y1 - (y1 - y0) * (v - lo) / (hi - lo || 1);
+      const line = (s, col) => '<polyline fill="none" stroke="' + col + '" stroke-width="2.5" stroke-linejoin="round" points="' + s.min.map((m, i) => px(m).toFixed(1) + "," + py(s.br[i]).toFixed(1)).join(" ") + '"/>';
+      const ticks = [lo, (lo + hi) / 2, hi].map(v => '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + py(v) + '" y2="' + py(v) + '" stroke="var(--line)"/><text x="' + (x0 - 8) + '" y="' + (py(v) + 4) + '" text-anchor="end" font-size="11" fill="var(--faint)">' + v.toFixed(1) + '%</text>').join("");
+      const xt = [0, 6, 12, 18, 24].map(hh => '<text x="' + px(hh * 60) + '" y="' + (H - 6) + '" text-anchor="' + (hh === 0 ? "start" : hh === 24 ? "end" : "middle") + '" font-size="11" fill="var(--faint)">' + hh + '시간</text>').join("");
+      h += '<div class="team-chart"><p class="sub">24시간 동안의 분기 커버리지</p><svg style="width:100%;max-width:none;height:auto" preserveAspectRatio="xMidYMid meet" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="24시간 분기 커버리지: OSS-Fuzz 하네스 ' + X.br[X.br.length - 1].toFixed(1) + '%, Claude 수정 하네스 ' + Y.br[Y.br.length - 1].toFixed(1) + '%">' + ticks + xt + line(X, "#B7B2CC") + line(Y, "var(--accent)") + "</svg>" +
+        '<div class="pf-legend"><span><i class="base"></i>OSS-Fuzz 하네스</span><span><i class="llm"></i>Claude 수정 하네스</span></div></div>';
+    }
+    return h + "</div>";
+  }
+
   function render() {
     const lib = st.lib, h = lib.harnesses.find(x => x.id === st.hid);
     const fixN = h.branches.filter(b => (VK[b.v] || [])[1] === "fix").length;
@@ -750,6 +805,8 @@ footer { padding-block: 40px 56px; color: var(--faint); font-size: 13px; border-
     html += '<div class="dist"><div class="dist-bar" role="img" aria-label="공개 API 분류">' + Object.keys(CAT).map(k =>
       '<span class="c-' + k + '" style="width:' + ((h.counts[k] || 0) / total * 100).toFixed(2) + '%"></span>').join("") + '</div><div class="dist-legend">' +
       Object.keys(CAT).map(k => '<span><i class="c-' + k + '"></i>' + CAT[k] + " " + (h.counts[k] || 0) + "</span>").join("") + "</div></div>";
+
+    if (lib.team) html += teamBlock(lib.team);
 
     // 고칠 곳 + 검증
     html += '<div class="r-cols"><div class="r-sec"><h3>하네스에서 고칠 곳</h3><p class="sub">막힌 분기의 원인이 하네스 코드에 있는 경우. 같은 원인은 하나로 묶었습니다.</p>';
@@ -839,14 +896,14 @@ footer { padding-block: 40px 56px; color: var(--faint); font-size: 13px; border-
   }
   function selectText(id) { const r = document.createRange(); r.selectNodeContents($(id)); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
 
-  // ---------- 화면 전환: #about은 프로젝트 소개, 그 밖(#라이브러리 이름 포함)은 분석기 ----------
+  // ---------- 화면 전환: #about은 프로젝트 소개, #analyzer·#라이브러리 이름은 분석기, 그 밖은 홈 ----------
   function route() {
     const h = location.hash.replace("#", "");
-    const about = h === "about";
-    $("view-analyzer").hidden = about; $("view-about").hidden = !about;
-    document.querySelectorAll(".views a").forEach(a => a.setAttribute("aria-current", (a.dataset.view === "about") === about ? "page" : "false"));
-    if (about) { window.dispatchEvent(new Event("resize")); return; }
     const lib = DATA.libs.find(l => l.id === h);
+    const view = h === "about" ? "about" : (h === "analyzer" || lib) ? "analyzer" : "home";
+    $("view-home").hidden = view !== "home"; $("view-analyzer").hidden = view !== "analyzer"; $("view-about").hidden = view !== "about";
+    document.querySelectorAll(".views a").forEach(a => a.setAttribute("aria-current", a.dataset.view === view ? "page" : "false"));
+    if (view !== "analyzer") { window.dispatchEvent(new Event("resize")); if (view === "home") window.scrollTo(0, 0); return; }
     if (lib && (!st.lib || st.lib.id !== lib.id)) { $("libInput").value = lib.name; show(lib); }
     else if (!st.lib && !out.innerHTML && DATA.libs.length) { $("libInput").value = DATA.libs[0].name; show(DATA.libs[0]); }
   }
@@ -968,44 +1025,5 @@ footer { padding-block: 40px 56px; color: var(--faint); font-size: 13px; border-
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => requestAnimationFrame(wire));
   render();
 
-  // ---------- 1시간 × 10회 점 그래프 (out/long 실측값) ----------
-  const RUNS = [
-    { name: "공식", sub: "파싱만", lines: [38.18, 38.07, 38.07, 38.18, 38.18, 38.18, 38.18, 38.07, 38.07, 38.07], branches: [42.40, 41.99, 42.27, 42.40, 42.40, 42.40, 42.40, 42.27, 41.99, 42.27] },
-    { name: "우리 하네스", sub: "연산 22종", lines: [77.51, 77.07, 77.51, 77.07, 77.40, 77.69, 77.07, 77.69, 77.51, 77.51], branches: [79.76, 78.80, 79.76, 79.08, 79.62, 80.30, 78.94, 80.16, 80.03, 80.03] },
-    { name: "+ gapfuzz 수정", sub: "제안 10개 반영", lines: [78.46, 78.46, 78.57, 78.13, 78.46, 78.35, 78.46, 78.46, 78.35, 78.13], branches: [83.29, 83.56, 83.56, 82.74, 83.29, 82.88, 83.15, 83.02, 82.61, 82.74] }
-  ];
-  const NS = "http://www.w3.org/2000/svg", svg = $("dotChart");
-  const el = (t, at, txt) => { const e = document.createElementNS(NS, t); for (const k in at) e.setAttribute(k, at[k]); if (txt !== undefined) e.textContent = txt; svg.appendChild(e); return e; };
-  const X0 = 52, X1 = 552, Y = p => 240 - p * 2.1;
-  [0, 25, 50, 75, 100].forEach(t => { el("line", { x1: X0, x2: X1, y1: Y(t), y2: Y(t), stroke: "var(--line)" }); el("text", { x: X0 - 10, y: Y(t) + 4, "text-anchor": "end", "font-size": 12 }, t + "%"); });
-  const med = a => { const b = a.slice().sort((p, q) => p - q); return (b[4] + b[5]) / 2; };
-  RUNS.forEach((r, i) => {
-    const cx = X0 + 85 + i * 165;
-    [["lines", -24, "var(--accent)"], ["branches", 24, "var(--ink)"]].forEach(([k, dx, col]) => {
-      const m = med(r[k]);
-      el("line", { x1: cx + dx - 20, x2: cx + dx + 20, y1: Y(m), y2: Y(m), stroke: "var(--faint)", "stroke-width": 2 });
-      r[k].forEach((v, j) => { const c = el("circle", { cx: cx + dx + (j - 4.5) * 3.4, cy: Y(v), r: 3.4, fill: col, stroke: "var(--surface)", "stroke-width": 1.2 }); const t = document.createElementNS(NS, "title"); t.textContent = (k === "lines" ? "라인 " : "분기 ") + v + "%"; c.appendChild(t); });
-      el("text", { x: cx + dx, y: Y(m) - 12, "text-anchor": "middle", "font-size": 13, class: "med" }, m.toFixed(1));
-    });
-    el("text", { x: cx, y: 266, "text-anchor": "middle", "font-size": 14, class: "lbl" }, r.name);
-    el("text", { x: cx, y: 284, "text-anchor": "middle", "font-size": 12 }, r.sub);
-  });
-
-  // ---------- 24시간 실험 (samples/day/timeline.json 실측값) ----------
-  const DAY_H = [0.17, 0.5, 1, 2.75, 4.5, 6.25, 8, 9.75, 11.5, 13.25, 15, 16.75, 18.5, 20.25, 22, 23.75, 24];
-  const DAY = [
-    { name: "+ gapfuzz 수정", col: "var(--accent)", v: [83.02, 83.02, 83.42, 83.42, 83.42, 83.42, 83.42, 83.56, 83.56, 83.56, 83.56, 83.56, 83.56, 83.56, 83.56, 83.56, 83.56] },
-    { name: "우리 하네스", col: "var(--ink)", v: [79.76, 80.03, 80.03, 80.03, 80.16, 80.16, 80.16, 80.16, 80.16, 80.16, 80.16, 80.16, 80.16, 80.16, 80.16, 80.16, 80.16] }
-  ];
-  const dsv = $("dayChart");
-  const de = (t, at, txt) => { const e = document.createElementNS(NS, t); for (const k in at) e.setAttribute(k, at[k]); if (txt !== undefined) e.textContent = txt; dsv.appendChild(e); return e; };
-  const DX0 = 52, DX1 = 548, DX = h => DX0 + (DX1 - DX0) * h / 24, DY = p => 180 - (p - 78) * 26;
-  [78, 80, 82, 84].forEach(t => { de("line", { x1: DX0, x2: DX1, y1: DY(t), y2: DY(t), stroke: "var(--line)" }); de("text", { x: DX0 - 10, y: DY(t) + 4, "text-anchor": "end", "font-size": 12 }, t + "%"); });
-  [0, 6, 12, 18, 24].forEach(h => de("text", { x: DX(h), y: 204, "text-anchor": h === 0 ? "start" : h === 24 ? "end" : "middle", "font-size": 12 }, h + "시간"));
-  DAY.forEach(s => {
-    de("polyline", { points: s.v.map((v, i) => DX(DAY_H[i]).toFixed(1) + "," + DY(v).toFixed(1)).join(" "), fill: "none", stroke: s.col, "stroke-width": 2.5, "stroke-linejoin": "round" });
-    const last = s.v[s.v.length - 1];
-    de("text", { x: DX1, y: DY(last) - 9, "text-anchor": "end", "font-size": 13, class: "med", style: "fill:" + s.col }, s.name + " " + last.toFixed(1) + "%");
-  });
 })();
 </script>

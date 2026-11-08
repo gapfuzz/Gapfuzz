@@ -2,60 +2,63 @@
 """사이트(site/)의 분석기 화면이 읽을 데이터를 만든다: site/data.json
 
 라이브러리마다 하네스별 1회차 갭 분석(gap.json), 5회 반복의 커버리지 중앙값, 제안 검증 결과(samples/verify/*.md)를 모은다.
-사용법: python3 scripts/export_site.py
+사용법: python3 scripts/export_site.py              (전부 다시 만들기, out/ 필요)
+       python3 scripts/export_site.py --team-only  (팀 장시간 실험 results/만 다시 넣기)
 """
 import json
 import os
 import re
 import statistics
 import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+RESULTS = Path(os.environ.get("GAPFUZZ_RESULTS", ROOT / "results"))
 CATS = ["NOT_CALLED", "BLOCKED", "PARTIAL", "FULL"]
 
 LIBS = [
     {"id": "tinyxml2", "name": "TinyXML2", "lang": "C++", "kind": "XML 파서", "repo": "github.com/leethomason/tinyxml2",
      "dir": "third_party/tinyxml2", "runs": "out/repeat",
-     "harnesses": [("official", "공식 하네스", "harnesses/official.cpp"),
-                   ("official_v3", "공식 하네스 + gapfuzz 수정", "harnesses/official_v3.cpp"),
-                   ("stateful", "우리 하네스 (스테이트풀)", "harnesses/stateful.cpp"),
-                   ("stateful_v3", "우리 하네스 + gapfuzz 수정", "harnesses/stateful_v3.cpp")],
+     "harnesses": [("official", "OSS-Fuzz 하네스", "harnesses/official.cpp"),
+                   ("official_v3", "OSS-Fuzz 하네스 + gapfuzz 수정", "harnesses/official_v3.cpp"),
+                   ("stateful", "상태 기반 하네스", "harnesses/stateful.cpp"),
+                   ("stateful_v3", "gapfuzz 수정 하네스", "harnesses/stateful_v3.cpp")],
      "verify": [("official", "official_v3", ["official_to_v2.md", "official_v2_to_v3.md"]),
                 ("stateful", "stateful_v3", ["stateful_to_v3.md"])]},
     {"id": "pugixml", "name": "pugixml", "lang": "C++", "kind": "XML 파서", "repo": "github.com/zeux/pugixml",
      "dir": "third_party/pugixml", "runs": "out/targets/pugixml",
-     "harnesses": [("official", "공식 하네스", "harnesses/pugixml/official.cpp"),
-                   ("official_v2", "공식 하네스 + gapfuzz 수정", "harnesses/pugixml/official_v2.cpp")],
+     "harnesses": [("official", "OSS-Fuzz 하네스", "harnesses/pugixml/official.cpp"),
+                   ("official_v2", "OSS-Fuzz 하네스 + gapfuzz 수정", "harnesses/pugixml/official_v2.cpp")],
      "verify": [("official", "official_v2", ["pugixml_official_to_v2.md"])]},
     {"id": "cjson", "name": "cJSON", "lang": "C", "kind": "JSON 파서", "repo": "github.com/DaveGamble/cJSON",
      "dir": "third_party/cjson", "runs": "out/targets/cjson",
-     "harnesses": [("official", "공식 하네스", "harnesses/cjson/official.c"),
-                   ("official_v2", "공식 하네스 + gapfuzz 수정", "harnesses/cjson/official_v2.c")],
+     "harnesses": [("official", "OSS-Fuzz 하네스", "harnesses/cjson/official.c"),
+                   ("official_v2", "OSS-Fuzz 하네스 + gapfuzz 수정", "harnesses/cjson/official_v2.c")],
      "verify": [("official", "official_v2", ["cjson_official_to_v2.md"])]},
     {"id": "jsoncpp", "name": "jsoncpp", "lang": "C++", "kind": "JSON 파서", "repo": "github.com/open-source-parsers/jsoncpp",
      "dir": "third_party/jsoncpp", "runs": "out/targets/jsoncpp",
-     "harnesses": [("official", "공식 하네스", "harnesses/jsoncpp/official.cpp"),
-                   ("official_v2", "공식 하네스 + gapfuzz 수정", "harnesses/jsoncpp/official_v2.cpp")],
+     "harnesses": [("official", "OSS-Fuzz 하네스", "harnesses/jsoncpp/official.cpp"),
+                   ("official_v2", "OSS-Fuzz 하네스 + gapfuzz 수정", "harnesses/jsoncpp/official_v2.cpp")],
      "verify": [("official", "official_v2", ["jsoncpp_official_to_v2.md"])]},
     {"id": "zlib", "name": "zlib", "lang": "C", "kind": "압축", "repo": "github.com/madler/zlib",
      "dir": "third_party/zlib", "runs": "out/targets/zlib",
-     "harnesses": [("official", "공식 하네스 (uncompress)", "harnesses/zlib/official.cc"),
-                   ("official_v2", "공식 하네스 + gapfuzz 수정", "harnesses/zlib/official_v2.cc")],
+     "harnesses": [("official", "OSS-Fuzz 하네스 (uncompress)", "harnesses/zlib/official.cc"),
+                   ("official_v2", "OSS-Fuzz 하네스 + gapfuzz 수정", "harnesses/zlib/official_v2.cc")],
      "verify": [("official", "official_v2", ["zlib_official_to_v2.md"])]},
     {"id": "expat", "name": "expat", "lang": "C", "kind": "XML 파서", "repo": "github.com/libexpat/libexpat",
      "dir": "third_party/libexpat", "runs": "out/targets/expat",
-     "harnesses": [("official", "공식 하네스", "harnesses/expat/official.c"),
-                   ("official_v2", "공식 하네스 + gapfuzz 수정", "harnesses/expat/official_v2.c")],
+     "harnesses": [("official", "OSS-Fuzz 하네스", "harnesses/expat/official.c"),
+                   ("official_v2", "OSS-Fuzz 하네스 + gapfuzz 수정", "harnesses/expat/official_v2.c")],
      "verify": [("official", "official_v2", ["expat_official_to_v2.md"])]},
     {"id": "json-c", "name": "json-c", "lang": "C", "kind": "JSON 파서", "repo": "github.com/json-c/json-c",
      "dir": "third_party/json-c", "runs": "out/targets/json-c",
-     "harnesses": [("official", "공식 하네스", "harnesses/json-c/official.cc"),
-                   ("official_v2", "공식 하네스 + gapfuzz 수정", "harnesses/json-c/official_v2.cc")],
+     "harnesses": [("official", "OSS-Fuzz 하네스", "harnesses/json-c/official.cc"),
+                   ("official_v2", "OSS-Fuzz 하네스 + gapfuzz 수정", "harnesses/json-c/official_v2.cc")],
      "verify": [("official", "official_v2", ["json-c_official_to_v2.md"])]},
     {"id": "libyaml", "name": "libyaml", "lang": "C", "kind": "YAML 파서", "repo": "github.com/yaml/libyaml",
      "dir": "third_party/libyaml", "runs": "out/targets/libyaml",
-     "harnesses": [("official", "공식 하네스 (parser)", "harnesses/libyaml/official.c")],
+     "harnesses": [("official", "OSS-Fuzz 하네스 (parser)", "harnesses/libyaml/official.c")],
      "verify": []},
 ]
 
@@ -121,7 +124,63 @@ def parse_verify(md: Path) -> list:
     return [dict(rows[i], s=sugs.get(i, "")) for i in sorted(rows)]
 
 
+TEAM_IDS = {"official": "base", "official_llm": "llm"}
+
+
+def team(lib_id: str, results: Path) -> dict | None:
+    """팀 장시간 실험(results/<라이브러리>/1h, 24h): OSS-Fuzz 하네스 vs Claude 수정 하네스."""
+    d = results / lib_id
+    if not (d / "1h" / "official_llm").is_dir():
+        return None
+    t = {"h1": {}, "h24": {}}
+    owner = d / "OWNER.txt"
+    t["by"] = owner.read_text(encoding="utf-8").strip().splitlines()[0] if owner.exists() else ""
+    llm = sorted((ROOT / "harnesses" / lib_id).glob("official_llm.*"))
+    t["file"] = str(llm[0].relative_to(ROOT)) if llm else ""
+    for h, k in TEAM_IDS.items():
+        runs = [json.load(open(f)) for f in sorted((d / "1h" / h).glob("r*.json"))]
+        if not runs:
+            continue
+        app = lambda r: [x for x in r["targets"] if x["applied"]]
+        ctl = lambda r: [x for x in r["targets"] if not x["applied"]]
+        t["h1"][k] = {"n": len(runs),
+                      "br": [round(r["coverage"]["branches"]["pct"], 2) for r in runs],
+                      "ln": [round(r["coverage"]["lines"]["pct"], 2) for r in runs],
+                      "open": [sum(x["opened"] for x in app(r)) for r in runs], "tot": len(app(runs[0])),
+                      "copen": [sum(x["opened"] for x in ctl(r)) for r in runs], "ctot": len(ctl(runs[0])),
+                      "crash": sum(len(r.get("crashes") or []) for r in runs)}
+        f24 = d / "24h" / f"{h}.json"
+        if f24.exists():
+            day = json.load(open(f24))
+            mins, acc = [], 0
+            for m in day["schedule_min"][:len(day["points"])]:
+                acc += m
+                mins.append(acc)
+            pts = day["points"]
+            t["h24"][k] = {"min": mins, "br": [round(x["coverage"]["branches"]["pct"], 2) for x in pts],
+                           "open": sum(x["opened"] for x in pts[-1]["targets"] if x["applied"]),
+                           "tot": sum(1 for x in pts[-1]["targets"] if x["applied"])}
+    return t
+
+
+def team_only() -> None:
+    """이미 있는 site/data.json에 팀 장시간 실험 결과만 다시 넣는다 (out/ 없이도 됨)."""
+    p = ROOT / "site" / "data.json"
+    out = json.load(open(p))
+    for lib in out["libs"]:
+        tm = team(lib["id"], RESULTS)
+        if tm:
+            lib["team"] = tm
+            print(f"  {lib['name']}: 팀 실험 {tm['h1'].get('llm', {}).get('n', 0)}회, 24시간 {'있음' if tm['h24'] else '없음'}")
+        else:
+            lib.pop("team", None)
+    json.dump(out, open(p, "w"), ensure_ascii=False, separators=(",", ":"))
+    print(f"[site] {p} {p.stat().st_size / 1024:.0f}KB")
+
+
 def main():
+    if "--team-only" in sys.argv:
+        return team_only()
     out = {"libs": []}
     for L in LIBS:
         lib = {k: L[k] for k in ("id", "name", "lang", "kind", "repo")}
@@ -147,6 +206,9 @@ def main():
             lib["verify"].append({"from": a, "to": b, "groups": groups,
                                   "opened": sum(g["opened"] for g in app), "total": sum(g["total"] for g in app),
                                   "c_opened": sum(g["opened"] for g in ctl), "c_total": sum(g["total"] for g in ctl)})
+        tm = team(lib["id"], RESULTS)
+        if tm:
+            lib["team"] = tm
         out["libs"].append(lib)
     p = ROOT / "site" / "data.json"
     json.dump(out, open(p, "w"), ensure_ascii=False, separators=(",", ":"))
