@@ -22,5 +22,17 @@
  "namespace": "",
  "internal_classes": [],
  "cflags": [],
- "internal_branches": true
+ "internal_branches": true,
+ "ossfuzz": [
+  "official",
+  "official_checksum",
+  "official_compress",
+  "official_example_dict",
+  "official_example_flush",
+  "official_example_large",
+  "official_example_small",
+  "official_uncompress2",
+  "official_uncompress3"
+ ],
+ "ossfuzz_note": "gzio_fuzzer, minigzip_fuzzer는 gz*.c(파일 입출력 계층)를 쓰는데 이 설정의 sources에 gz*.c가 없어서 넣지 않았다. 넣으려면 sources를 바꿔야 하고 그러면 기존 zlib 수치의 분모가 달라진다."
 }

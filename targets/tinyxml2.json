@@ -13,5 +13,9 @@
  "harness_dir": "harnesses",
  "dict": "dicts/xml.dict",
  "cflags": [],
- "internal_branches": false
+ "internal_branches": false,
+ "ossfuzz": [
+  "official",
+  "official_xmltest2"
+ ]
 }

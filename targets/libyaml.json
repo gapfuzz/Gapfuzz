@@ -29,5 +29,16 @@
   "-DYAML_VERSION_PATCH=5",
   "-DYAML_VERSION_STRING=\"0.2.5\""
  ],
- "internal_branches": true
+ "internal_branches": true,
+ "ossfuzz": [
+  "official",
+  "official_deconstructor_alt",
+  "official_deconstructor",
+  "official_dumper",
+  "official_emitter",
+  "official_loader",
+  "official_reformatter_alt",
+  "official_reformatter",
+  "official_scanner"
+ ]
 }

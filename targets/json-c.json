@@ -39,5 +39,11 @@
  "cflags": [
   "-D_GNU_SOURCE"
  ],
- "internal_branches": true
+ "internal_branches": true,
+ "ossfuzz": [
+  "official",
+  "official_json_array",
+  "official_json_object",
+  "official_json_pointer"
+ ]
 }
