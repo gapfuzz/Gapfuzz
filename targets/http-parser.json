@@ -1,0 +1,22 @@
+{
+ "name": "http-parser",
+ "repo": "https://github.com/nodejs/http-parser.git",
+ "commit": "ec8b5ee63f0e51191ea43bb0c6eac7bfbff3141d",
+ "clone_dir": "third_party/http-parser",
+ "lang": "c",
+ "lib_dir": "third_party/http-parser",
+ "sources": [
+  "http_parser.c"
+ ],
+ "header": "http_parser.h",
+ "namespace": "",
+ "internal_classes": [],
+ "cflags": [
+  "-DHTTP_PARSER_STRICT=0"
+ ],
+ "internal_branches": true,
+ "ossfuzz": [
+  "official",
+  "official_url"
+ ]
+}

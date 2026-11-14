@@ -1,0 +1,35 @@
+{
+ "name": "libucl",
+ "repo": "https://github.com/vstakhov/libucl.git",
+ "commit": "d6659c1255042b832af2bf47e6c565319e1671ff",
+ "clone_dir": "third_party/libucl",
+ "lang": "c",
+ "lib_dir": "third_party/libucl",
+ "sources": [
+  "src/ucl_cbor.c",
+  "src/ucl_emitter.c",
+  "src/ucl_emitter_streamline.c",
+  "src/ucl_emitter_utils.c",
+  "src/ucl_hash.c",
+  "src/ucl_msgpack.c",
+  "src/ucl_parser.c",
+  "src/ucl_schema.c",
+  "src/ucl_sexp.c",
+  "src/ucl_util.c"
+ ],
+ "header": "include/ucl.h",
+ "include_dirs": [
+  "include",
+  "src",
+  "uthash",
+  "klib"
+ ],
+ "namespace": "",
+ "internal_classes": [],
+ "cflags": [],
+ "internal_branches": true,
+ "ossfuzz": [
+  "official",
+  "official_msgpack"
+ ]
+}

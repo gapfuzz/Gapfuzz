@@ -1,0 +1,20 @@
+{
+ "name": "utf8proc",
+ "repo": "https://github.com/JuliaStrings/utf8proc.git",
+ "commit": "79cdd5ab40c79afa559f689ffc13b76812dee1ac",
+ "clone_dir": "third_party/utf8proc",
+ "lang": "c",
+ "lib_dir": "third_party/utf8proc",
+ "sources": [
+  "utf8proc.c"
+ ],
+ "header": "utf8proc.h",
+ "namespace": "",
+ "internal_classes": [],
+ "cflags": [],
+ "internal_branches": true,
+ "ossfuzz": [
+  "official"
+ ],
+ "ossfuzz_note": "OSS-Fuzz에 등록된 하네스는 fuzzer 하나"
+}

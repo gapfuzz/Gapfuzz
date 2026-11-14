@@ -1,0 +1,41 @@
+{
+ "name": "miniz",
+ "repo": "https://github.com/richgel999/miniz.git",
+ "commit": "77d0dce8627735138c51770d1799a1ef48f2117d",
+ "clone_dir": "third_party/miniz",
+ "lang": "c",
+ "lib_dir": "third_party/miniz",
+ "sources": [
+  "miniz.c",
+  "miniz_tdef.c",
+  "miniz_tinfl.c",
+  "miniz_zip.c"
+ ],
+ "header": [
+  "miniz.h",
+  "miniz_tdef.h",
+  "miniz_tinfl.h",
+  "miniz_zip.h"
+ ],
+ "include_dirs": [
+  "../../harnesses/miniz"
+ ],
+ "namespace": "",
+ "internal_classes": [],
+ "dict": "third_party/miniz/tests/zip.dict",
+ "cflags": [],
+ "internal_branches": true,
+ "ossfuzz": [
+  "official",
+  "official_add_in_place",
+  "official_checksum",
+  "official_compress",
+  "official_flush",
+  "official_large",
+  "official_small",
+  "official_uncompress",
+  "official_uncompress2"
+ ],
+ "note": "miniz_export.h는 저장소에 없고 빌드 때 만들어지는 파일이라 harnesses/miniz/에 둔다. 저장소의 *_fuzzer.cc 3개는 OSS-Fuzz 빌드 스크립트가 만들지 않아 넣지 않았다.",
+ "seed_note": "OSS-Fuzz는 zip_fuzzer에 zip 시드를 준다. 시드 없이는 official(zip_fuzzer)의 커버리지가 매우 낮다. 지금 실행기(tgt.py)는 시드를 받지 않는다."
+}

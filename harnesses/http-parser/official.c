@@ -1,0 +1,27 @@
+// OSS-Fuzz 하네스: http-parser 저장소 fuzzers/fuzz_parser.c (보관된 저장소의 마지막 커밋, 커밋 ec8b5ee) 그대로.
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "http_parser.h"
+
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+{
+  static const http_parser_settings settings_null = {
+    .on_message_begin = 0
+    , .on_header_field = 0
+    ,.on_header_value = 0
+    ,.on_url = 0
+    ,.on_status = 0
+    ,.on_body = 0
+    ,.on_headers_complete = 0
+    ,.on_message_complete = 0
+    ,.on_chunk_header = 0
+    ,.on_chunk_complete = 0
+  };
+
+  http_parser parser;
+  http_parser_init(&parser, HTTP_BOTH);
+  http_parser_execute(&parser, &settings_null, (char*)data, size);
+
+  return 0;
+}

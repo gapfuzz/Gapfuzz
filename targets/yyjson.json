@@ -1,0 +1,26 @@
+{
+ "name": "yyjson",
+ "repo": "https://github.com/ibireme/yyjson.git",
+ "commit": "6447536015f3d600f3d65323b10976103b337ca7",
+ "clone_dir": "third_party/yyjson",
+ "lang": "c",
+ "lib_dir": "third_party/yyjson",
+ "sources": [
+  "src/yyjson.c"
+ ],
+ "header": "src/yyjson.h",
+ "include_dirs": [
+  "src"
+ ],
+ "namespace": "",
+ "internal_classes": [],
+ "dict": "third_party/yyjson/fuzz/fuzzer.dict",
+ "cflags": [],
+ "internal_branches": true,
+ "ossfuzz": [
+  "official",
+  "official_patch",
+  "official_merge_patch"
+ ],
+ "ossfuzz_note": "OSS-Fuzz에 등록된 하네스 3개 전부: fuzzer(읽기·쓰기), patch_fuzzer(JSON Patch), merge_patch_fuzzer(JSON Merge Patch)"
+}

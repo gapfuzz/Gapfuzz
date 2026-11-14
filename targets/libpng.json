@@ -1,0 +1,49 @@
+{
+ "name": "libpng",
+ "repo": "https://github.com/pnggroup/libpng.git",
+ "commit": "cd952f49f95bb27154ae77dbb103032d95f6e580",
+ "clone_dir": "third_party/libpng",
+ "lang": "c",
+ "lib_dir": "third_party/libpng",
+ "sources": [
+  "png.c",
+  "pngerror.c",
+  "pngget.c",
+  "pngmem.c",
+  "pngpread.c",
+  "pngread.c",
+  "pngrio.c",
+  "pngrtran.c",
+  "pngrutil.c",
+  "pngset.c",
+  "pngtrans.c",
+  "../../harnesses/libpng/zlib/adler32.c",
+  "../../harnesses/libpng/zlib/crc32.c",
+  "../../harnesses/libpng/zlib/inffast.c",
+  "../../harnesses/libpng/zlib/inflate.c",
+  "../../harnesses/libpng/zlib/inftrees.c",
+  "../../harnesses/libpng/zlib/zutil.c",
+  "../../harnesses/libpng/zlib/deflate.c",
+  "../../harnesses/libpng/zlib/trees.c",
+  "../../harnesses/libpng/zlib/compress.c",
+  "../../harnesses/libpng/zlib/uncompr.c"
+ ],
+ "header": "png.h",
+ "include_dirs": [
+  "../../harnesses/libpng",
+  "../zlib"
+ ],
+ "namespace": "",
+ "internal_classes": [],
+ "dict": "third_party/libpng/contrib/oss-fuzz/png.dict",
+ "cflags": [],
+ "internal_branches": true,
+ "ossfuzz": [
+  "official",
+  "official_colormap",
+  "official_readapi",
+  "official_transformations"
+ ],
+ "note": "zlib에 의존한다(먼저 python3 scripts/exp.py fetch zlib). pnglibconf.h는 OSS-Fuzz와 같은 옵션으로 만들어 harnesses/libpng/에 두었다. 쓰기 기능이 꺼져 있어 pngw*.c는 넣지 않았다.",
+ "seed_note": "OSS-Fuzz는 저장소의 *.png 파일을 시드로 준다. 시드 없이는 PNG 서명·CRC 검사를 넘지 못해 커버리지가 4% 안팎에 머문다(시드를 주면 분기 30%대). 지금 실행기(tgt.py)는 시드를 받지 않는다."
+}
