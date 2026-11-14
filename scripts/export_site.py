@@ -20,12 +20,9 @@ CATS = ["NOT_CALLED", "BLOCKED", "PARTIAL", "FULL"]
 LIBS = [
     {"id": "tinyxml2", "name": "TinyXML2", "lang": "C++", "kind": "XML 파서", "repo": "github.com/leethomason/tinyxml2",
      "dir": "third_party/tinyxml2", "runs": "out/repeat",
-     "harnesses": [("official", "OSS-Fuzz 하네스", "harnesses/official.cpp"),
-                   ("official_v3", "OSS-Fuzz 하네스 + gapfuzz 수정", "harnesses/official_v3.cpp"),
-                   ("stateful", "상태 기반 하네스", "harnesses/stateful.cpp"),
-                   ("stateful_v3", "gapfuzz 수정 하네스", "harnesses/stateful_v3.cpp")],
-     "verify": [("official", "official_v3", ["official_to_v2.md", "official_v2_to_v3.md"]),
-                ("stateful", "stateful_v3", ["stateful_to_v3.md"])]},
+     "harnesses": [("official", "OSS-Fuzz 하네스", "harnesses/tinyxml2/official.cpp"),
+                   ("official_v3", "OSS-Fuzz 하네스 + gapfuzz 수정", "harnesses/tinyxml2/official_v3.cpp")],
+     "verify": [("official", "official_v3", ["official_to_v2.md", "official_v2_to_v3.md"])]},
     {"id": "pugixml", "name": "pugixml", "lang": "C++", "kind": "XML 파서", "repo": "github.com/zeux/pugixml",
      "dir": "third_party/pugixml", "runs": "out/targets/pugixml",
      "harnesses": [("official", "OSS-Fuzz 하네스", "harnesses/pugixml/official.cpp"),
@@ -95,7 +92,8 @@ def harness_data(gap: dict) -> dict:
     for r in res:
         for b in r.get("stuck_branches", []):
             causes = b.get("causes") or []
-            c0 = causes[0] if causes else {"verdict": "UNKNOWN", "suggestion": ""}
+            # 확장 분석의 후보(ext)는 사이트에 올리지 않는다: 기존 판정 중 첫 번째를 대표로 쓴다
+            c0 = next((c for c in causes if not c.get("ext")), causes[0]) if causes else {"verdict": "UNKNOWN", "suggestion": ""}
             sites = [{"l": s["line"], "s": (s.get("source") or "").strip()[:160]} for s in c0.get("sites", [])][:3]
             branches.append({"api": r["api"], "f": rel(b["file"]), "l": b["line"], "col": b.get("col", 0), "src": (b.get("source") or "").strip(),
                              "never": b.get("never", ""), "v": c0["verdict"], "s": c0.get("suggestion", ""),

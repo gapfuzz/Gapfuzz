@@ -19,7 +19,9 @@ from dataclasses import dataclass, field, asdict
 from .ast_index import AstIndex, CallSite, FuncDecl
 from .causes import Cause, CauseFinder, summarize_fixes
 
-DEFAULT_INTERNAL_CLASSES = ("StrPair", "DynArray", "MemPool", "MemPoolT")
+# 공개 헤더에 선언돼 있지만 공개 API로 세지 않을 내부 클래스. 라이브러리마다 다르므로 기본값은 비워 두고
+# targets/<이름>.json의 internal_classes(또는 analyze --internal-class)로 준다.
+DEFAULT_INTERNAL_CLASSES: tuple = ()
 MAX_DEPTH = 8
 
 
@@ -49,6 +51,37 @@ def load_coverage(path: str) -> dict[str, FuncCov]:
             if prev is None or fc.count > prev.count:
                 out[key] = fc
     return out
+
+
+ASSERT_USE = re.compile(r"\b\w*assert\w*\s*\(", re.I)
+
+
+def assert_branches(path: str) -> list[dict]:
+    """어서션 매크로 안에서 한쪽으로만 간 검사. llvm-cov는 매크로 안의 분기를 '전개(expansion)'로 따로 기록하므로
+    일반 막힌 분기 목록에는 나오지 않는다. 매크로를 쓴 줄에 assert가 있고, 그 안의 분기가 한쪽으로만 갔으면 모은다.
+    (정적 어서션처럼 실행 시점 분기가 없는 것은 llvm-cov가 분기를 만들지 않아 자연히 빠진다.)"""
+    out, seen, lines = [], set(), {}
+    for f in json.load(open(path))["data"][0].get("files", []):
+        for ex in f.get("expansions", []):
+            sr = ex.get("source_region") or []
+            names = ex.get("filenames") or [f["filename"]]
+            if len(sr) < 5 or not sr[4]:
+                continue                                   # 그 줄이 실행된 적 없으면 '막힌' 것이 아니라 '안 간' 것
+            file = os.path.abspath(names[0])
+            if file not in lines:
+                try:
+                    lines[file] = open(file, encoding="utf-8", errors="replace").read().splitlines()
+                except OSError:
+                    lines[file] = []
+            src = lines[file][sr[0] - 1].strip() if 0 < sr[0] <= len(lines[file]) else ""
+            if not ASSERT_USE.search(src) or re.search(r"static_assert", src, re.I):
+                continue
+            one_sided = [b for b in ex.get("branches", []) if (b[4] == 0) != (b[5] == 0)]
+            key = (file, sr[0], sr[1])
+            if one_sided and key not in seen:
+                seen.add(key)
+                out.append({"file": file, "line": sr[0], "col": sr[1], "source": src[:160], "count": sr[4]})
+    return sorted(out, key=lambda a: (a["file"], a["line"], a["col"]))
 
 
 _CD_RE = re.compile(r"(?<=[A-Za-z0-9_])([CD])([0-2])E")
@@ -128,8 +161,8 @@ class ApiResult:
 
 class Analyzer:
     def __init__(self, idx: AstIndex, cov: dict[str, FuncCov], header: str,
-                 namespace: str = "tinyxml2", internal_classes=DEFAULT_INTERNAL_CLASSES,
-                 harness_files: list[str] | None = None, internal_branches: bool = False):
+                 namespace: str = "", internal_classes=DEFAULT_INTERNAL_CLASSES,
+                 harness_files: list[str] | None = None, internal_branches: bool = False, runtime: dict | None = None):
         self.idx = idx
         self.internal_branches = internal_branches   # 내부 함수의 막힌 분기도 가장 가까운 공개 API 아래에 모은다
         self.harness_files = {os.path.abspath(h) for h in (harness_files or [])}
@@ -147,7 +180,8 @@ class Analyzer:
         self._src_cache: dict[str, list[str]] = {}
         self._virtual_alias = self._build_virtual_alias()
         self.causes = CauseFinder(idx, self.harness_files, self.pretty, self._src, self.is_public_api,
-                                  executed=self._executed, virtual_bases=self._virtual_alias)
+                                  executed=self._executed, virtual_bases=self._virtual_alias,
+                                  runtime=runtime, public_headers=self.headers)
 
     # 가상 함수: Base::f 를 부르는 지점은 Derived::f 로도 이어질 수 있다
     def _resolve_record(self, name: str, ctx: str) -> str:
@@ -376,4 +410,6 @@ class Analyzer:
 
 def results_to_json(results: list[ApiResult], meta: dict) -> dict:
     return {"meta": meta, "results": [asdict(r) for r in results],
-            "harness_fixes": summarize_fixes(results)}
+            "harness_fixes": summarize_fixes(results),
+            # 확장 분석(C 구조체 필드, 상태·콜백, 실행 중 관찰)에서 나온 후보. 검증이 덜 됐으므로 harness_fixes와 섞지 않는다
+            "harness_fix_candidates": summarize_fixes(results, ext=True)}

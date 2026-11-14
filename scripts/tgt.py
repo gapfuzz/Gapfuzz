@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """라이브러리 설정 파일(targets/<이름>.json)로 빌드·퍼징·커버리지·갭 분석을 돌리는 범용 실행기.
 
-TinyXML2 전용 스크립트(build.sh, run.sh, long_runs.py)와 같은 일을 하되, 라이브러리를 바꿔 끼울 수 있다.
+모든 라이브러리가 이 실행기를 쓴다(예전의 TinyXML2 전용 스크립트는 legacy/로 옮김).
 
   python3 scripts/tgt.py build   pugixml harnesses/pugixml/official.cpp
-  python3 scripts/tgt.py repeat  pugixml --trials 5 --secs 120 official stateful
+  python3 scripts/tgt.py repeat  pugixml --trials 5 --secs 120 official official_llm
   python3 scripts/tgt.py analyze pugixml official out/targets/pugixml/official/r1
 
 설정 파일 항목
@@ -87,6 +87,8 @@ def analyze(t: dict, h: str, d: Path) -> None:
             args += ["--define", f[2:]]
     args += ["--harness", str(harness_path(t, h)), "--include", str(ROOT / "harnesses" / "include"),
             "--namespace", t["namespace"], "--coverage", str(d / "coverage.json"), "--out", str(d / "gap")]
+    if (d / "args.json").exists():                 # argtrace 기록이 있으면 판정 근거로 쓴다
+        args += ["--args", str(d / "args.json")]
     if t.get("internal_branches"):
         args.append("--internal-branches")
     if t.get("internal_classes") is not None:

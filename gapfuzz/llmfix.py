@@ -95,23 +95,49 @@ def build_request(harness_src: str, harness_name: str, fix, before: dict, lib_na
     return "\n".join(parts)
 
 
-def call_claude(messages: list, model: str, key: str, max_tokens: int = 8000) -> tuple[str, dict]:
-    body = json.dumps({"model": model, "max_tokens": max_tokens, "system": SYSTEM, "messages": messages}).encode()
-    for attempt in range(5):
-        req = urllib.request.Request(API_URL, data=body, headers={
+MAX_TOKENS = int(os.environ.get("GAPFUZZ_MAX_TOKENS", "64000"))
+EFFORT = os.environ.get("GAPFUZZ_EFFORT", "medium")
+
+
+def call_claude(messages: list, model: str, key: str, max_tokens: int | None = None, system: str | None = None) -> tuple[str, dict]:
+    """Claude API 호출. (본문 글자, usage)를 돌려준다. usage["stop_reason"]에 응답이 끝난 이유를 넣는다.
+
+    최근 모델은 답을 쓰기 전에 '생각'을 하고, 그 생각 토큰도 max_tokens에 포함된다. 상한이 작으면 생각만 하다
+    코드를 쓰기 전에 잘린다. 그래서 상한을 넉넉히 주고(기본 64000, GAPFUZZ_MAX_TOKENS로 조절),
+    생각 분량은 effort로 줄인다(기본 medium, GAPFUZZ_EFFORT로 조절. 빈 값이면 보내지 않음).
+    effort를 모르는 모델이면 그 항목을 빼고 한 번 더 보낸다."""
+    payload = {"model": model, "max_tokens": max_tokens or MAX_TOKENS, "system": system or SYSTEM, "messages": messages}
+    if EFFORT:
+        payload["output_config"] = {"effort": EFFORT}
+    for attempt in range(6):
+        req = urllib.request.Request(API_URL, data=json.dumps(payload).encode(), headers={
             "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"})
         try:
-            with urllib.request.urlopen(req, timeout=600) as r:
+            with urllib.request.urlopen(req, timeout=1800) as r:
                 data = json.load(r)
             text = "".join(c.get("text", "") for c in data.get("content", []) if c.get("type") == "text")
-            return text, data.get("usage", {})
+            usage = dict(data.get("usage", {}), stop_reason=data.get("stop_reason"))
+            return text, usage
         except urllib.error.HTTPError as e:
             detail = e.read().decode(errors="replace")[:300]
-            if e.code in (429, 500, 502, 503, 529) and attempt < 4:
+            if e.code == 400 and "output_config" in payload and re.search(r"output_config|effort", detail):
+                payload.pop("output_config")           # 이 모델은 effort를 받지 않는다
+                continue
+            if e.code in (429, 500, 502, 503, 529) and attempt < 5:
                 time.sleep(10 * (attempt + 1))
                 continue
             raise SystemExit(f"[llmfix] Claude API 오류 {e.code}: {detail}")
     raise SystemExit("[llmfix] Claude API가 계속 응답하지 않음")
+
+
+def no_code_reason(text: str, usage: dict) -> str:
+    """응답에서 코드를 못 꺼냈을 때의 이유. 상한에 걸려 잘린 경우를 따로 알려 준다."""
+    if usage.get("stop_reason") == "max_tokens":
+        think = (usage.get("output_tokens_details") or {}).get("thinking_tokens")
+        return (f"응답이 토큰 상한에서 잘렸습니다 (출력 {usage.get('output_tokens')}토큰"
+                + (f", 그중 생각 {think}토큰" if think is not None else "")
+                + "). GAPFUZZ_MAX_TOKENS를 올리거나 GAPFUZZ_EFFORT=low로 생각 분량을 줄이거나 --top을 줄이세요.")
+    return "응답에 코드 블록이 없습니다."
 
 
 def extract_code(text: str) -> str | None:
@@ -224,7 +250,7 @@ def run(target: str, harness: str, fix_no, before_path: str | None, secs: int, t
         code = extract_code(text)
         entry = {"try": k, "llm_seconds": round(time.time() - t0, 1), "usage": usage}
         if not code:
-            res = {"ok": False, "stage": "compile", "detail": "응답에 코드 블록이 없습니다."}
+            res = {"ok": False, "stage": "compile", "detail": no_code_reason(text, usage)}
         else:
             name = str(rel_dir / f"try{k}")
             src = base / rel_dir / f"try{k}{hp.suffix}"

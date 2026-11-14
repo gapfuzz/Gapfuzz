@@ -3,11 +3,12 @@
 #   run_tests.sh   : 호출 경로 분류(BLOCKED/NOT_CALLED) — TinyXML2로 짧게 퍼징
 #   test_causes.sh : 차별점 A, 하네스가 고정한 인자 탐지 — 가짜 라이브러리, 결정적
 #   test_triage.sh : 차별점 C, 크래시 원인 귀속 — 가짜 라이브러리, 결정적
+#   test_ext.sh    : 확장 판정(콜백·상태·어서션·실행 중 관찰) — 가짜 C 라이브러리, 결정적
 #   triage_real    : 크래시 원인 귀속 — 실제 TinyXML2 크래시 9건 (scripts/setup.sh --extra 필요, 없으면 건너뜀)
 set -uo pipefail
 cd "$(dirname "$0")"
 fail=0
-for t in run_tests.sh test_causes.sh test_triage.sh; do
+for t in run_tests.sh test_causes.sh test_triage.sh test_ext.sh; do
     echo "== $t"
     if ./"$t"; then :; else fail=1; fi
 done

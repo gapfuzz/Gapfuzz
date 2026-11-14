@@ -39,9 +39,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 RESULTS = Path(os.environ.get("GAPFUZZ_RESULTS", ROOT / "results"))   # 시험용으로 바꿀 수 있음
 EXPECTED_CLANG_MAJOR = 18
-LIBS = ["pugixml", "cjson", "jsoncpp", "zlib", "expat", "json-c"]   # OSS-Fuzz vs Claude 수정 비교 대상
-FIXED = "official_llm"                  # gapfuzz 제안을 Claude API가 고치고 gapfuzz가 검증한 하네스 (scripts/make_llm_harness.py)
-HARNESSES = ["official", FIXED]
+LIBS = ["tinyxml2", "pugixml", "cjson", "jsoncpp", "zlib", "expat", "json-c"]   # OSS-Fuzz vs Claude 수정 비교 대상
+BASE = os.environ.get("GAPFUZZ_BASE", "official")          # 비교 기준 하네스 (추가 실험 때만 바꿈)
+FIXED = os.environ.get("GAPFUZZ_FIXED", "official_llm")   # gapfuzz 제안을 Claude API가 고치고 gapfuzz가 검증한 하네스 (scripts/make_llm_harness.py)
+HARNESSES = [BASE, FIXED]
 SEED_BASE = 1000                                                    # 회차 r의 시드 = 1000 + r (두 하네스 같음)
 
 _spec = importlib.util.spec_from_file_location("tgt", ROOT / "scripts" / "tgt.py")
@@ -51,7 +52,10 @@ _spec.loader.exec_module(tg)
 
 # ------------------------------------------------------------------ 환경
 def sh(cmd, **kw):
-    return subprocess.run(cmd, capture_output=True, text=True, **kw)
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, **kw)
+    except FileNotFoundError:                      # 도구가 설치되지 않음: 오류로 죽지 않고 '없음'으로 보고한다
+        return subprocess.CompletedProcess(cmd, 127, "", f"{cmd[0]}: 설치되어 있지 않음")
 
 
 def env_info() -> dict:
@@ -499,7 +503,7 @@ def load(lib: str, h: str, plan: str = "1h") -> list[dict]:
 
 
 def report_lib(lib: str) -> dict:
-    A, B = load(lib, "official"), load(lib, FIXED)
+    A, B = load(lib, BASE), load(lib, FIXED)
     # 같은 회차끼리만 비교 (짝이 맞는 회차)
     common = sorted({r["trial"] for r in A} & {r["trial"] for r in B})
     A = [r for r in A if r["trial"] in common]
@@ -522,7 +526,7 @@ def report_lib(lib: str) -> dict:
         xa = [r["coverage"][key]["pct"] for r in A]
         xb = [r["coverage"][key]["pct"] for r in B]
         e, p = a12(xa, xb), mwu_p(xa, xb)
-        stats[key] = {"official": xa, FIXED: xb, "a12": e, "p": p}
+        stats[key] = {BASE: xa, FIXED: xb, "a12": e, "p": p}
         L.append(f"| {ko} | {_fmt(xa)} | {_fmt(xb)} | {e:.2f} | {p:.4g} |")
     L += ["", "값은 중앙값 [최솟값–최댓값]. A12는 무작위로 하나씩 뽑았을 때 수정본이 더 높을 확률(0.5면 차이 없음).", ""]
 
@@ -553,7 +557,7 @@ def report_lib(lib: str) -> dict:
 
 
 def day_section(lib: str) -> list[str]:
-    A, B = day_state(lib, "official"), day_state(lib, FIXED)
+    A, B = day_state(lib, BASE), day_state(lib, FIXED)
     if not A.get("points") and not B.get("points"):
         return []
     L = ["## 24시간 × 1회", "", "같은 코퍼스로 구간을 이어 붙여 24시간 돌리고, 구간이 끝날 때마다 코퍼스 전체로 커버리지를 쟀습니다. "
@@ -581,19 +585,19 @@ def report(a) -> int:
     targets = LIBS if a.all else [a.lib]
     rows = []
     for lib in targets:
-        if not (load(lib, "official") or load(lib, FIXED) or day_state(lib, "official") or day_state(lib, FIXED)):
+        if not (load(lib, BASE) or load(lib, FIXED) or day_state(lib, BASE) or day_state(lib, FIXED)):
             continue
         st = report_lib(lib)
         print(f"[report] results/{lib}/REPORT.md")
         if st:
             b = st["branches"]
-            rows.append(f"| {lib} | {len(b['official'])} | {_fmt(b['official'])} | {_fmt(b[FIXED])} | {b['a12']:.2f} | {b['p']:.4g} |")
+            rows.append(f"| {lib} | {len(b[BASE])} | {_fmt(b[BASE])} | {_fmt(b[FIXED])} | {b['a12']:.2f} | {b['p']:.4g} |")
     if a.all:
         L = ["# 팀 실험 요약 (분기 커버리지)", "", "## 1시간 × 10회", "", "| 라이브러리 | 회차 | OSS-Fuzz | Claude 수정 | A12 | p |",
              "|---|---:|---|---|---:|---:|", *rows, "", "## 24시간 × 1회 (마지막 측정)", "",
              "| 라이브러리 | 경과 | OSS-Fuzz | Claude 수정 |", "|---|---:|---:|---:|"]
         for lib in LIBS:
-            A, B = day_state(lib, "official"), day_state(lib, FIXED)
+            A, B = day_state(lib, BASE), day_state(lib, FIXED)
             if A.get("points") and B.get("points"):
                 L.append(f"| {lib} | {min(A['done_secs'], B['done_secs']) / 3600:.1f}시간 | "
                          f"{A['points'][-1]['coverage']['branches']['pct']:.2f}% | {B['points'][-1]['coverage']['branches']['pct']:.2f}% |")

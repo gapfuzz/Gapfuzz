@@ -1,0 +1,50 @@
+{
+ "lib": "tinyxml2",
+ "fixes": [
+  1,
+  2,
+  4,
+  5,
+  6,
+  7
+ ],
+ "controls": [
+  3
+ ],
+ "ok": true,
+ "tries": 1,
+ "opened": 8,
+ "total": 8,
+ "per_fix": {
+  "1": [
+   2,
+   2
+  ],
+  "2": [
+   1,
+   1
+  ],
+  "4": [
+   2,
+   2
+  ],
+  "5": [
+   1,
+   1
+  ],
+  "6": [
+   1,
+   1
+  ],
+  "7": [
+   1,
+   1
+  ]
+ },
+ "crashes": [],
+ "harness": "harnesses/tinyxml2/official_llm.cpp",
+ "tokens": [
+  7165,
+  3282
+ ]
+}

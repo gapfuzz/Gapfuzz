@@ -1,18 +1,15 @@
 #!/usr/bin/env bash
-# 분석기 회귀 테스트: 빌드 → 짧은 퍼징 → 분석 → 기대 분류 확인
+# 분석기 회귀 테스트: 빌드 → 짧은 퍼징 → 분석 → 기대 분류 확인 (BLOCKED / NOT_CALLED)
+# 다른 라이브러리와 같은 범용 실행기(scripts/tgt.py)를 쓴다. 설정: targets/_blockedtest.json (TinyXML2 + tests/blocked_harness.cpp)
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-B=out/test_blocked
-LIB=third_party/tinyxml2
+D=out/targets/_blockedtest/blocked_harness
+rm -rf "$D"
+python3 scripts/tgt.py build _blockedtest blocked_harness > /dev/null
+python3 scripts/tgt.py repeat _blockedtest blocked_harness --trials 1 --secs "${SECS:-15}" > /dev/null
 
-scripts/build.sh tests/blocked_harness.cpp "$B" > /dev/null
-scripts/run.sh "$B" "${SECS:-15}" > /dev/null
-python3 -m gapfuzz analyze --name test_blocked --header $LIB/tinyxml2.h --source $LIB/tinyxml2.cpp \
-    --harness tests/blocked_harness.cpp --include harnesses/include \
-    --coverage "$B/coverage.json" --out "$B/gap" > /dev/null
-
-python3 - "$B/gap/gap.json" <<'EOF'
+python3 - "$D/r1/gap/gap.json" <<'EOF2'
 import json, sys
 res = {r["api"]: r for r in json.load(open(sys.argv[1]))["results"]}
 src = open("tests/blocked_harness.cpp").read().splitlines()
@@ -40,4 +37,4 @@ s = res["XMLDocument::SaveFile(const char *, bool)"]
 check(s["category"] == "NOT_CALLED", f"XMLDocument::SaveFile 은 NOT_CALLED (실제: {s['category']})")
 
 sys.exit(1 if fails else 0)
-EOF
+EOF2

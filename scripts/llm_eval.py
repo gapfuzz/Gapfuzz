@@ -19,7 +19,6 @@ from gapfuzz.llmfix import DEFAULT_MODEL, run  # noqa: E402
 # (라이브러리, 수정 전 하네스, 수정 전 gap.json, 사람이 적용한 결과 md들)
 CASES = [
     ("tinyxml2", "official", "out/repeat/official/r1/gap/gap.json", ["official_to_v2.md", "official_v2_to_v3.md"]),
-    ("tinyxml2", "stateful", "out/repeat/stateful/r1/gap/gap.json", ["stateful_to_v3.md"]),
     ("pugixml", "official", None, ["pugixml_official_to_v2.md"]),
     ("cjson", "official", None, ["cjson_official_to_v2.md"]),
     ("jsoncpp", "official", None, ["jsoncpp_official_to_v2.md"]),

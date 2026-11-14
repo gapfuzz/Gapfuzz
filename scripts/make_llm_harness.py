@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from gapfuzz.llmfix import DEFAULT_MODEL, run  # noqa: E402
 
-LIBS = ["pugixml", "cjson", "jsoncpp", "zlib", "expat", "json-c"]
+LIBS = ["tinyxml2", "pugixml", "cjson", "jsoncpp", "zlib", "expat", "json-c"]
 TAG = "official_combined"
 OUT = ROOT / "samples" / "llm" / "combined"
 

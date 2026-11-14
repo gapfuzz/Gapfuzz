@@ -1,0 +1,86 @@
+{
+ "target": "zlib",
+ "harness": "official",
+ "model": "claude-sonnet-5-5",
+ "chosen": [
+  "compress(Bytef *, uLongf *, const Bytef *, uLong)",
+  "inflateBack(z_streamp, in_func, void *, out_func, void *)",
+  "deflateCopy(z_streamp, z_streamp)",
+  "deflateBound(z_streamp, uLong)",
+  "deflateParams(z_streamp, int, int)",
+  "inflateCopy(z_streamp, z_streamp)",
+  "inflateSync(z_streamp)",
+  "deflateSetDictionary(z_streamp, const Bytef *, uInt)",
+  "inflateBackInit_(z_streamp, int, unsigned char *, const char *, int)",
+  "adler32_combine(uLong, uLong, long long)"
+ ],
+ "before": {
+  "not_called": 74,
+  "apis": 88,
+  "lines": 24.51,
+  "branches": 18.47
+ },
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 73.8,
+   "usage": {
+    "input_tokens": 5256,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 10700,
+    "output_tokens_details": {
+     "thinking_tokens": 5254
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/zlib/llm/official_ops/try1.cc",
+   "ok": false,
+   "stage": "compile",
+   "detail": "/work/harnesses/zlib/llm/official_ops/try1.cc:45:15: error: assigning to 'unsigned char *' from 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers\n      |          ~~~~~^~~~~~~~\n1 error generated."
+  },
+  {
+   "try": 2,
+   "llm_seconds": 26.2,
+   "usage": {
+    "input_tokens": 10857,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 5259,
+    "output_tokens_details": {
+     "thinking_tokens": 341
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/zlib/llm/official_ops/try2.cc",
+   "stage": "fuzz",
+   "called": 10,
+   "total": 10,
+   "missing": [],
+   "lost": [],
+   "not_called_after": 52,
+   "lines": 67.81,
+   "branches": 58.87,
+   "crashes": [],
+   "regressed": false,
+   "ok": true,
+   "complete": true
+  }
+ ],
+ "best": 2,
+ "saved": "harnesses/zlib/official_ops.cc"
+}

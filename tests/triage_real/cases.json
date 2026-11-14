@@ -36,7 +36,7 @@
  },
  {
   "name": "lib_cve_assert",
-  "harness": "../../../harnesses/official.cpp",
+  "harness": "../../../harnesses/tinyxml2/official.cpp",
   "lib": "tx_cve",
   "debug": true,
   "expect": "ASSERT",
@@ -44,7 +44,7 @@
  },
  {
   "name": "lib_stack_overflow",
-  "harness": "../../../harnesses/official.cpp",
+  "harness": "../../../harnesses/tinyxml2/official.cpp",
   "lib": "tx_stack",
   "expect": "RESOURCE",
   "why": "깊은 중첩 재귀, 커밋 d946dda에서 깊이 제한 추가"
@@ -59,7 +59,7 @@
  },
  {
   "name": "not_a_crash",
-  "harness": "../../../harnesses/official.cpp",
+  "harness": "../../../harnesses/tinyxml2/official.cpp",
   "lib": "tinyxml2",
   "expect": "UNCLEAR",
   "why": "정상 입력 (재현 안 됨)"

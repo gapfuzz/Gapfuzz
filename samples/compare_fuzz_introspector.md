@@ -1,7 +1,7 @@
 # Fuzz Introspector와 비교 (TinyXML2 공식 하네스, 같은 커버리지)
 
 Fuzz Introspector(FI, OSS-Fuzz가 쓰는 하네스 분석 도구, 커밋 8bc858d·2026-05-27)를 gapfuzz와 같은 입력으로 돌려 봤다.
-입력: `third_party/tinyxml2`, `harnesses/official.cpp`, `out/repeat/official/r1`(120초 1회)의 커버리지.
+입력: `third_party/tinyxml2`, `harnesses/tinyxml2/official.cpp`, `out/repeat/official/r1`(120초 1회)의 커버리지.
 
 ## 실행할 수 있었던 범위
 
@@ -10,7 +10,7 @@ FI에는 두 가지 방식이 있다.
 | 방식 | 필요한 것 | 이 환경 |
 |---|---|---|
 | LLVM 플러그인 방식 (OSS-Fuzz 기본) | FI 전용 LLVM 패스를 LLVM 소스와 함께 빌드 | **불가**: LLVM 개발 헤더 패키지를 받을 수 없음(패키지 서버 접근 불가) |
-| 소스 분석 방식 (tree-sitter, 컴파일 불필요) | 파이썬 패키지 | **가능**: 파이썬 의존성을 GitHub 소스에서 빌드해 실행 (`scripts/run_fi.sh`) |
+| 소스 분석 방식 (tree-sitter, 컴파일 불필요) | 파이썬 패키지 | **가능**: 파이썬 의존성을 GitHub 소스에서 빌드해 실행 (`legacy/run_fi.sh`) |
 
 그래서 아래 정량 비교는 **소스 분석 방식의 FI**와의 비교다. OSS-Fuzz가 실제로 쓰는 LLVM 방식의 FI는 정확도가 더 높으므로,
 그 방식과의 정량 비교는 최종 발표 전에 OSS-Fuzz 환경(도커)에서 다시 해야 한다.

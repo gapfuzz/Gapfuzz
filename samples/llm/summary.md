@@ -1,3 +1,5 @@
+> 2026-11-12: `tinyxml2/stateful` 행은 저장소에서 내린 스테이트풀 하네스 기준입니다. 그 기록은 `legacy/tinyxml2_stateful/llm_runs/`로 옮겼고, README의 합계에서는 뺐습니다.
+
 # LLM(Claude) 하네스 수정 평가
 
 모델 `claude-sonnet-5-5`. 제안 하나마다 Claude가 하네스를 고치고, gapfuzz가 컴파일 → 60초 × 2회 퍼징 → 겨냥한 분기가 열렸는지 → 크래시 귀속으로 검사.

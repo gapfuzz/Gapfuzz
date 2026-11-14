@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 from dataclasses import dataclass, field
 
@@ -57,6 +58,8 @@ class Arg:
     value: str | None = None
     params: set = field(default_factory=set)   # 이 인자 식이 읽는, 호출한 함수의 매개변수 번호들
     member_only: set = field(default_factory=set)  # 그중 p->필드로만 읽는 것 (값이 객체 안 상태에서 옴)
+    span: tuple | None = None                  # 소스 파일 안의 (시작, 끝) 바이트 위치. 매크로에서 온 인자는 None (argtrace 계측용)
+    ctype: str = ""                            # 인자 식의 타입 (typedef를 푼 것)
 
 
 @dataclass
@@ -90,6 +93,7 @@ class FieldWrite:
     writer: str            # 쓰는 함수(mangled)
     params: set[int]       # 쓰는 값이 writer의 몇 번째 매개변수에서 오는가
     kind: str              # init(생성자 초기화) | assign(대입) | addr(주소를 넘겨 간접 설정)
+                           # | incr(++/--) | elem(배열 원소 대입) | mutate(필드 객체의 비-const 메서드 호출, 예: _list.Push(x))
     file: str | None = None
     line: int | None = None
 
@@ -104,6 +108,9 @@ class AstIndex:
     conds: dict[str, list[Cond]] = field(default_factory=dict)    # 함수 -> 조건식들
     field_writes: dict[str, list[FieldWrite]] = field(default_factory=dict)
     getters: dict[str, str] = field(default_factory=dict)         # 게터 함수 -> 돌려주는 필드
+    c_records: set[str] = field(default_factory=set)              # C 구조체(RecordDecl). C++ 클래스(records)와 따로 둔다
+    field_types: dict[str, str] = field(default_factory=dict)     # "클래스::필드" -> 타입 (typedef를 푼 것)
+    record_file: dict[str, str] = field(default_factory=dict)     # 클래스·구조체 -> 정의된 파일
 
 
 class _LocState:
@@ -147,6 +154,33 @@ def _strip(n: dict) -> dict:
     while n.get("kind") in WRAPPER_KINDS and n.get("inner"):
         n = n["inner"][0]
     return n
+
+
+def _lhs_member(n: dict) -> str | None:
+    """대입·증감의 대상이 필드(또는 필드 배열의 원소)이면 그 FieldDecl id."""
+    n = _strip(n)
+    while n.get("kind") == "ArraySubscriptExpr" and n.get("inner"):
+        n = _strip(n["inner"][0])
+    if n.get("kind") == "MemberExpr" and "referencedMemberDecl" in n:
+        return n["referencedMemberDecl"]
+    return None
+
+
+def _span(n: dict) -> tuple | None:
+    """식의 소스 범위 (시작 offset, 끝 offset). 매크로 전개에서 온 식은 다시 쓸 수 없으므로 None."""
+    r = n.get("range") or {}
+    b, e = r.get("begin") or {}, r.get("end") or {}
+    if "offset" not in b or "offset" not in e or any(k in x for x in (b, e) for k in ("spellingLoc", "expansionLoc")):
+        return None
+    return (b["offset"], e["offset"] + max(e.get("tokLen", 1), 1))
+
+
+def _ctype(n: dict) -> str:
+    t = n.get("type") or {}
+    return t.get("desugaredQualType") or t.get("qualType", "")
+
+
+READ_ONLY_METHOD = re.compile(r"^(size|empty|begin|end|cbegin|cend|get|is|has|c_str|data|length|find|count|at|front|back|top|peek|capacity|mem)", re.I)
 
 
 def _find_callee(node: dict) -> str | None:
@@ -302,6 +336,7 @@ def index_tu(ast: dict, idx: AstIndex) -> None:
     pending_conds: list[tuple] = []                  # (func, file, l, c, el, ec, params, member_ids, callee_ids)
     pending_writes: list[tuple] = []                 # (field_id, writer, params, kind, file, line)
     pending_getters: list[tuple] = []                # (func, member_id)
+    pending_mutcalls: list[tuple] = []               # (field_id, method_id, method_name, writer, file, line)
     cond_ids: set[str] = set()
     case_refs: dict[str, tuple] = {}                 # CaseStmt/DefaultStmt id -> switch 조건의 참조들
     var_refs: dict[str, tuple] = {}                  # 지역 변수 id -> 초기값이 읽는 (매개변수, 멤버, 호출)
@@ -356,6 +391,8 @@ def index_tu(ast: dict, idx: AstIndex) -> None:
             if n.get("completeDefinition"):
                 bases = [_norm_type(b["type"]["qualType"]) for b in n.get("bases", [])]
                 idx.records.setdefault(qname, bases)
+                if pos and pos[0]:
+                    idx.record_file.setdefault(qname, os.path.abspath(pos[0]))
             if records:  # 다른 클래스 안에 선언된 중첩 클래스
                 idx.record_access.setdefault(qname, n.get("access", access))
             cur = "private" if n.get("tagUsed") == "class" else "public"
@@ -367,12 +404,26 @@ def index_tu(ast: dict, idx: AstIndex) -> None:
                 walk(c, scope + [n["name"]], records + [qname], fstack, cur)
             return
 
+        if kind == "RecordDecl" and n.get("completeDefinition"):
+            # C 구조체·공용체. 이름 없는 것(typedef struct { … } T;)은 정의 위치로 이름을 만든다(헤더가 같으면 TU마다 같음)
+            name = n.get("name") or (f"anon_{os.path.basename(pos[0])}_{pos[1]}" if pos and pos[0] else f"anon_{n.get('id')}")
+            qname = "::".join(scope + [name])
+            idx.c_records.add(qname)
+            if pos and pos[0]:
+                idx.record_file.setdefault(qname, os.path.abspath(pos[0]))
+            for c in inner:
+                walk(c, scope, records + [qname], fstack, access)
+            return
+
         if kind == "FieldDecl" and records:
-            field_ids[n["id"]] = f"{records[-1]}::{n.get('name', '')}"
+            fk = f"{records[-1]}::{n.get('name', '')}"
+            field_ids[n["id"]] = fk
+            idx.field_types.setdefault(fk, _ctype(n))
 
         if kind in FUNC_KINDS:
             mangled = n.get("mangledName") or ""
-            id2mangled[n["id"]] = mangled
+            if mangled or n["id"] not in id2mangled:   # 템플릿 인스턴스는 같은 id로 한 번 더(이름 없이 줄여서) 나온다: 덮어쓰지 않는다
+                id2mangled[n["id"]] = mangled
             record = records[-1] if records and kind != "FunctionDecl" else None
             if record is None and kind != "FunctionDecl" and scope:
                 record = "::".join(scope)
@@ -475,8 +526,25 @@ def index_tu(ast: dict, idx: AstIndex) -> None:
                     lhs = _strip(inner[0])
                     if lhs.get("kind") == "MemberExpr" and "referencedMemberDecl" in lhs:
                         ps, _, _ = refs(inner[1], pmap)
+                        own = set(refs(inner[0], pmap)[0]) | _member_only_params(inner[1], pmap)
                         pending_writes.append((lhs["referencedMemberDecl"], func, ps, "assign",
+                                               begin[0] if begin else None, begin[1] if begin else None, own))
+                    elif _lhs_member(inner[0]):          # 필드 배열의 원소에 대입: 필드의 상태가 바뀜
+                        pending_writes.append((_lhs_member(inner[0]), func, set(), "elem",
                                                begin[0] if begin else None, begin[1] if begin else None))
+
+            if kind == "UnaryOperator" and n.get("opcode") in ("++", "--") and inner and _lhs_member(inner[0]):
+                pending_writes.append((_lhs_member(inner[0]), func, set(), "incr",
+                                       begin[0] if begin else None, begin[1] if begin else None))
+
+            if kind == "CXXMemberCallExpr" and inner and begin:
+                # 필드 객체의 메서드 호출(_unlinked.Push(node) 등): const가 아니면 그 필드의 상태를 바꾼다
+                callee = _strip(inner[0])
+                if callee.get("kind") == "MemberExpr" and callee.get("inner"):
+                    fid = _lhs_member(callee["inner"][0])
+                    if fid:
+                        pending_mutcalls.append((fid, callee.get("referencedMemberDecl"), callee.get("name", ""),
+                                                 func, begin[0], begin[1]))
 
             if kind in CALL_KINDS and begin:
                 callee_id = _find_callee(inner[0]) if inner else None
@@ -485,6 +553,7 @@ def index_tu(ast: dict, idx: AstIndex) -> None:
                     for a, node in zip(args, inner[1:]):
                         a.params = set(refs(node, pmap)[0])
                         a.member_only = _member_only_params(node, pmap) & a.params
+                        a.span, a.ctype = _span(node), _ctype(node)
                 pending_calls.append((func, callee_id, begin, False, None, None, args))
                 # 필드 주소를 넘기는 호출: 그 함수가 필드를 간접적으로 설정할 수 있음
                 for a in inner[1:]:
@@ -502,6 +571,7 @@ def index_tu(ast: dict, idx: AstIndex) -> None:
                 for a, node in zip(args, inner):
                     a.params = set(refs(node, pmap)[0])
                     a.member_only = _member_only_params(node, pmap) & a.params
+                    a.span, a.ctype = _span(node), _ctype(node)
                 pending_calls.append((func, None, begin, True, rec, csig, args))
 
         for c in inner:
@@ -541,11 +611,25 @@ def index_tu(ast: dict, idx: AstIndex) -> None:
         if not any((x.file, x.line, x.col) == (cond.file, cond.line, cond.col) for x in lst):
             lst.append(cond)
 
-    for mid, writer, ps, kind, f, line in pending_writes:
+    for mid, writer, ps, kind, f, line, *rest in pending_writes:
         k = fkey(mid)
         if not k or not writer:
             continue
+        if rest and k.rsplit("::", 1)[0] in idx.c_records:
+            ps = set(ps) - rest[0]                # C 구조체: 객체 자신·다른 객체의 필드에서 온 값은 매개변수 출처로 보지 않음
         w = FieldWrite(writer, set(ps), kind, os.path.abspath(f) if f else None, line)
+        lst = idx.field_writes.setdefault(k, [])
+        if not any((x.writer, x.kind, x.line) == (w.writer, w.kind, w.line) for x in lst):
+            lst.append(w)
+
+    for fid, mid, mname, writer, f, line in pending_mutcalls:
+        k = fkey(fid)
+        if not k or not writer:
+            continue
+        fd = idx.funcs.get(id2mangled.get(mid or "", ""))
+        if (fd and fd.sig.rstrip().endswith("const")) or (not fd and READ_ONLY_METHOD.match(mname or "")):
+            continue                              # 읽기만 하는 메서드
+        w = FieldWrite(writer, set(), "mutate", os.path.abspath(f) if f else None, line)
         lst = idx.field_writes.setdefault(k, [])
         if not any((x.writer, x.kind, x.line) == (w.writer, w.kind, w.line) for x in lst):
             lst.append(w)

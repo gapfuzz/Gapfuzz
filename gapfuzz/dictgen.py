@@ -158,7 +158,7 @@ def generate(gaps: List[dict], sources: List[str], existing: Optional[str] = Non
     for gap in gaps:
         for r in gap["results"]:
             for b in r.get("stuck_branches", []):
-                verdicts = {c["verdict"] for c in b.get("causes", [])}
+                verdicts = {c["verdict"] for c in b.get("causes", []) if not c.get("ext")}   # 확장 분석의 후보는 판단에 넣지 않는다
                 if not include_fixable and verdicts & FIX_VERDICTS:
                     continue  # 하네스를 고쳐서 열 분기는 제외
                 stmt = _statement(b["file"], b["line"], files)

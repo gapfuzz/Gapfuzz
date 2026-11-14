@@ -24,6 +24,7 @@ gapfuzz는 OSS-Fuzz 하네스를 분석해 "하네스의 이 부분 때문에 �
 | zlib | 3개 | 1개 | 11/11 |
 | expat | 3개 | 1개 | 6/7 |
 | json-c | 4개 | 1개 | 4/5 |
+| tinyxml2 | 6개 | 1개 | `official_llm` 만든 뒤 채움 (`scripts/make_llm_harness.py tinyxml2`) |
 
 제안 내용과 Claude가 바꾼 코드는 `samples/llm/combined/<라이브러리 이름>/report.md`, 만든 방법은 `scripts/make_llm_harness.py`에 있습니다.
 
@@ -43,7 +44,7 @@ gapfuzz는 OSS-Fuzz 하네스를 분석해 "하네스의 이 부분 때문에 �
 3. **실험 기간에는 공용 파일을 고치지 않습니다.** `gapfuzz/`, `scripts/`, `harnesses/`, `EXPERIMENTS.md`, `README.md`가 공용 파일입니다. 고칠 일이 있으면 팀 채팅에 먼저 말하고 한 사람만 고칩니다.
 4. 두 실험은 한 컴퓨터에서 **차례로** 돌립니다(1시간 × 10회 → 24시간). 동시에 돌리면 같은 실행 파일을 다시 빌드해서 실험이 깨질 수 있습니다.
 
-> 문서의 `<라이브러리 이름>` 자리에는 내가 맡은 라이브러리를 넣으세요: `pugixml`, `expat`, `cjson`, `jsoncpp`, `json-c`, `zlib` 중 하나.
+> 문서의 `<라이브러리 이름>` 자리에는 내가 맡은 라이브러리를 넣으세요: `tinyxml2`, `pugixml`, `expat`, `cjson`, `jsoncpp`, `json-c`, `zlib` 중 하나.
 > 꺾쇠(`< >`)까지 지우고 넣어야 합니다. 예: `python3 scripts/exp.py run expat`
 
 ---

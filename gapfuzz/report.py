@@ -41,8 +41,12 @@ VERDICT_KO = {
     "SETTER_NOT_CALLED": "값을 정하는 API를 하네스가 안 부름",
     "NARROW": "하네스가 값의 범위를 좁힘",
     "DIRECT_CALL": "공개 API를 하네스가 직접 안 부름",
+    "CALLBACK": "콜백을 하네스가 등록하지 않음 (후보)",
+    "STATE": "상태를 바꾸는 공개 API를 하네스가 안 부름 (후보)",
     "VARIES": "인자는 바뀌지만 맞는 값이 안 나옴",
+    "STATE_ORDER": "다른 API가 바꾸는 상태에 달림 (호출 순서·조합)",
     "ALLOC_FAIL": "할당 실패·크기 넘침 처리 (하네스로 못 엶)",
+    "ASSERT": "어서션 (하네스로 열 대상 아님)",
     "INTERNAL": "라이브러리 내부에서 정해짐",
     "UNKNOWN": "출처 추적 실패",
 }
@@ -51,7 +55,48 @@ ARG_KO = {"default": "기본값", "literal": "상수", "same_object": "같은 �
 
 def _fix_counts(res: list[dict]) -> Counter:
     """막힌 분기마다 가장 앞선 원인 판정으로 센다."""
-    return Counter(b["causes"][0]["verdict"] for r in res for b in r.get("stuck_branches", []) if b.get("causes"))
+    return Counter(primary_cause(b)["verdict"] for r in res for b in r.get("stuck_branches", []) if b.get("causes"))
+
+
+def primary_cause(b: dict) -> dict:
+    """분기의 대표 원인: 기존 분석의 판정이 있으면 그 첫 번째, 없으면 확장 분석의 첫 번째.
+    (확장 판정은 후보이므로, 표의 숫자가 예전 실행과 그대로 비교되도록 기존 판정을 앞세운다.)"""
+    return next((c for c in b["causes"] if not c.get("ext")), b["causes"][0])
+
+
+EXT_KO = {"c_field": "C 구조체 필드 추적", "state": "호출 순서·상태", "callback": "콜백·설정 함수", "runtime": "실행 중 관찰", "env": "빌드·환경"}
+
+
+def _candidates_markdown(data: dict) -> list[str]:
+    cands = data.get("harness_fix_candidates", [])
+    asserts = data.get("assert_branches", [])
+    out = []
+    if cands:
+        out += ["## 고칠 곳 후보 (확장 분석)", "",
+                "호출 순서·상태, 콜백 등록, C 구조체 필드, 실행 중 관찰한 인자 값에서 나온 후보입니다. "
+                "위 목록보다 검증이 덜 됐으므로 **적용 후 `verify`로 확인**하세요.", ""]
+        for i, g in enumerate(cands, 1):
+            where = ", ".join(f"{l}행" for l in g["harness_lines"]) or "하네스에 호출 없음"
+            out.append(f"### 후보 {i}. [{VERDICT_KO[g['verdict']]}] {where} — {EXT_KO.get(g.get('ext', ''), '')}")
+            out.append(f"- {g['suggestion']}")
+            if g.get("evidence"):
+                out.append(f"- 근거: {g['evidence']}")
+            out.append(f"- 관련된 막힌 분기 {len(g['blocked'])}개:")
+            for b in g["blocked"][:5]:
+                out.append(f"  - `{b['api']}` {b['line']}행 조건 `{b.get('expr') or b['source']}` 한 번도 {b['never']} 아님")
+            if len(g["blocked"]) > 5:
+                out.append(f"  - … 외 {len(g['blocked']) - 5}개")
+            out.append("")
+    if asserts:
+        out += ["## 어서션 안의 분기 (하네스로 열 대상 아님)", "",
+                f"어서션 매크로 안에서 실패 쪽으로 한 번도 가지 않은 검사 {len(asserts)}개입니다. 실패 쪽은 라이브러리에 버그가 있어야 열리고, "
+                "어서션을 끈 빌드에서는 검사 자체가 없어집니다. 갭 집계에는 넣지 않습니다.", ""]
+        for a in asserts[:15]:
+            out.append(f"- `{os.path.basename(a['file'])}`:{a['line']} `{a['source']}` (실행 {a['count']}회)")
+        if len(asserts) > 15:
+            out.append(f"- … 외 {len(asserts) - 15}개")
+        out.append("")
+    return out
 
 
 def _fixes_markdown(data: dict) -> list[str]:
@@ -63,7 +108,7 @@ def _fixes_markdown(data: dict) -> list[str]:
            "도달한 API 안에서 한쪽으로만 간 조건을 거슬러 올라가, 그 값이 **하네스의 어떤 호출·인자에서 정해지는지** 찾은 결과입니다.", ""]
     if total:
         out += ["| 막힌 분기의 원인 | 개수 |", "|---|---:|"]
-        for v in ("FIXED", "SETTER_NOT_CALLED", "NARROW", "DIRECT_CALL", "VARIES", "ALLOC_FAIL", "INTERNAL", "UNKNOWN"):
+        for v in ("FIXED", "SETTER_NOT_CALLED", "NARROW", "DIRECT_CALL", "CALLBACK", "STATE", "VARIES", "STATE_ORDER", "ALLOC_FAIL", "ASSERT", "INTERNAL", "UNKNOWN"):
             if vc[v]:
                 out.append(f"| {VERDICT_KO[v]} | {vc[v]} |")
         out.append(f"| 합계 | {total} |")
@@ -110,6 +155,7 @@ def write_markdown(data: dict, path: str) -> None:
     out.append("")
 
     out += _fixes_markdown(data)
+    out += _candidates_markdown(data)
 
     out += ["## 호출 안 함", "", "하네스의 실행 경로에서 이 함수로 가는 호출 자체가 없습니다. 퍼징을 오래 돌려도 열리지 않으므로 하네스를 바꿔야 합니다.", ""]
     for r in [r for r in res if r["category"] == "NOT_CALLED"]:
@@ -217,13 +263,35 @@ def write_html(data: dict, path: str) -> None:
             f"<span class='cnt'>막힌 분기 {len(g['blocked'])}</span></div>"
             f"<p>{e(g['suggestion'])}</p>{src}<ul>{blocked}{more}</ul></div>")
     vrow = "".join(f"<span class='chip v-{v.lower()}'>{VERDICT_KO[v]} <b>{vc[v]}</b></span>"
-                   for v in ("FIXED", "SETTER_NOT_CALLED", "NARROW", "DIRECT_CALL", "VARIES", "ALLOC_FAIL", "INTERNAL", "UNKNOWN") if vc[v])
+                   for v in ("FIXED", "SETTER_NOT_CALLED", "NARROW", "DIRECT_CALL", "CALLBACK", "STATE", "VARIES", "STATE_ORDER", "ALLOC_FAIL", "ASSERT", "INTERNAL", "UNKNOWN") if vc[v])
     fixes_html = (
         "<section class='fixes'><h2>하네스에서 고칠 곳</h2>"
         "<p class='muted'>도달한 API 안에서 한쪽으로만 간 조건을 거슬러 올라가, 그 값이 하네스의 어떤 호출·인자에서 정해지는지 찾았습니다.</p>"
         f"<div class='chips'>{vrow}</div>"
         + ("".join(fix_items) or "<p>하네스가 고정한 인자나 빠진 설정 API는 없었습니다.</p>")
         + "</section>") if vc else ""
+
+    cands, asserts = data.get("harness_fix_candidates", []), data.get("assert_branches", [])
+    if cands or asserts:
+        items = []
+        for i, g in enumerate(cands, 1):
+            where = ", ".join(f"{l}행" for l in g["harness_lines"]) or "하네스에 호출 없음"
+            ev = f"<p class='muted'>근거: {e(g['evidence'])}</p>" if g.get("evidence") else ""
+            blocked = "".join(f"<li><code>{e(b['api'])}</code> {b['line']}행 조건 <code>{e(b.get('expr') or b['source'])}</code>"
+                              f" 한 번도 {b['never']} 아님</li>" for b in g["blocked"][:5])
+            more = f"<li class='muted'>… 외 {len(g['blocked']) - 5}개</li>" if len(g["blocked"]) > 5 else ""
+            items.append(
+                f"<div class='fix'><div class='fh'><span class='num'>{i}</span>"
+                f"<span class='vt'>{VERDICT_KO[g['verdict']]}</span><span class='muted'>{e(where)} · {EXT_KO.get(g.get('ext', ''), '')}</span>"
+                f"<span class='cnt'>막힌 분기 {len(g['blocked'])}</span></div><p>{e(g['suggestion'])}</p>{ev}<ul>{blocked}{more}</ul></div>")
+        al = "".join(f"<li><code>{e(os.path.basename(a['file']))}:{a['line']}</code> <code>{e(a['source'])}</code></li>" for a in asserts[:15])
+        fixes_html += (
+            "<section class='fixes'><h2>고칠 곳 후보 (확장 분석)</h2>"
+            "<p class='muted'>호출 순서·상태, 콜백 등록, C 구조체 필드, 실행 중 관찰한 인자 값에서 나온 후보입니다. "
+            "위 목록보다 검증이 덜 됐으므로 적용 후 verify로 확인하세요.</p>"
+            + ("".join(items) or "<p>후보가 없습니다.</p>")
+            + (f"<h2>어서션 안의 분기 {len(asserts)}개</h2><p class='muted'>실패 쪽은 라이브러리에 버그가 있어야 열립니다. 하네스로 열 대상이 아니며 갭 집계에 넣지 않습니다.</p><ul>{al}</ul>" if asserts else "")
+            + "</section>")
 
     doc = f"""<!doctype html><html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">

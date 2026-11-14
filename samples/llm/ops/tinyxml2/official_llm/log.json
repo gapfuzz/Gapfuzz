@@ -1,0 +1,180 @@
+{
+ "target": "tinyxml2",
+ "harness": "official_llm",
+ "model": "claude-sonnet-5-5",
+ "chosen": [
+  "XMLPrinter::VisitEnter(const XMLElement &, const XMLAttribute *)",
+  "XMLElement::BoolText(bool) const",
+  "XMLDocument::Print(XMLPrinter *) const",
+  "XMLElement::SetText(bool)",
+  "XMLElement::ShallowClone(XMLDocument *) const",
+  "XMLNode::InsertAfterChild(XMLNode *, XMLNode *)",
+  "XMLElement::ShallowEqual(const XMLNode *) const",
+  "XMLElement::Int64Text(int64_t) const",
+  "XMLDocument::DeepCopy(XMLDocument *) const",
+  "XMLPrinter::VisitExit(const XMLElement &)"
+ ],
+ "before": {
+  "not_called": 251,
+  "apis": 303,
+  "lines": 40.61,
+  "branches": 45.58
+ },
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 81.7,
+   "usage": {
+    "input_tokens": 4588,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 11886,
+    "output_tokens_details": {
+     "thinking_tokens": 6664
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/tinyxml2/llm/official_llm_ops/try1.cpp",
+   "stage": "fuzz",
+   "called": 10,
+   "total": 10,
+   "missing": [],
+   "lost": [
+    "XMLAttribute::Name() const",
+    "XMLAttribute::Value() const",
+    "XMLElement::Attribute(const char *, const char *) const",
+    "XMLElement::FindAttribute(const char *) const",
+    "XMLUtil::GetCharacterRef(const char *, char *, int *)",
+    "XMLUtil::ConvertUTF32ToUTF8(unsigned long, char *, int *)"
+   ],
+   "not_called_after": 189,
+   "lines": 45.72,
+   "branches": 43.02,
+   "crashes": [
+    {
+     "cls": "LIBRARY",
+     "conf": "약",
+     "reason": "라이브러리가 null 포인터를 따라감 (`tinyxml2::XMLNode::InsertAfterChild`). 하네스가 null을 넘겼다면 그 API가 null을 허용하는지 문서를 확인 — 허용하지 않으면 하네스 탓, 허용하거나 명시가 없으면 라이브러리의 방어 누락",
+     "evidence": [
+      "오류 지점: `tinyxml2::XMLNode::InsertAfterChild` @ third_party/tinyxml2/tinyxml2.cpp:1021 (library)",
+      "오류가 난 하네스 호출: `tinyxml2::XMLNode::InsertAfterChild` @ third_party/tinyxml2/tinyxml2.cpp:1021 ← `LLVMFuzzerTestOneInput` @ harnesses/tinyxml2/llm/official_llm_ops/try1.cpp:141"
+     ],
+     "kind": "ub: member access within null pointer of type 'XMLNode'"
+    }
+   ],
+   "regressed": true,
+   "ok": false,
+   "complete": false
+  },
+  {
+   "try": 2,
+   "llm_seconds": 29.8,
+   "usage": {
+    "input_tokens": 10141,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 4781,
+    "output_tokens_details": {
+     "thinking_tokens": 1065
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/tinyxml2/llm/official_llm_ops/try2.cpp",
+   "stage": "fuzz",
+   "called": 10,
+   "total": 10,
+   "missing": [],
+   "lost": [
+    "XMLAttribute::Name() const",
+    "XMLAttribute::Value() const",
+    "XMLElement::Attribute(const char *, const char *) const",
+    "XMLElement::FindAttribute(const char *) const",
+    "XMLUtil::GetCharacterRef(const char *, char *, int *)",
+    "XMLUtil::ConvertUTF32ToUTF8(unsigned long, char *, int *)"
+   ],
+   "not_called_after": 191,
+   "lines": 42.67,
+   "branches": 38.4,
+   "crashes": [
+    {
+     "cls": "LIBRARY",
+     "conf": "약",
+     "reason": "라이브러리가 null 포인터를 따라감 (`tinyxml2::XMLNode::InsertAfterChild`). 하네스가 null을 넘겼다면 그 API가 null을 허용하는지 문서를 확인 — 허용하지 않으면 하네스 탓, 허용하거나 명시가 없으면 라이브러리의 방어 누락",
+     "evidence": [
+      "오류 지점: `tinyxml2::XMLNode::InsertAfterChild` @ third_party/tinyxml2/tinyxml2.cpp:1021 (library)",
+      "오류가 난 하네스 호출: `tinyxml2::XMLNode::InsertAfterChild` @ third_party/tinyxml2/tinyxml2.cpp:1021 ← `LLVMFuzzerTestOneInput` @ harnesses/tinyxml2/llm/official_llm_ops/try2.cpp:148"
+     ],
+     "kind": "ub: member access within null pointer of type 'XMLNode'"
+    }
+   ],
+   "regressed": true,
+   "ok": false,
+   "complete": false
+  },
+  {
+   "try": 3,
+   "llm_seconds": 42.6,
+   "usage": {
+    "input_tokens": 14188,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 7031,
+    "output_tokens_details": {
+     "thinking_tokens": 1731
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/tinyxml2/llm/official_llm_ops/try3.cpp",
+   "stage": "fuzz",
+   "called": 10,
+   "total": 10,
+   "missing": [],
+   "lost": [
+    "XMLAttribute::Value() const",
+    "XMLUtil::GetCharacterRef(const char *, char *, int *)",
+    "XMLUtil::ConvertUTF32ToUTF8(unsigned long, char *, int *)"
+   ],
+   "not_called_after": 191,
+   "lines": 45.7,
+   "branches": 43.44,
+   "crashes": [
+    {
+     "cls": "LIBRARY",
+     "conf": "약",
+     "reason": "라이브러리가 null 포인터를 따라감 (`tinyxml2::XMLNode::InsertAfterChild`). 하네스가 null을 넘겼다면 그 API가 null을 허용하는지 문서를 확인 — 허용하지 않으면 하네스 탓, 허용하거나 명시가 없으면 라이브러리의 방어 누락",
+     "evidence": [
+      "오류 지점: `tinyxml2::XMLNode::InsertAfterChild` @ third_party/tinyxml2/tinyxml2.cpp:1021 (library)",
+      "오류가 난 하네스 호출: `tinyxml2::XMLNode::InsertAfterChild` @ third_party/tinyxml2/tinyxml2.cpp:1021 ← `LLVMFuzzerTestOneInput` @ harnesses/tinyxml2/llm/official_llm_ops/try3.cpp:143"
+     ],
+     "kind": "ub: member access within null pointer of type 'XMLNode'"
+    }
+   ],
+   "regressed": false,
+   "ok": true,
+   "complete": true
+  }
+ ],
+ "best": 3,
+ "saved": "harnesses/tinyxml2/official_llm_ops.cpp"
+}

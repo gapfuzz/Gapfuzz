@@ -1,0 +1,20 @@
+{
+ "name": "_blockedtest",
+ "lang": "c++",
+ "lib_dir": "third_party/tinyxml2",
+ "sources": [
+  "tinyxml2.cpp"
+ ],
+ "header": "tinyxml2.h",
+ "namespace": "tinyxml2",
+ "dict": "dicts/xml.dict",
+ "cflags": [],
+ "internal_branches": false,
+ "internal_classes": [
+  "StrPair",
+  "DynArray",
+  "MemPool",
+  "MemPoolT"
+ ],
+ "harness_dir": "tests"
+}

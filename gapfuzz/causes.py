@@ -25,13 +25,21 @@ from dataclasses import dataclass, field
 
 from .ast_index import AstIndex, CallSite, Cond
 
-VERDICT_ORDER = ["FIXED", "SETTER_NOT_CALLED", "NARROW", "DIRECT_CALL", "VARIES", "ALLOC_FAIL", "INTERNAL", "UNKNOWN"]
-FIX_VERDICTS = ("FIXED", "SETTER_NOT_CALLED", "NARROW", "DIRECT_CALL")
+VERDICT_ORDER = ["FIXED", "SETTER_NOT_CALLED", "NARROW", "DIRECT_CALL", "CALLBACK", "STATE", "VARIES", "STATE_ORDER",
+                 "ALLOC_FAIL", "ASSERT", "INTERNAL", "UNKNOWN"]
+FIX_VERDICTS = ("FIXED", "SETTER_NOT_CALLED", "NARROW", "DIRECT_CALL", "CALLBACK", "STATE")
+# 확장 분석(Cause.ext가 채워진 것)은 검증이 덜 된 판정이라 '고칠 곳'이 아니라 '고칠 곳 후보'로 따로 모은다.
+#   c_field  : C 구조체 필드를 거쳐 추적한 원인        state : 다른 공개 API가 바꾸는 상태(호출 순서·조합)
+#   callback : 등록되지 않은 콜백(함수 포인터 필드)     runtime : 실행 중 관찰한 인자 값(argtrace)    env : 어서션 등 빌드·환경
 VERDICT_KO = {
     "FIXED": "하네스가 인자를 고정",
     "SETTER_NOT_CALLED": "값을 정하는 API를 하네스가 안 부름",
     "NARROW": "하네스가 값의 범위를 좁힘",
     "DIRECT_CALL": "라이브러리만 부르는 공개 API를 하네스가 직접 안 부름",
+    "CALLBACK": "콜백(함수 포인터)을 하네스가 등록하지 않음",
+    "STATE": "조건이 읽는 상태를 바꾸는 공개 API를 하네스가 안 부름",
+    "STATE_ORDER": "다른 API가 바꾸는 상태에 달림 (호출 순서·조합을 바꿔야 함)",
+    "ASSERT": "어서션 (실패 쪽은 버그가 있어야 열림, 하네스로 열 대상 아님)",
     "VARIES": "인자는 바뀌지만 조건을 만족하는 값이 안 나옴",
     "ALLOC_FAIL": "메모리 할당 실패·크기 넘침을 처리하는 분기 (하네스로는 열 수 없음)",
     "INTERNAL": "라이브러리 내부 상태·입력 내용으로 정해짐",
@@ -71,6 +79,7 @@ class HarnessArg:
     kind: str              # default | literal | same_object | fuzzer | variable
     value: str | None
     source: str
+    seen: dict | None = None   # 실행 중 관찰(argtrace): {"count": 호출 수, "values": [값 키…], "overflow": 값 종류가 한도를 넘음}
 
 
 @dataclass
@@ -87,11 +96,17 @@ class Cause:
     param_type: str = ""
     narrow_kind: str = ""           # NARROW일 때: choice(몇 개 값 중 선택) | never_null(null을 넘긴 적 없음)
     chain: list[str] = field(default_factory=list)   # 라이브러리 내부 호출을 거쳐 왔으면 그 경로 (하네스 쪽 → 조건 쪽)
+    ext: str = ""                   # 확장 분석에서 나온 판정이면 그 종류 (c_field | state | callback | runtime | env). 비어 있으면 기존 분석
+    evidence: str = ""              # 실행 중 관찰 등 판정을 뒷받침하는 근거
 
 
 class CauseFinder:
     def __init__(self, idx: AstIndex, harness_files: set[str], pretty, src_line, is_public_api,
-                 executed=None, virtual_bases=None):
+                 executed=None, virtual_bases=None, runtime: dict | None = None, public_headers: set[str] | None = None):
+        self.runtime = runtime or {}                 # (하네스 줄, 열, 인자 번호) -> 실행 중 관찰 (argtrace)
+        self.public_headers = public_headers or set()
+        self._entry_cache: dict[str, set[str]] = {}
+        self._reach_cache: dict[str, set[str]] = {}
         self.idx = idx
         self.harness_files = harness_files
         self.pretty = pretty
@@ -134,7 +149,7 @@ class CauseFinder:
     # ---------------------------------------------------------- 출처 추적
     def _origins(self, func: str, cond: Cond):
         """(함수, 매개변수 번호, 경유 필드) 목록과 내부 설정 함수 목록."""
-        origins: list[tuple[str, int, str | None]] = [(func, p, None) for p in sorted(cond.params)]
+        origins: list[tuple] = [(func, p, None, None) for p in sorted(cond.params)]
         internal: dict[str, list[str]] = {}
         fields = set(cond.fields)
         for callee in cond.calls:
@@ -143,11 +158,31 @@ class CauseFinder:
         for fk in sorted(fields):
             short = fk.split("::")[-1]
             for w in self.idx.field_writes.get(fk, []):
+                if w.file in self.harness_files:
+                    continue                         # 하네스가 공개 구조체 필드에 직접 쓴 것 (콜백 판정에서 따로 봄)
                 if w.params:
-                    origins += [(w.writer, p, short) for p in sorted(w.params)]
+                    origins += [(w.writer, p, short, fk) for p in sorted(w.params)]
                 else:
                     internal.setdefault(short, []).append(w.writer)
         return origins, internal
+
+    def _cond_fields(self, cond: Cond) -> list[str]:
+        fields = set(cond.fields)
+        for callee in cond.calls:
+            if callee in self.idx.getters:
+                fields.add(self.idx.getters[callee])
+        return sorted(fields)
+
+    def _state_fields(self, cond: Cond) -> list[str]:
+        """상태·콜백 분석에 쓸 필드. 조건이 `_list.Size()`처럼 필드 객체의 게터를 부르면, 게터가 읽는 컨테이너 내부 필드
+        (모든 컨테이너 인스턴스가 공유하는 이름)가 아니라 조건이 직접 가리키는 필드(`_list`)를 본다."""
+        direct = set(cond.fields)
+        own = {f.rsplit("::", 1)[0] for f in direct}
+        via_getter = {self.idx.getters[c] for c in cond.calls if c in self.idx.getters}
+        return sorted(direct | {f for f in via_getter if not direct or f.rsplit("::", 1)[0] in own})
+
+    def _is_c_field(self, fk: str | None) -> bool:
+        return bool(fk) and fk.rsplit("::", 1)[0] in self.idx.c_records
 
     def _ptype(self, func: str, q: int) -> str:
         fd = self.idx.funcs.get(func)
@@ -170,7 +205,8 @@ class CauseFinder:
             if p >= len(cs.args):
                 continue
             a = cs.args[p]
-            out.append(HarnessArg(cs.file, cs.line, a.kind, a.value, self.src_line(cs.file, cs.line)))
+            out.append(HarnessArg(cs.file, cs.line, a.kind, a.value, self.src_line(cs.file, cs.line),
+                                  self.runtime.get((cs.line, cs.col, p))))
         return out
 
     ALLOCATORS = {"malloc", "calloc", "realloc", "strdup", "strndup", "aligned_alloc", "posix_memalign"}
@@ -221,7 +257,13 @@ class CauseFinder:
         if self.alloc_failure(func, file, line, col, expr, never):
             return [Cause("ALLOC_FAIL", suggestion="메모리 할당 실패나 크기 넘침을 처리하는 분기입니다 → 하네스 인자로는 열 수 없고, "
                                                    "할당 실패를 주입하는 별도 시험이 필요합니다")]
-        causes = self._explain(func, file, line, col)
+        causes = self._explain(func, file, line, col, expr, never)
+        if ASSERT_LINE.search(self.src_line(file, line) or ""):
+            # 기존 판정은 그대로 두고 덧붙인다 (정렬 순서상 INTERNAL·UNKNOWN보다 앞, 고칠 곳 판정보다 뒤)
+            causes = [c for c in causes if c.verdict != "UNKNOWN"] + [
+                Cause("ASSERT", ext="env", suggestion="어서션 안의 검사입니다. 실패 쪽은 라이브러리에 버그가 있어야 열리므로 하네스로 열 대상이 아닙니다 "
+                                                     "(어서션을 끈 빌드에서는 이 검사 자체가 없어집니다)")]
+            causes.sort(key=lambda c: VERDICT_ORDER.index(c.verdict))
         if expr and causes and all(c.verdict in ("INTERNAL", "UNKNOWN") for c in causes):
             rc = self.receiver_type_cause(func, expr, never)
             if rc:
@@ -242,7 +284,7 @@ class CauseFinder:
             causes.sort(key=lambda c: VERDICT_ORDER.index(c.verdict))
         return causes
 
-    def _explain(self, func: str, file: str, line: int, col: int) -> list[Cause]:
+    def _explain(self, func: str, file: str, line: int, col: int, expr: str = "", never: str = "") -> list[Cause]:
         cond = self.find_cond(func, file, line, col)
         if cond is None:
             return [Cause("UNKNOWN", suggestion="이 분기의 조건식을 AST에서 찾지 못했습니다(매크로로 만든 조건일 수 있음)")]
@@ -250,11 +292,13 @@ class CauseFinder:
         direct: list[Cause] = []
         by_field: dict[str, list[Cause]] = {}
         seen = set()
-        for api, p, via in origins:
+        for api, p, via, fk in origins:
             if (api, p) in seen or (via and self._is_copy(api)):
                 continue
             seen.add((api, p))
             c = self._judge(api, p, via)
+            if self._is_c_field(fk) and not c.ext:
+                c.ext = "c_field"
             if (via is None and api == func and p in cond.member_only and c.verdict in ("FIXED", "NARROW")
                     and c.sites and all(s.kind == "same_object" for s in c.sites)
                     and not self._polymorphic(c.param_type)):
@@ -275,8 +319,151 @@ class CauseFinder:
         if not causes:
             causes.append(Cause("INTERNAL", suggestion="조건이 매개변수·필드가 아니라 지역 변수나 입력 데이터에 달려 있습니다 "
                                                        "(입력 내용·딕셔너리로 열어야 함)"))
+        # ---- 확장 분석: 콜백 미등록, 다른 공개 API가 바꾸는 상태 ----
+        for fk in self._state_fields(cond):
+            cb = self.callback_cause(fk, expr, never)
+            if cb:
+                short = fk.split("::")[-1]
+                causes = [c for c in causes if not (c.via_field == short and c.verdict in ("SETTER_NOT_CALLED", "INTERNAL"))]
+                causes.append(cb)
+                continue
+            st = self.state_cause(func, fk)
+            if st:
+                causes.append(st)
         causes.sort(key=lambda c: VERDICT_ORDER.index(c.verdict))
         return causes
+
+    # ---------------------------------------------------------- 확장: 상태·콜백
+    MAX_ENTRY_DEPTH = 6
+
+    def _entries(self, f: str) -> set[str]:
+        """f가 실행되게 만드는 공개 API들: f가 공개 API면 f 자신, 아니면 f를 (거슬러 올라가) 부르는 가장 가까운 공개 API."""
+        if f in self._entry_cache:
+            return self._entry_cache[f]
+        out, seen, frontier = set(), {f}, {f}
+        for _ in range(self.MAX_ENTRY_DEPTH + 1):
+            nxt = set()
+            for cur in frontier:
+                fd = self.idx.funcs.get(cur)
+                if fd and self.is_public_api(fd):
+                    out.add(cur)
+                    continue
+                for cs in self._sites_into(cur):
+                    if cs.file not in self.harness_files and cs.caller not in seen:
+                        seen.add(cs.caller)
+                        nxt.add(cs.caller)
+            frontier = nxt
+            if not frontier:
+                break
+        self._entry_cache[f] = out
+        return out
+
+    def _reach(self, f: str) -> set[str]:
+        """f에서 호출 그래프를 따라 닿는 함수들."""
+        if f in self._reach_cache:
+            return self._reach_cache[f]
+        if not hasattr(self, "_callgraph"):
+            g: dict[str, set[str]] = {}
+            for cs in self.idx.calls:
+                g.setdefault(cs.caller, set()).update(cs.callees)
+            self._callgraph = g
+        seen, stack = {f}, [f]
+        while stack:
+            for c in self._callgraph.get(stack.pop(), ()):
+                if c not in seen:
+                    seen.add(c)
+                    stack.append(c)
+        self._reach_cache[f] = seen
+        return seen
+
+    def _file_io(self, api: str) -> bool:
+        fd = self.idx.funcs.get(api)
+        return bool(fd) and (bool(re.search(r"file|fopen|(^|_)fd(_|$)", fd.name, re.I))
+                             or any(re.search(r"\bFILE\b", t or "") for t in fd.param_types))
+
+    def _harness_calls(self, api: str) -> bool:
+        return any(cs.file in self.harness_files for cs in self._sites_into(api))
+
+    def state_cause(self, func: str, fk: str) -> Cause | None:
+        """조건이 읽는 필드를, 이 조건을 실행하는 API와는 '다른' 공개 API가 바꾸는가.
+        같은 API 호출 안에서만 바뀌는 필드(파서 상태 등)는 입력에 달린 것이므로 제외한다.
+        - 그런 API를 하네스가 한 번도 부르지 않음       → STATE (호출을 추가하면 열릴 수 있음)
+        - 하네스가 부르긴 하지만 조건이 한쪽으로만 감   → STATE_ORDER (호출 순서·조합 문제, 조언만)"""
+        short = fk.split("::")[-1]
+        readers = self._entries(func)
+        if not readers:
+            return None
+        inside = set().union(*(self._reach(r) for r in readers))
+        ok = lambda e: (e not in readers and e not in inside and not self._is_copy(e) and not self._file_io(e)
+                        and self.idx.funcs[e].kind not in ("CXXConstructorDecl", "CXXDestructorDecl"))
+        never_ran: set[str] = set()                  # 한 번도 실행되지 않은 '상태를 바꾸는 코드'로 이어지는 공개 API
+        ran: set[str] = set()                        # 이미 실행되는 '상태를 바꾸는 코드'로 이어지는 공개 API
+        for w in self.idx.field_writes.get(fk, []):
+            if w.file in self.harness_files or w.kind == "init":
+                continue                             # 생성자 초기화는 처음 상태일 뿐
+            if w.kind == "mutate" and self.idx.field_types.get(fk, "").rstrip().endswith("*"):
+                continue                             # 포인터 필드로 메서드를 부른 것은 가리키는 객체를 바꿀 뿐, 포인터 값은 그대로
+            fd = self.idx.funcs.get(w.writer)
+            if fd and fd.kind in ("CXXConstructorDecl", "CXXDestructorDecl"):
+                continue
+            es = {e for e in self._entries(w.writer) if ok(e)}
+            if self.executed(w.writer):
+                ran |= es
+            else:
+                never_ran |= {e for e in es if not self.executed(e)}
+        if not never_ran and not ran:
+            return None
+        rd = ", ".join(f"`{self.pretty(r).split('(')[0]}`" for r in sorted(readers)[:2])
+        uncalled = sorted(never_ran)
+        others = ran
+        if uncalled:
+            names = [self.pretty(e) for e in uncalled]
+            c = Cause("STATE", names[0], uncalled[0], via_field=short, internal_writers=names[:6], ext="state")
+            c.suggestion = (f"조건이 읽는 상태 `{short}`를 바꾸는 공개 API {', '.join(f'`{n.split(chr(40))[0]}`' for n in names[:4])}"
+                            f"{' 등 ' + str(len(names)) + '개' if len(names) > 4 else ''}를 하네스가 부르지 않습니다 "
+                            f"→ {rd}를 부르기 전에 이 호출을 추가해 보세요")
+            return c
+        direct = sorted(e for e in others if self._harness_calls(e))
+        if direct:                                   # 조건이 실행됐으니 읽는 쪽은 (직접이든 다른 API를 거쳐서든) 이미 불리고 있다
+            names = [self.pretty(e) for e in direct]
+            c = Cause("STATE_ORDER", names[0], direct[0], via_field=short, internal_writers=names[:6], ext="state")
+            c.suggestion = (f"조건이 읽는 상태 `{short}`는 하네스가 부르는 {', '.join(f'`{n.split(chr(40))[0]}`' for n in names[:4])}"
+                            f"{' 등' if len(names) > 4 else ''}가 바꿉니다. {rd}를 부르는 시점에 이 상태가 조건과 맞은 적이 없습니다 "
+                            f"→ 호출 순서·조합을 바꿔 보세요 (예: 이 API를 부른 직후에, 또는 부르지 않은 채로 {rd} 호출)")
+            return c
+        return None
+
+    def callback_cause(self, fk: str, expr: str, never: str) -> Cause | None:
+        """조건이 함수 포인터 필드의 null 검사이고 '등록된 쪽'으로 한 번도 안 갔으면: 콜백을 등록한 적이 없음."""
+        short = fk.split("::")[-1]
+        if "(*)" not in self.idx.field_types.get(fk, "") or not expr or not never:
+            return None
+        e = expr.replace(" ", "")
+        if not re.search(r"\b" + re.escape(short) + r"\b", e):
+            return None
+        neg = e.lstrip("(").startswith("!") or bool(re.search(
+            re.escape(short) + r"\)?==(\(\w+\))?(0|NULL|nullptr|Z_NULL)\b|\b(0|NULL|nullptr|Z_NULL)==\(?[\w>.\-]*" + re.escape(short), e))
+        if never != ("거짓" if neg else "참"):
+            return None
+        writes = self.idx.field_writes.get(fk, [])
+        if any(w.file in self.harness_files for w in writes):
+            return None                              # 하네스가 직접 설정하고 있음
+        setters = sorted({e2 for w in writes if w.params for e2 in self._entries(w.writer) if not self.executed(e2)})
+        rec = fk.rsplit("::", 1)[0]
+        direct = self.idx.record_file.get(rec) in self.public_headers
+        if not setters and not direct:
+            return None
+        names = [self.pretty(x) for x in setters]
+        c = Cause("CALLBACK", names[0] if names else None, setters[0] if setters else None, via_field=short,
+                  internal_writers=names[:6], ext="callback")
+        how = []
+        if names:
+            how.append(", ".join(f"`{n.split('(')[0]}`" for n in names[:3]) + "로 콜백을 등록")
+        if direct:
+            how.append(f"공개 구조체 `{rec.split('::')[-1]}`의 필드 `{short}`에 함수를 직접 넣기")
+        c.suggestion = (f"콜백 `{short}`가 한 번도 등록되지 않아 콜백을 부르는 쪽 코드가 실행되지 않습니다 → " + " 또는 ".join(how)
+                        + " (콜백 안에서도 라이브러리 API를 부르면 더 많은 코드가 열립니다)")
+        return c
 
     MAX_UP = 8
 
@@ -321,6 +508,7 @@ class CauseFinder:
             c.narrow_kind = "choice"
         elif sites:
             c.verdict = "VARIES"
+            self._apply_runtime(c)
         elif self.executed(api) and _up and (ups := self._upstream(api, p)):
             # 라이브러리 내부 호출을 거쳐 하네스가 넘긴 인자에서 온 값: 가장 가까운 출처로 판정
             f, q, chain = min(ups, key=lambda u: len(u[2]))
@@ -343,8 +531,31 @@ class CauseFinder:
             c.verdict = "SETTER_NOT_CALLED"
         else:
             c.verdict = "INTERNAL"
-        c.suggestion = self._suggest(c)
+        if c.ext != "runtime":
+            c.suggestion = self._suggest(c)
         return c
+
+    MIN_RUNTIME_CALLS = 50
+
+    def _apply_runtime(self, c: Cause) -> None:
+        """코드로는 '변수'라 바뀌는 것처럼 보이지만 실행 중 관찰한 값이 한 가지뿐이면 고정으로 판정한다."""
+        if not c.sites or not all(s.seen for s in c.sites):
+            return
+        total = sum(s.seen["count"] for s in c.sites)
+        vals = sorted({v for s in c.sites for v in s.seen["values"]})
+        over = any(s.seen.get("overflow") for s in c.sites)
+        if total < self.MIN_RUNTIME_CALLS or not vals:
+            return
+        show = lambda v: {"p:null": "null", "p:nonnull": "null이 아닌 포인터"}.get(v, v.split(":", 1)[1] if ":" in v else v)
+        lines = ", ".join(f"{s.line}행" for s in c.sites)
+        nth = f"{c.param_index + 1}번째 인자 `{c.param_name}`"
+        if over or all(v == "o" for v in vals):
+            return
+        c.evidence = f"실행 중 관찰: {total}번 호출에서 값 {len(vals)}가지 ({', '.join(show(v) for v in vals[:6])})"
+        if len(vals) == 1 and vals[0] != "p:nonnull":
+            c.verdict, c.ext = "FIXED", "runtime"
+            c.suggestion = (f"`{c.api}`의 {nth}는 코드로는 변수지만, 실행 중 {total}번 호출에서 항상 `{show(vals[0])}`였습니다({lines})"
+                            f" → 퍼저 입력에 따라 바뀌게 하세요")
 
     def _direct_callable(self, api: str, p: int) -> bool:
         """하네스가 이 공개 API를 직접 불러서 조건을 바꿀 수 있는가.
@@ -451,8 +662,12 @@ class CauseFinder:
         return f"`{c.api}`의 {nth}는 하네스가 아니라 라이브러리 내부 호출로 정해집니다{who}{via}{tail}"
 
 
-def summarize_fixes(results) -> list[dict]:
+ASSERT_LINE = re.compile(r"\b\w*assert\w*\s*\(", re.I)
+
+
+def summarize_fixes(results, ext: bool = False) -> list[dict]:
     """여러 API에 흩어진 원인을 '하네스에서 고칠 곳' 단위로 묶는다.
+    ext=False: 기존 분석의 판정만(harness_fixes). ext=True: 확장 분석의 판정만(harness_fix_candidates, 검증이 덜 된 후보).
 
     FIXED는 하네스의 같은 줄·같은 인자 위치가 원인이면 하나로 묶는다
     (가상 함수라 구현 클래스가 여러 개여도 하네스에서 고칠 곳은 한 군데).
@@ -461,11 +676,13 @@ def summarize_fixes(results) -> list[dict]:
     for r in results:
         for b in r.stuck_branches:
             for c in b.causes:
-                if c.verdict not in FIX_VERDICTS:
+                if c.verdict not in FIX_VERDICTS or bool(c.ext) != ext:
                     continue
                 lines = tuple(sorted({s.line for s in c.sites}))
                 key = (c.verdict, lines, c.param_index) if c.verdict in ("FIXED", "NARROW") \
                     else (c.verdict, c.api_mangled, c.param_index)
+                if ext:
+                    key += (c.via_field if c.verdict in ("STATE", "CALLBACK") else None,)
                 g = groups.setdefault(key, {
                     "verdict": c.verdict, "apis": [], "param_index": c.param_index,
                     "param_name": c.param_name, "suggestions": [],
@@ -473,6 +690,9 @@ def summarize_fixes(results) -> list[dict]:
                     "arg": [{"line": s.line, "kind": s.kind, "value": s.value} for s in c.sites],
                     "blocked": [],
                 })
+                if ext:
+                    g.setdefault("ext", c.ext)
+                    g.setdefault("evidence", c.evidence)
                 if c.api not in g["apis"]:
                     g["apis"].append(c.api)
                     g["suggestions"].append(c.suggestion)

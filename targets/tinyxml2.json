@@ -10,8 +10,13 @@
  ],
  "header": "tinyxml2.h",
  "namespace": "tinyxml2",
- "harness_dir": "harnesses",
  "dict": "dicts/xml.dict",
  "cflags": [],
- "internal_branches": false
+ "internal_branches": false,
+ "internal_classes": [
+  "StrPair",
+  "DynArray",
+  "MemPool",
+  "MemPoolT"
+ ]
 }

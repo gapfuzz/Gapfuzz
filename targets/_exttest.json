@@ -1,0 +1,11 @@
+{
+ "name": "_exttest",
+ "lang": "c",
+ "lib_dir": "tests/fixtures/extlib",
+ "sources": ["extlib.c"],
+ "header": "extlib.h",
+ "namespace": "",
+ "harness_dir": "tests/fixtures/extlib",
+ "cflags": [],
+ "internal_branches": false
+}

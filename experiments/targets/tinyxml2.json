@@ -1,0 +1,97 @@
+{
+ "lib": "tinyxml2",
+ "source": "out/targets/tinyxml2/official/r1/gap/gap.json (OSS-Fuzz 하네스, 2분 진단)",
+ "note": "수정 전(official, 2분 r1) 분석에서 '고칠 곳'이 겨냥한 분기. applied=false는 대조군. 대조군은 제안 3(Parse에 null을 넘김)으로, 사람이 고친 official_v3도 적용하지 않은 제안이다.",
+ "branches": [
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "XMLDocument::Parse(const char *, size_t)",
+   "line": 2459,
+   "col": 10,
+   "expr": "nBytes == 0",
+   "never": "참"
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "XMLDocument::Parse(const char *, size_t)",
+   "line": 2463,
+   "col": 10,
+   "expr": "nBytes == static_cast<size_t>(-1)",
+   "never": "거짓"
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "verdict": "FIXED",
+   "api": "XMLDocument::Identify(char *, XMLNode **, bool)",
+   "line": 752,
+   "col": 13,
+   "expr": "WhitespaceMode() == PEDANTIC_WHITESPACE",
+   "never": "참"
+  },
+  {
+   "fix": 3,
+   "applied": false,
+   "verdict": "NARROW",
+   "api": "XMLDocument::Parse(const char *, size_t)",
+   "line": 2459,
+   "col": 25,
+   "expr": "!xml",
+   "never": "참"
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "XMLDocument::DeleteNode(XMLNode *)",
+   "line": 2333,
+   "col": 8,
+   "expr": "node == 0",
+   "never": "참"
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "XMLDocument::DeleteNode(XMLNode *)",
+   "line": 2337,
+   "col": 9,
+   "expr": "node->_parent",
+   "never": "참"
+  },
+  {
+   "fix": 5,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "XMLElement::Attribute(const char *, const char *) const",
+   "line": 1639,
+   "col": 10,
+   "expr": "!value",
+   "never": "거짓"
+  },
+  {
+   "fix": 6,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "XMLNode::Value() const",
+   "line": 856,
+   "col": 10,
+   "expr": "this->ToDocument()",
+   "never": "참"
+  },
+  {
+   "fix": 7,
+   "applied": true,
+   "verdict": "DIRECT_CALL",
+   "api": "XMLNode::InsertEndChild(XMLNode *)",
+   "line": 934,
+   "col": 10,
+   "expr": "addThis->_document != _document",
+   "never": "참"
+  }
+ ]
+}

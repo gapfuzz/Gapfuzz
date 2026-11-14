@@ -2,7 +2,7 @@
 """독립 라벨링 키트: 도구의 판정을 가린 채 사람이 막힌 분기마다 정답을 달고, 사람끼리의 일치도를 잰다.
 
 1) 시트 만들기 (도구 판정·원인·제안은 시트에 넣지 않는다)
-   python3 scripts/label_kit.py make out/repeat/official/r1/gap/gap.json out/repeat/stateful/r1/gap/gap.json \
+   python3 scripts/label_kit.py make out/targets/zlib/official/r1/gap/gap.json out/targets/expat/official/r1/gap/gap.json \
        --out labeling/ --seed 7
    → labeling/sheet.csv     : 번호, 키, 위치, 조건식, 안 간 방향, 정답(H/I/D), 이유  ← 이 두 칸만 채운다
      labeling/items.md      : 번호마다 함수 이름과 코드 앞뒤 8줄 (읽기용)
