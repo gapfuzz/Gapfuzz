@@ -13,5 +13,9 @@
  "internal_classes": [],
  "dict": "third_party/pugixml/tests/fuzz_parse.dict",
  "cflags": [],
- "internal_branches": true
+ "internal_branches": true,
+ "ossfuzz": [
+  "official",
+  "official_xpath"
+ ]
 }

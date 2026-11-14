@@ -23,5 +23,9 @@
  "internal_classes": [],
  "dict": "third_party/jsoncpp/src/test_lib_json/fuzz.dict",
  "cflags": [],
- "internal_branches": true
+ "internal_branches": true,
+ "ossfuzz": [
+  "official"
+ ],
+ "ossfuzz_note": "jsoncpp_proto_fuzzer는 protobuf와 libprotobuf-mutator가 필요해서 넣지 않았다."
 }

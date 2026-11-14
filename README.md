@@ -154,6 +154,7 @@ python3 -m gapfuzz llmops zlib --top 10                   # 상위 10개의 호�
 - **실행 중 인자 값** (`python3 -m gapfuzz argtrace <라이브러리> <하네스>`): 호출 지점에서 실제 넘어간 값을 기록해 "고정" 판정의 근거로 사용
 - **입력 탓 확인** (`python3 -m gapfuzz inputcheck <라이브러리> <하네스>`): 조건식에서 만든 딕셔너리를 넣고 다시 퍼징해, 열리는 분기를 입력 탓으로 확정
 - **어서션**: 어서션 매크로 안의 분기는 따로 모으고 갭 집계에서 뺌
+- **하네스 전체 기준** (`python3 scripts/tgt.py union <라이브러리>`, `python3 -m gapfuzz llmops <라이브러리> --union`): OSS-Fuzz 하네스가 여러 개인 라이브러리에서 커버리지를 합치고, 어느 하네스도 안 부르는 API만 골라 새 하네스 하나로 추가
 - **호출 안 함 API 추가** (`python3 -m gapfuzz llmops <라이브러리>`): 모든 라이브러리에서 우선순위를 매기고 Claude가 호출을 추가, gapfuzz가 검사
 
 ## 팀 실험

@@ -25,5 +25,10 @@
   "-DHAVE_EXPAT_CONFIG_H",
   "-DENCODING_FOR_FUZZING=UTF-8"
  ],
- "internal_branches": true
+ "internal_branches": true,
+ "ossfuzz": [
+  "official",
+  "official_parsebuffer"
+ ],
+ "ossfuzz_note": "OSS-Fuzz는 두 하네스를 인코딩 6가지(UTF-8, UTF-16, UTF-16BE, UTF-16LE, ISO-8859-1, US-ASCII)로 각각 빌드한다. 여기서는 UTF-8만 쓴다(cflags의 ENCODING_FOR_FUZZING). protobuf가 필요한 xml_lpm_fuzzer는 넣지 않았다."
 }

@@ -18,5 +18,9 @@
   "DynArray",
   "MemPool",
   "MemPoolT"
+ ],
+ "ossfuzz": [
+  "official",
+  "official_xmltest2"
  ]
 }

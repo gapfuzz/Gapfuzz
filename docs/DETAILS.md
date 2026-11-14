@@ -254,6 +254,38 @@ bash tests/test_llmops.sh                             # 키 없이 흐름 시험
 **Claude API로 만든 하네스의 결과는 아직 없습니다.** 실제 API로 돌린 뒤 1시간 × 10회 실험으로 효과를 재야 합니다
 (`GAPFUZZ_FIXED=official_ops python3 scripts/exp.py run <이름>`으로 OSS-Fuzz 하네스와 비교).
 
+### 하네스 전체 기준으로 보기 (`tgt.py union`, `llmops --union`, 2026-11-14 추가)
+
+라이브러리 하나에 OSS-Fuzz 하네스가 여러 개 있으면, 하네스 하나만 보고 "이 API를 안 부른다"고 하는 것은 틀릴 수 있다(다른 하네스가 부름).
+그래서 하네스 전체의 커버리지를 합친 뒤에 남는 것만 대상으로 삼는 방식을 넣었다.
+
+```bash
+python3 scripts/tgt.py union zlib                 # 설정의 "ossfuzz" 목록 하네스들을 합침 → out/targets/zlib/_union/r1/{coverage.json, gap/, union.md}
+python3 -m gapfuzz llmops zlib --union --list     # 어느 하네스도 안 부르는 API의 우선순위 (API 키 필요 없음)
+python3 -m gapfuzz llmops zlib --union --top 10   # 그 API를 부르는 '새 하네스' 생성 → harnesses/zlib/gapfuzz_ops.*
+python3 scripts/tgt.py union zlib --add gapfuzz_ops --name _union_after   # 새 하네스까지 합친 '적용 후'
+```
+
+| | 하네스 하나에 끼워 넣기 (`llmops`) | 전체 기준 새 하네스 (`llmops --union`) |
+|---|---|---|
+| '호출 안 함'의 뜻 | 이 하네스가 안 부름 | 어느 OSS-Fuzz 하네스도 안 부름 |
+| 결과물 | 기존 하네스에 호출을 추가한 사본 (`<하네스>_ops`) | 새 하네스 파일 하나 (`gapfuzz_ops`), 기존 하네스는 그대로 |
+| 검사 | 컴파일, 요청한 API 실행, 원래 API 유지, 크래시 귀속 | 컴파일, 요청한 API 실행, 크래시 귀속 |
+
+zlib으로 확인한 것 (하네스마다 30~120초, 합친 값):
+
+- 하네스 하나 기준 '호출 안 함' 74개 → 9개를 합치면 54개. 분기 커버리지는 하나 기준 18.5%, 합치면 52.1%.
+- 우선순위에서 `compress`, `deflateParams`, `deflateBound`, `inflateSync`, `deflateSetDictionary`, `adler32_combine`이 빠진다(다른 하네스가 이미 부름).
+- 미리 써 둔 시험용 하네스(Claude 응답이 아님)로 흐름을 돌렸을 때: 요청한 10개 모두 실행, 크래시 0. 이 하네스까지 합치면 안 부르는 API 54 → 43, 분기 52.1% → 63.5%.
+- libyaml은 하나 기준 44개 → 합치면 14개, json-c는 65개 → 34개.
+
+한계
+
+- 실제 Claude API로는 `--union`을 돌려 보지 않았다(`tests/test_llmops_union.sh`는 미리 써 둔 응답을 쓴다).
+- 합친 분석에서 호출 지점(인자 고정 여부)은 대표 하네스의 소스만 읽는다. 다른 하네스 안의 고정 인자는 그 하네스를 따로 분석해야 나온다.
+- 합친 수치는 하네스마다 같은 시간을 돌린 것을 합친 값이다. 하네스 수가 다르면 총 퍼징 시간도 다르다.
+- protobuf 기반 하네스, zlib의 파일 입출력 하네스 2개처럼 가져오지 않은 하네스가 부르는 API는 여전히 '안 부름'으로 잡힌다.
+
 ### 확장 분석: 상태·콜백·실행 중 관찰·입력 확인 (2026-11-11 추가)
 
 > 아래에서 "TinyXML2 stateful"이라고 한 것은 2026-11-12에 저장소에서 내린 스테이트풀 하네스 기준 수치입니다(`legacy/tinyxml2_stateful/`). TinyXML2를 OSS-Fuzz 하네스 기준으로 다시 실험하면 갱신합니다.

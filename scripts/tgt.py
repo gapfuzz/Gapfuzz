@@ -6,6 +6,7 @@
   python3 scripts/tgt.py build   pugixml harnesses/pugixml/official.cpp
   python3 scripts/tgt.py repeat  pugixml --trials 5 --secs 120 official official_llm
   python3 scripts/tgt.py analyze pugixml official out/targets/pugixml/official/r1
+  python3 scripts/tgt.py union   zlib            # OSS-Fuzz 하네스 전체(설정의 "ossfuzz")의 커버리지를 합쳐서 분석
 
 설정 파일 항목
   lang       "c" 또는 "c++"            lib_dir   라이브러리 소스 디렉터리
@@ -74,8 +75,9 @@ def build(t: dict, h: str) -> Path:
     return out
 
 
-def analyze(t: dict, h: str, d: Path) -> None:
-    args = [sys.executable, "-m", "gapfuzz", "analyze", "--name", f"{t['name']}-{h}-{d.name}"]
+def analyze(t: dict, h: str, d: Path, label: str | None = None) -> None:
+    """h: 호출 지점을 읽을 하네스. label: 리포트에 쓸 이름(합친 커버리지 분석 때 "_union")."""
+    args = [sys.executable, "-m", "gapfuzz", "analyze", "--name", f"{t['name']}-{label or h}-{d.name}"]
     for x in t["headers"]:
         args += ["--header", str(x)]
     for x in t["srcs"]:
@@ -97,6 +99,68 @@ def analyze(t: dict, h: str, d: Path) -> None:
         if not t["internal_classes"]:
             args += ["--internal-class", "__none__"]
     subprocess.run(args, cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
+
+
+def ossfuzz_harnesses(t: dict) -> list[str]:
+    """이 라이브러리의 OSS-Fuzz 하네스 이름들. 설정의 "ossfuzz" 목록, 없으면 official 하나."""
+    return list(t.get("ossfuzz") or ["official"])
+
+
+def union(t: dict, harnesses: list[str] | None = None, secs: int = 120, r: int = 1, name: str = "_union") -> Path:
+    """OSS-Fuzz 하네스 여러 개의 커버리지를 하나로 합치고, 합친 결과로 갭 분석을 한다.
+
+    하네스마다 따로 돌린 실행 기록(out/targets/<이름>/<하네스>/r<k>/cov.profdata)을 합쳐
+    out/targets/<이름>/_union/r<k>/coverage.json 을 만든다. 실행 기록이 없는 하네스는 secs초로 먼저 돌린다.
+    합친 커버리지에서 "호출 안 함"은 어느 하네스도 부르지 않는 API, "막힌 분기"는 모든 하네스를 합쳐도 한쪽으로만 간 분기다.
+
+    한계: 호출 지점(인자 고정 여부)은 대표 하네스(목록의 첫 번째)의 소스만 읽는다. 다른 하네스 안에서 고정된 인자는
+    그 하네스를 따로 분석해야 나온다(tgt.py analyze). 합친 분석의 '고칠 곳'은 "대표 하네스가 고정했고, 다른 하네스도 열지 못한 분기"다.
+    """
+    hs = harnesses or ossfuzz_harnesses(t)
+    root = ROOT / "out" / "targets" / t["name"]
+    for h in hs:
+        b = root / h
+        if not (b / "cov").exists():
+            build(t, h)
+        if not (b / f"r{r}" / "cov.profdata").exists():
+            print(f"[tgt] {t['name']}/{h}: 실행 기록이 없어 {secs}초 퍼징부터 합니다", flush=True)
+            run_one(t, h, r, secs, 1000, 10, None)
+    d = root / name / f"r{r}"                     # name: 결과 폴더. 적용 후를 따로 합칠 때 다른 이름을 준다(예: _union_after)
+    subprocess.run(["rm", "-rf", str(d)], check=True)
+    d.mkdir(parents=True)
+    subprocess.run(["llvm-profdata", "merge", "-sparse", *[str(root / h / f"r{r}" / "cov.profdata") for h in hs],
+                    "-o", str(d / "cov.profdata")], check=True)
+    bins = [str(root / hs[0] / "cov")] + [x for h in hs[1:] for x in ("-object", str(root / h / "cov"))]
+    files = [str(s) for s in t["srcs"]] + [str(x) for x in t["headers"]]
+    with open(d / "coverage.json", "w") as f:
+        subprocess.run(["llvm-cov", "export", "-format=text", f"-instr-profile={d / 'cov.profdata'}", *bins, *files],
+                       stdout=f, stderr=subprocess.DEVNULL, check=True)
+    rep = subprocess.run(["llvm-cov", "report", f"-instr-profile={d / 'cov.profdata'}", *bins, *files],
+                         capture_output=True, text=True, check=True).stdout
+    (d / "coverage_summary.txt").write_text(rep)
+    analyze(t, hs[0], d, label=name)
+
+    # 하네스별로 어떤 API를 실행하는지 표로 남긴다
+    per, total = {}, 0
+    for h in hs:
+        g = json.load(open(root / h / f"r{r}" / "gap" / "gap.json"))
+        per[h] = {x["mangled"]: x["api"] for x in g["results"] if x["category"] != "NOT_CALLED"}
+        total = len(g["results"])
+    ug = json.load(open(d / "gap" / "gap.json"))
+    never = [x["api"] for x in ug["results"] if x["category"] == "NOT_CALLED"]
+    tot = rep.strip().splitlines()[-1].split()
+    info = {"lib": t["name"], "harnesses": hs, "apis": total, "not_called_union": len(never),
+            "not_called_each": {h: total - len(per[h]) for h in hs}, "lines": tot[9], "branches": tot[12],
+            "reached_by": {api: [h for h in hs if m in per[h]] for h0 in hs for m, api in per[h0].items()}}
+    json.dump(info, open(d / "union.json", "w"), ensure_ascii=False, indent=1)
+    md = [f"# OSS-Fuzz 하네스 전체 기준 — {t['name']}", "",
+          f"하네스 {len(hs)}개의 커버리지를 합쳤습니다 (회차 r{r}). 라인 {tot[9]}, 분기 {tot[12]}.", "",
+          f"공개 API {total}개 중 **어느 하네스도 부르지 않는 것 {len(never)}개**.", "",
+          "| 하네스 | 이 하네스만 볼 때 호출 안 함 |", "|---|---:|"]
+    md += [f"| {h} | {total - len(per[h])} |" for h in hs] + [f"| **전부 합쳐서** | **{len(never)}** |", ""]
+    (d / "union.md").write_text("\n".join(md) + "\n", encoding="utf-8")
+    print(f"[tgt] union {t['name']} ({name}): 하네스 {len(hs)}개, 라인 {tot[9]} 분기 {tot[12]}, 어느 하네스도 안 부르는 API {len(never)}/{total} -> {d}")
+    return d
 
 
 def run_one(t: dict, h: str, r: int, secs: int, seed_base: int, nice: int, dict_path: str | None, sub: str = "") -> str:
@@ -141,6 +205,11 @@ def main():
     rp.add_argument("--seed-base", type=int, default=1000); rp.add_argument("--nice", type=int, default=10)
     rp.add_argument("--dict")
     an = sub.add_parser("analyze"); an.add_argument("target"); an.add_argument("harness"); an.add_argument("dir")
+    un = sub.add_parser("union", help="OSS-Fuzz 하네스 전체의 커버리지를 합쳐서 분석")
+    un.add_argument("target"); un.add_argument("harnesses", nargs="*", help="합칠 하네스 (기본: 설정의 ossfuzz 목록)")
+    un.add_argument("--secs", type=int, default=120, help="실행 기록이 없는 하네스를 돌릴 시간(초)")
+    un.add_argument("--name", default="_union", help="결과 폴더 이름 (기본 _union). 적용 후를 합칠 때는 다른 이름을 준다")
+    un.add_argument("--add", action="append", default=[], help="설정의 ossfuzz 목록에 더해 함께 합칠 하네스 (여러 번 가능, 예: gapfuzz_ops)")
     a = ap.parse_args()
     t = load(a.target)
     if a.cmd == "build":
@@ -152,6 +221,8 @@ def main():
                 run_one(t, h, r, a.secs, a.seed_base, a.nice, a.dict)
     elif a.cmd == "analyze":
         analyze(t, a.harness, Path(a.dir))
+    elif a.cmd == "union":
+        union(t, (a.harnesses or ossfuzz_harnesses(t)) + a.add, a.secs, name=a.name)
 
 
 if __name__ == "__main__":

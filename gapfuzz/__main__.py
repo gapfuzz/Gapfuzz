@@ -144,11 +144,11 @@ def cmd_llmops(a) -> int:
     from .llmops import choose, ranking, ranking_md, run
     apis = a.api.split(",") if a.api else None
     if a.list:
-        _, _, _, _, rows = ranking(a.target, a.harness, a.before)
-        print(ranking_md(a.target, a.harness, rows, choose(rows, a.top, apis)))
+        _, _, _, _, rows = ranking(a.target, a.harness, a.before, union=a.union)
+        print(ranking_md(a.target, "_union (OSS-Fuzz 하네스 전체)" if a.union else a.harness, rows, choose(rows, a.top, apis)))
         return 0
     res = run(a.target, a.harness, a.top, a.before, a.secs, a.trials, a.tries, a.model or DEFAULT_MODEL,
-              a.mock.split(",") if a.mock else None, apis=apis, save=a.save)
+              a.mock.split(",") if a.mock else None, apis=apis, save=a.save, union=a.union)
     return 0 if res["best"] else 1
 
 
@@ -239,6 +239,9 @@ def main(argv=None) -> int:
     lo.add_argument("--top", type=int, default=10, help="우선순위 상위 몇 개를 추가할지 (기본 10)")
     lo.add_argument("--api", help="우선순위 대신 직접 고를 API 이름 (쉼표로 구분, 이름 일부만 써도 됨)")
     lo.add_argument("--list", action="store_true", help="우선순위 표만 출력 (API 호출 없음)")
+    lo.add_argument("--union", action="store_true",
+                    help="OSS-Fuzz 하네스 전체의 커버리지를 합친 기준으로, 어느 하네스도 안 부르는 API를 부르는 '새 하네스'를 만든다 "
+                         "(기존 하네스는 고치지 않음, 저장 이름 gapfuzz_ops)")
     lo.add_argument("--before", help="수정 전 gap.json (기본 out/targets/<이름>/<하네스>/r1/gap/gap.json, 없으면 120초 진단부터)")
     lo.add_argument("--secs", type=int, default=60, help="검사용 퍼징 시간(초, 회당)")
     lo.add_argument("--trials", type=int, default=2, help="검사용 퍼징 횟수")
