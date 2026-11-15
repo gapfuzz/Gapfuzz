@@ -106,7 +106,7 @@ def ossfuzz_harnesses(t: dict) -> list[str]:
     return list(t.get("ossfuzz") or ["official"])
 
 
-def union(t: dict, harnesses: list[str] | None = None, secs: int = 120, r: int = 1, name: str = "_union") -> Path:
+def union(t: dict, harnesses: list[str] | None = None, secs: int = 120, r: int = 1, name: str = "_union", sub: str = "") -> Path:
     """OSS-Fuzz 하네스 여러 개의 커버리지를 하나로 합치고, 합친 결과로 갭 분석을 한다.
 
     하네스마다 따로 돌린 실행 기록(out/targets/<이름>/<하네스>/r<k>/cov.profdata)을 합쳐
@@ -118,17 +118,18 @@ def union(t: dict, harnesses: list[str] | None = None, secs: int = 120, r: int =
     """
     hs = harnesses or ossfuzz_harnesses(t)
     root = ROOT / "out" / "targets" / t["name"]
+    rd = lambda h: (root / h / sub if sub else root / h) / f"r{r}"       # sub: 결과 하위 폴더 (팀 실험은 "long3600")
     for h in hs:
         b = root / h
         if not (b / "cov").exists():
             build(t, h)
-        if not (b / f"r{r}" / "cov.profdata").exists():
+        if not (rd(h) / "cov.profdata").exists():
             print(f"[tgt] {t['name']}/{h}: 실행 기록이 없어 {secs}초 퍼징부터 합니다", flush=True)
-            run_one(t, h, r, secs, 1000, 10, None)
-    d = root / name / f"r{r}"                     # name: 결과 폴더. 적용 후를 따로 합칠 때 다른 이름을 준다(예: _union_after)
+            run_one(t, h, r, secs, 1000, 10, None, sub=sub)
+    d = (root / name / sub if sub else root / name) / f"r{r}"                     # name: 결과 폴더. 적용 후를 따로 합칠 때 다른 이름을 준다(예: _union_after)
     subprocess.run(["rm", "-rf", str(d)], check=True)
     d.mkdir(parents=True)
-    subprocess.run(["llvm-profdata", "merge", "-sparse", *[str(root / h / f"r{r}" / "cov.profdata") for h in hs],
+    subprocess.run(["llvm-profdata", "merge", "-sparse", *[str(rd(h) / "cov.profdata") for h in hs],
                     "-o", str(d / "cov.profdata")], check=True)
     bins = [str(root / hs[0] / "cov")] + [x for h in hs[1:] for x in ("-object", str(root / h / "cov"))]
     files = [str(s) for s in t["srcs"]] + [str(x) for x in t["headers"]]
@@ -143,7 +144,7 @@ def union(t: dict, harnesses: list[str] | None = None, secs: int = 120, r: int =
     # 하네스별로 어떤 API를 실행하는지 표로 남긴다
     per, total = {}, 0
     for h in hs:
-        g = json.load(open(root / h / f"r{r}" / "gap" / "gap.json"))
+        g = json.load(open(rd(h) / "gap" / "gap.json"))
         per[h] = {x["mangled"]: x["api"] for x in g["results"] if x["category"] != "NOT_CALLED"}
         total = len(g["results"])
     ug = json.load(open(d / "gap" / "gap.json"))

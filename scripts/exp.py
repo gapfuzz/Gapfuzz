@@ -409,7 +409,7 @@ def run(a) -> int:
     t = target(a.lib)
     if not (ROOT / t["clone_dir"]).exists():
         raise SystemExit(f"먼저 소스를 받으세요: python3 scripts/exp.py fetch {a.lib}")
-    if a.lib not in LIBS:
+    if a.plan != "union" and a.lib not in LIBS:
         raise SystemExit(f"{a.lib}는 비교할 수정 하네스가 없습니다 (가능: {', '.join(LIBS)})")
     cur = owner_of(a.lib)
     if cur and cur != who_am_i() and not a.force:
@@ -420,6 +420,8 @@ def run(a) -> int:
         raise SystemExit(f"clang {EXPECTED_CLANG_MAJOR}.x가 아닙니다: {env['clang']}  (python3 scripts/exp.py doctor)")
     if env["tool_commit"] and sh(["git", "-C", str(ROOT), "status", "--porcelain", "--", "gapfuzz", "scripts", "harnesses", "targets"]).stdout.strip():
         print("[run] 주의: 도구·하네스 코드에 커밋하지 않은 변경이 있습니다. 결과가 팀원과 달라질 수 있습니다.")
+    if a.plan == "union":
+        return run_union(a, t, env)
     if not any((ROOT / "harnesses" / a.lib / f"{FIXED}{x}").exists() for x in (".c", ".cc", ".cpp")):
         raise SystemExit(f"[run] harnesses/{a.lib}/{FIXED}.* 가 없습니다. git pull로 받으세요 (만드는 법: scripts/make_llm_harness.py)")
     if a.plan == "24h":
@@ -443,6 +445,113 @@ def run(a) -> int:
     report_lib(a.lib)
     print(f"[run] 끝. 결과 올리기: python3 scripts/exp.py submit {a.lib}")
     return 0
+
+
+# ------------------------------------------------------------------ 하네스 전체 기준 실험 (--plan union)
+def _has_harness(t: dict, h: str) -> bool:
+    try:
+        tg.harness_path(t, h)
+        return True
+    except SystemExit:
+        return False
+
+
+def union_sets(t: dict) -> tuple[list[str], list[str]]:
+    """(기준 묶음, 적용 후 묶음).
+    기준: 설정의 "ossfuzz" 목록(OSS-Fuzz 하네스 전부).
+    적용 후: 각 하네스의 고친 버전이 있으면 그것(official → official_llm, 그 밖은 <이름>_llm), 없으면 원래 하네스 그대로,
+             그리고 gapfuzz_ops(어느 하네스도 안 부르는 API를 부르는 새 하네스)가 있으면 추가.
+    고치지 않은 하네스는 두 묶음이 같은 실행 기록을 같이 쓴다(다시 돌리지 않음)."""
+    base = tg.ossfuzz_harnesses(t)
+    fixed = []
+    for h in base:
+        cand = FIXED if h == BASE else f"{h}_llm"
+        fixed.append(cand if _has_harness(t, cand) else h)
+    if _has_harness(t, "gapfuzz_ops"):
+        fixed.append("gapfuzz_ops")
+    return base, fixed
+
+
+def union_dir(lib: str, secs: int) -> Path:
+    return RESULTS / lib / f"union_{plan_dir(secs)}"
+
+
+def union_one(lib: str, t: dict, side: str, hs: list[str], r: int, secs: int, env: dict) -> dict:
+    """한 회차의 한 묶음: 하네스들의 실행 기록을 합쳐 커버리지와 '어느 하네스도 안 부르는 API' 수를 잰다."""
+    d = tg.union(t, hs, secs=secs, r=r, name=f"_union_{side}", sub=f"long{secs}")
+    cov, _ = coverage_map(d / "coverage.json")
+    res_apis = json.load(open(d / "gap" / "gap.json"))["results"]
+    res = {"lib": lib, "side": side, "trial": r, "secs_per_harness": secs, "harnesses": hs,
+           "total_cpu_hours": round(len(hs) * secs / 3600, 2), "coverage": cov, "apis": len(res_apis),
+           "not_called": sum(1 for x in res_apis if x["category"] == "NOT_CALLED"),
+           "fixes": len(json.load(open(d / "gap" / "gap.json"))["harness_fixes"]),
+           "by": who_am_i(), "clang": env["clang"], "cpu": env["cpu"], "tool_commit": env["tool_commit"],
+           "finished": time.strftime("%Y-%m-%d %H:%M")}
+    out = union_dir(lib, secs) / side / f"r{r:02d}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return res
+
+
+def run_union(a, t: dict, env: dict) -> int:
+    base, fixed = union_sets(t)
+    if len(base) == 1 and fixed == base:
+        print(f"[run] {a.lib}: OSS-Fuzz 하네스가 하나뿐이고 고친 하네스도 없습니다. 기준만 잽니다.")
+    allh = list(dict.fromkeys(base + fixed))
+    trials = parse_range(a.trials)
+    raw = lambda h, r: ROOT / "out" / "targets" / a.lib / h / f"long{a.secs}" / f"r{r}" / "cov.profdata"
+    todo = [(h, r) for r in trials for h in allh if not raw(h, r).exists()]
+    hours = len(todo) * a.secs / 3600 / max(a.jobs, 1)
+    print(f"[run] {a.lib} (하네스 전체 기준): 기준 {len(base)}개 {base}")
+    print(f"[run]   적용 후 {len(fixed)}개 {fixed}")
+    print(f"[run]   새로 돌릴 것 {len(todo)}개 (하네스 {len(allh)}개 × 회차 {a.trials} 중 원본이 없는 것, 회당 {a.secs}초, 동시에 {a.jobs}개) → 약 {hours:.1f}시간")
+    for h in allh:
+        tg.build(t, h)
+    with cf.ThreadPoolExecutor(max_workers=a.jobs) as ex:
+        futs = [ex.submit(run_trial, a.lib, h, r, a.secs, env) for h, r in todo]
+        for f in cf.as_completed(futs):
+            try:
+                print(f.result(), flush=True)
+            except Exception as e:
+                print(f"[run] 실패: {e!r}", flush=True)
+    for r in trials:
+        for side, hs in (("base", base), ("fixed", fixed)):
+            if side == "fixed" and fixed == base:
+                continue
+            if not all(raw(h, r).exists() for h in hs):
+                print(f"[run] r{r:02d} {side}: 아직 끝나지 않은 하네스가 있어 합치지 않습니다")
+                continue
+            x = union_one(a.lib, t, side, hs, r, a.secs, env)
+            print(f"[run] r{r:02d} {'기준' if side == 'base' else '적용 후'} 합침: 분기 {x['coverage']['branches']['pct']:.2f}% "
+                  f"라인 {x['coverage']['lines']['pct']:.2f}% 어느 하네스도 안 부르는 API {x['not_called']}/{x['apis']}", flush=True)
+    union_report(a.lib, a.secs)
+    print(f"[run] 끝. 결과: results/{a.lib}/UNION.md  올리기: python3 scripts/exp.py submit {a.lib}")
+    return 0
+
+
+def union_report(lib: str, secs: int = 3600) -> None:
+    d = union_dir(lib, secs)
+    A = [json.load(open(p)) for p in sorted((d / "base").glob("r*.json"))] if (d / "base").exists() else []
+    B = [json.load(open(p)) for p in sorted((d / "fixed").glob("r*.json"))] if (d / "fixed").exists() else []
+    if not A:
+        return
+    br = lambda runs: [r["coverage"]["branches"]["pct"] for r in runs]
+    ln = lambda runs: [r["coverage"]["lines"]["pct"] for r in runs]
+    nc = lambda runs: sorted(r["not_called"] for r in runs)
+    L = [f"# 하네스 전체 기준 실험 — {lib}", "",
+         "라이브러리의 OSS-Fuzz 하네스를 모두 따로 돌린 뒤 커버리지를 합쳐서 비교합니다.",
+         f"하네스마다 {secs}초씩, 같은 회차는 같은 시드. 값은 중앙값 [최솟값–최댓값].", "",
+         f"- 기준: OSS-Fuzz 하네스 {len(A[0]['harnesses'])}개 ({', '.join(A[0]['harnesses'])}), 회차당 CPU {A[0]['total_cpu_hours']}시간"]
+    if B:
+        L.append(f"- 적용 후: 하네스 {len(B[0]['harnesses'])}개 ({', '.join(B[0]['harnesses'])}), 회차당 CPU {B[0]['total_cpu_hours']}시간")
+    L += ["", "| | 회차 | 라인 | 분기 | 어느 하네스도 안 부르는 API |", "|---|---:|---|---|---|",
+          f"| 기준 (OSS-Fuzz 전체) | {len(A)} | {_fmt(ln(A))} | {_fmt(br(A))} | {nc(A)[len(A) // 2]} / {A[0]['apis']} |"]
+    if B:
+        L.append(f"| 적용 후 (gapfuzz) | {len(B)} | {_fmt(ln(B))} | {_fmt(br(B))} | {nc(B)[len(B) // 2]} / {B[0]['apis']} |")
+        L += ["", f"분기 커버리지: A12 = {a12(br(A), br(B)):.2f}, p = {mwu_p(br(A), br(B)):.2g} (Mann-Whitney U, 양측)"]
+        if len(B[0]["harnesses"]) != len(A[0]["harnesses"]):
+            L += ["", f"주의: 적용 후 쪽은 하네스가 {len(B[0]['harnesses']) - len(A[0]['harnesses'])}개 더 많아 회차당 총 퍼징 시간도 그만큼 깁니다."]
+    (RESULTS / lib / "UNION.md").write_text("\n".join(L) + "\n", encoding="utf-8")
 
 
 # ------------------------------------------------------------------ 통계
@@ -609,7 +718,11 @@ def report(a) -> int:
 # ------------------------------------------------------------------ 올리기
 def submit(a) -> int:
     lib = a.lib
-    report_lib(lib)
+    union_report(lib)
+    if not all(load(lib, h) for h in HARNESSES):          # 하네스 전체 기준 실험만 한 라이브러리 (예: libyaml)
+        print(f"[submit] {lib}: {BASE}/{FIXED} 비교 결과가 없어 REPORT.md는 만들지 않습니다")
+    else:
+        report_lib(lib)
     path = f"results/{lib}"
     g = lambda *c: sh(["git", "-C", str(ROOT), *c])
     if g("rev-parse", "--is-inside-work-tree").returncode:
@@ -621,10 +734,11 @@ def submit(a) -> int:
     if not g("diff", "--cached", "--name-only", "--", path).stdout.strip():
         print("[submit] 올릴 새 결과가 없습니다")
         return 0
+    nu = len(list((union_dir(lib, 3600) / "base").glob("r*.json"))) if (union_dir(lib, 3600) / "base").exists() else 0
     n = min(len(done_trials(lib, h)) for h in HARNESSES)
     dh = min(day_state(lib, h).get("done_secs", 0) for h in HARNESSES) / 3600
     who = who_am_i()
-    msg = f"results({lib}): 1시간 {n}/10회, 24시간 {dh:.1f}/24시간 ({who})"
+    msg = f"results({lib}): 1시간 {n}/10회, 24시간 {dh:.1f}/24시간" + (f", 하네스 전체 기준 {nu}회" if nu else "") + f" ({who})"
     r = g("commit", "-m", msg)
     if r.returncode:
         raise SystemExit(r.stderr or r.stdout)
@@ -657,7 +771,8 @@ def main() -> int:
     r.add_argument("--secs", type=int, default=3600, help="회당 퍼징 시간(초)")
     r.add_argument("--jobs", type=int, default=2, help="동시에 돌릴 개수 (CPU 수 이하)")
     r.add_argument("--force", action="store_true", help="다른 사람이 맡은 라이브러리라도 실행")
-    r.add_argument("--plan", choices=["1h", "24h"], default="1h", help="1h: 1시간 × 10회 (기본), 24h: 24시간 × 1회")
+    r.add_argument("--plan", choices=["1h", "24h", "union"], default="1h",
+                   help="1h: 1시간 × 10회 (기본), 24h: 24시간 × 1회, union: OSS-Fuzz 하네스 전체를 각각 돌려 합친 커버리지로 비교")
     r.add_argument("--schedule", help=argparse.SUPPRESS)          # 시험용: 24h 구간 길이(분), 예: 1,1
     p = sub.add_parser("report", help="results/<lib>/REPORT.md 만들기")
     p.add_argument("lib", nargs="?")

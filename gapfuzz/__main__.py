@@ -229,7 +229,7 @@ def main(argv=None) -> int:
     lf.add_argument("--secs", type=int, default=60, help="검사용 퍼징 시간(초, 회당)")
     lf.add_argument("--trials", type=int, default=2, help="검사용 퍼징 횟수")
     lf.add_argument("--tries", type=int, default=3, help="LLM에게 다시 묻는 최대 횟수")
-    lf.add_argument("--model", help="Claude 모델 (기본 claude-sonnet-5-5)")
+    lf.add_argument("--model", help="Claude 모델 (기본 claude-sonnet-5-5, 환경 변수 GAPFUZZ_MODEL로도 지정)")
     lf.add_argument("--mock", help="API 대신 쓸 응답 파일들 (쉼표로 구분, 시도 순서대로)")
     lf.set_defaults(func=cmd_llmfix)
 
@@ -246,7 +246,7 @@ def main(argv=None) -> int:
     lo.add_argument("--secs", type=int, default=60, help="검사용 퍼징 시간(초, 회당)")
     lo.add_argument("--trials", type=int, default=2, help="검사용 퍼징 횟수")
     lo.add_argument("--tries", type=int, default=3, help="Claude에게 다시 묻는 최대 횟수")
-    lo.add_argument("--model", help="Claude 모델 (기본 claude-sonnet-5-5)")
+    lo.add_argument("--model", help="Claude 모델 (기본 claude-sonnet-5-5, 환경 변수 GAPFUZZ_MODEL로도 지정)")
     lo.add_argument("--save", help="통과한 하네스를 저장할 이름 (기본 <하네스>_ops)")
     lo.add_argument("--mock", help="API 대신 쓸 응답 파일들 (쉼표로 구분, 시도 순서대로)")
     lo.set_defaults(func=cmd_llmops)

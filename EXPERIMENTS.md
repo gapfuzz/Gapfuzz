@@ -385,3 +385,214 @@ python3 scripts/exp.py run <라이브러리 이름>
 | 디스크가 부족함 | 끝난 회차의 `out/targets/<라이브러리>/*/long3600/r*/corpus`는 지워도 됩니다(결과는 `results/`에 있음). `*/day/`는 24시간이 끝난 뒤에만 지우세요 |
 | 24시간을 다시 실행했더니 "이어서 돌릴 코퍼스가 없습니다" | `day/` 폴더가 지워졌거나 다른 컴퓨터입니다. 처음부터 다시 하려면 `results/<라이브러리>/24h/`를 지우고 실행하세요 |
 | `submit`에서 rebase 실패 | 다른 사람이 같은 폴더나 공용 파일을 건드린 것입니다. 팀 채팅에서 확인하세요 |
+
+## 새 하네스 `gapfuzz_ops` 만들기 (하네스 전체 기준 실험 전에, 한 사람이 한 번)
+
+`gapfuzz_ops`는 "OSS-Fuzz 하네스를 전부 합쳐도 한 번도 불리지 않는 공개 API"를 부르는 새 하네스입니다. 라이브러리마다 하나씩 있고,
+하네스 전체 기준 실험의 적용 후 묶음에 들어갑니다. **이 파일이 없는 채로 실험을 돌리면 API를 추가한 효과가 빠진 실험이 됩니다.**
+
+- 한 사람이 11개를 모두 만들어 커밋합니다. 다른 팀원은 `git pull`로 받아서 씁니다. 각자 따로 만들면 서로 다른 하네스로 실험하게 됩니다.
+- Claude는 돌릴 때마다 다른 코드를 냅니다. **커밋한 뒤에는 다시 만들지 않습니다.** (스크립트는 이미 있는 라이브러리를 건너뜁니다.)
+- Claude API 키가 필요하고 비용이 듭니다. 키는 환경 변수로만 넘기고 파일·채팅·커밋에 적지 않습니다.
+
+### 만드는 조건 (다시 만들 때 같게 맞출 값)
+
+| 항목 | 값 | 바꾸는 법 |
+|---|---|---|
+| 모델 | `claude-sonnet-5-5` | 환경 변수 `GAPFUZZ_MODEL` 또는 `--model` |
+| 요청할 API 수 | 순위 상위 10개 | `--top` |
+| 검사 퍼징 | 60초 × 2회 | `--secs`, `--trials` |
+| 다시 묻는 횟수 | 최대 3번 | `--tries` |
+| 출력 상한 / 생각 분량 | 64000 토큰 / medium | `GAPFUZZ_MAX_TOKENS`, `GAPFUZZ_EFFORT` |
+| 진단 | OSS-Fuzz 하네스마다 120초 × 1회를 합침 | `tgt.py union --secs` |
+
+기존 `official_llm` 하네스도 `claude-sonnet-5-5`로 만들었습니다(`samples/llm/`의 기록). 한 묶음 안의 하네스를 같은 모델로 맞추기 위해 `gapfuzz_ops`도 같은 모델을 씁니다. 모델을 바꾸려면 `official_llm`도 다시 만들고 그 실험도 다시 돌려야 합니다.
+
+### 1. 준비 (WSL)
+
+```bash
+cd ~/gapfuzz
+git pull
+git status            # working tree clean 이어야 함
+tmux new -s ops
+```
+
+### 2. 키를 넣고 컨테이너 들어가기 (WSL, tmux 안)
+
+```bash
+read -s ANTHROPIC_API_KEY      # 키를 붙여 넣고 Enter. 화면에는 아무것도 안 보입니다
+export ANTHROPIC_API_KEY
+docker run --rm -it --cap-add SYS_PTRACE --user "$(id -u):$(id -g)" -e HOME=/tmp \
+    -e ANTHROPIC_API_KEY -v "$PWD":/work gapfuzz bash
+```
+
+### 3. 어떤 API가 뽑히는지 먼저 보기 (컨테이너 안, 키를 쓰지 않음)
+
+```bash
+python3 scripts/exp.py fetch <라이브러리 이름>
+python3 -m gapfuzz llmops <라이브러리 이름> --union --list
+```
+
+표의 "이번에 추가"가 붙은 줄이 Claude에게 요청할 API입니다.
+
+### 4. 만들기 (컨테이너 안)
+
+```bash
+bash scripts/make_gapfuzz_ops.sh                 # 11개 전부. 하네스가 적은 라이브러리부터
+bash scripts/make_gapfuzz_ops.sh cjson           # 하나만 먼저 해 볼 때
+```
+
+라이브러리마다 이 순서로 돕니다: 소스 받기 → OSS-Fuzz 하네스 전부를 120초씩 돌려 합침 → 안 불리는 API 순위 → Claude에게 요청
+→ 컴파일, 60초 × 2회 퍼징, 요청한 API가 실행됐는지, 크래시가 하네스 탓인지 검사 → 실패하면 이유를 돌려주고 다시(최대 3번) → 통과하면 저장.
+
+- 하나가 실패해도 다음 라이브러리로 넘어갑니다. 끝에 요약이 나옵니다.
+- 걸리는 시간은 라이브러리당 10~40분(하네스 수에 따라)입니다. `Ctrl+B, D`로 빠져나오고 `tmux attach -t ops`로 다시 붙습니다.
+
+### 5. 결과 확인
+
+| 파일 | 내용 |
+|---|---|
+| `harnesses/<라이브러리 이름>/gapfuzz_ops.*` | 통과한 새 하네스. 첫 줄에 만든 모델이 적혀 있음 |
+| `samples/llm/ops/<라이브러리 이름>/_union/report.md` | 시도별 결과표(실행된 API, 크래시 귀속, 토큰 수)와 모델 이름 |
+| `samples/llm/ops/<라이브러리 이름>/_union/request.md` | Claude에게 보낸 요청 전문 |
+| `samples/llm/ops/<라이브러리 이름>/_union/ranking.md` | 안 불리는 API 순위표 |
+| `out/ops_logs/<라이브러리 이름>.log` | 실행 로그 (커밋하지 않음) |
+
+만들어진 하네스는 **사람이 읽어 봅니다.** 검사 통과는 "컴파일되고, 요청한 API가 실행되고, 60초 안에 하네스 탓 크래시가 없다"는 뜻입니다.
+
+1. `// [gapfuzz-ops]` 블록마다 인자가 `data`/`size`에서 나오는가 (상수면 안 됨)
+2. 초기화 → 사용 → 해제 순서가 맞는가, 반환값을 확인하는가
+3. `report.md` 끝에 Claude가 적은 "뺀 API와 이유"
+
+3번 다 실패한 라이브러리는 `gapfuzz_ops` 없이 실험하고, 그 사실과 `report.md`의 실패 이유를 결과에 적습니다. 통과할 때까지 조건을 바꿔 가며 다시 돌리지 않습니다.
+
+효과를 짧게 미리 보려면(120초 × 1회, 참고용):
+
+```bash
+python3 scripts/tgt.py union <라이브러리 이름>                                          # 기준
+python3 scripts/tgt.py union <라이브러리 이름> --add gapfuzz_ops --name _union_after    # 새 하네스를 더했을 때
+```
+
+### 6. 커밋 (WSL)
+
+```bash
+git add harnesses/*/gapfuzz_ops.* samples/llm/ops
+git status --short        # gapfuzz_ops 파일과 samples/llm/ops 아래 기록만 보여야 함
+git commit -m "gapfuzz_ops: 새 하네스 (claude-sonnet-5-5, top 10, 검사 60초 × 2회, 최대 3번)"
+git push
+```
+
+커밋 메시지에 모델과 조건을 적어 둡니다. 이 커밋 뒤로는 `gapfuzz_ops`를 바꾸지 않습니다.
+
+### 이름이 비슷한 예전 파일
+
+`harnesses/zlib/official_ops.cc`, `harnesses/tinyxml2/official_llm_ops.cpp`처럼 이름 끝에 `_ops`가 붙은 파일은 예전 방식(하네스 하나에 호출을 끼워 넣음)의 결과물입니다.
+하네스 전체 기준 실험에는 들어가지 않습니다. 실험에 들어가는 것은 `gapfuzz_ops` 하나입니다.
+
+---
+
+## 추가 하네스 고치기 (`<하네스 이름>_llm`, 선택, 한 사람이 한 번)
+
+`official_llm`은 대표 하네스(`official`) 하나만 고친 것입니다. 이 단계는 **나머지 OSS-Fuzz 하네스도** 같은 방식으로 고쳐
+`official_compress_llm`처럼 `<하네스 이름>_llm`으로 저장합니다. 있으면 하네스 전체 기준 실험의 적용 후 묶음에 자동으로 들어갑니다.
+
+- **고친 하네스 하나마다 팀 실험이 1시간 × 10회씩 늘어납니다.** 시간이 모자라면 이 단계를 건너뛰어도 실험은 성립합니다(그 하네스는 원본 그대로 묶음에 들어감).
+- `gapfuzz_ops`와 같은 규칙입니다: 한 사람이 만들어 커밋하고, 커밋한 뒤에는 다시 만들지 않습니다. 모델도 같게 둡니다(`claude-sonnet-5-5`).
+
+### 어떤 제안을 맡기나 (사람이 고르지 않고 규칙으로)
+
+| 규칙 | 내용 | 이유 |
+|---|---|---|
+| 1. 하네스 전체 기준 | 겨냥한 분기가 OSS-Fuzz 하네스 전체를 합친 커버리지에서도 막혀 있는 제안만 | 다른 하네스가 이미 여는 분기는 고칠 이유가 없음 |
+| 2. 한 번만 | 같은 분기를 여러 하네스가 겨냥하면 `ossfuzz` 목록에서 앞선 하네스 하나에만. `official_llm`이 맡은 분기는 빼고 시작 | 같은 분기를 여러 번 고쳐도 합친 커버리지는 늘지 않고 실험 시간만 늚 |
+
+맡길 제안이 없는 하네스는 고친 버전을 만들지 않습니다.
+
+### 1. 무엇을 맡길지 먼저 보기 (컨테이너 안, 키를 쓰지 않음)
+
+```bash
+python3 scripts/make_llm_harness_extra.py <라이브러리 이름> --list
+python3 scripts/make_llm_harness_extra.py --all --primary --list      # 11개 전부, 마지막 줄에 늘어나는 실험 시간
+```
+
+하네스마다 제안별로 "맡김 / 다른 하네스가 이미 엶 / 앞선 하네스가 맡음"이 나옵니다.
+
+### 2. 만들기 (컨테이너 안, `ANTHROPIC_API_KEY` 필요: 위 절의 2번과 같은 방법)
+
+```bash
+python3 scripts/make_llm_harness_extra.py <라이브러리 이름>              # 한 라이브러리
+python3 scripts/make_llm_harness_extra.py --all                          # 11개 전부
+python3 scripts/make_llm_harness_extra.py --all --primary                # + official_llm이 없는 라이브러리는 대표 하네스도
+```
+
+- `--primary`: `official_llm`이 아직 없는 라이브러리(`http-parser`, `libucl`, `yyjson`)의 대표 하네스도 같은 규칙으로 고쳐 `official_llm`을 만듭니다.
+  기존 7개 라이브러리의 `official_llm`은 사람이 고른 제안으로 만든 것이라 건드리지 않습니다. `libyaml`의 대표 하네스는 고칠 곳이 없습니다.
+- 검사는 `official_llm`을 만들 때와 같습니다: 컴파일 → 60초 × 2회 퍼징 → 겨냥한 분기가 하나라도 열렸나 → 크래시가 하네스 탓인가. 실패하면 이유를 돌려주고 최대 3번.
+- 이미 `<하네스 이름>_llm`이 있으면 건너뜁니다.
+
+### 3. 결과 확인과 커밋
+
+| 파일 | 내용 |
+|---|---|
+| `harnesses/<라이브러리 이름>/<하네스 이름>_llm.*` | 통과한 하네스. 첫 줄에 모델과 적용한 제안 번호 |
+| `samples/llm/combined/<라이브러리 이름>/<하네스 이름>/report.md` | 시도별 결과(열린 분기, 크래시 귀속, 토큰 수) |
+| `samples/llm/combined/EXTRA.md` | 전체 요약표 |
+
+`best.diff`로 무엇이 바뀌었는지 읽어 봅니다. 통과하지 못한 하네스는 고친 버전 없이 원본으로 실험하고, 그 사실을 결과에 적습니다.
+
+```bash
+git add harnesses/*/*_llm.* samples/llm/combined        # WSL에서
+git status --short
+git commit -m "추가 하네스 수정 <하네스 이름>_llm (claude-sonnet-5-5, 하네스 전체 기준으로 막힌 분기만, 분기당 한 하네스)"
+git push
+```
+
+### 알아둘 한계
+
+- 대표 하네스의 `official_llm`은 사람이 제안을 골랐고(대조군 포함), 추가 하네스는 위 규칙으로 골랐습니다. 고르는 방식이 다르다는 점을 결과에 적습니다.
+- 규칙 2는 "앞선 하네스가 그 분기를 실제로 연다"고 가정합니다. 앞선 하네스의 수정이 그 분기를 못 열어도 뒤 하네스에 다시 맡기지 않습니다.
+- "null을 넘긴 적이 없음" 같은 제안은 그 인자에 null이 금지돼 있을 수 있습니다. Claude에게 금지된 인자는 넘기지 말라고 지시하고 크래시 귀속으로 거르지만, `best.diff`에서 직접 확인하세요.
+
+---
+
+## 하네스 전체 기준 실험 (`--plan union`)
+
+라이브러리에 OSS-Fuzz 하네스가 여러 개 있으면, 하네스 하나만 비교해서는 "다른 하네스가 이미 하는 일"이 섞입니다.
+이 실험은 하네스를 **모두 따로 돌린 뒤 커버리지를 합쳐서** 비교합니다. 한 라이브러리는 한 사람이 전부 돌립니다(합치려면 원본 기록이 한 컴퓨터에 있어야 함).
+
+먼저 위의 "새 하네스 `gapfuzz_ops` 만들기"(와, 하기로 했다면 "추가 하네스 고치기")가 끝나 `harnesses/<라이브러리 이름>/gapfuzz_ops.*`가 저장소에 있어야 합니다(`git pull`).
+대상 라이브러리는 11개입니다: `cjson`, `jsoncpp`, `http-parser`, `expat`, `pugixml`, `tinyxml2`, `libucl`, `yyjson`, `json-c`, `zlib`, `libyaml`.
+
+```bash
+python3 scripts/exp.py run <라이브러리 이름> --plan union --secs 60 --trials 1-2    # 먼저 짧게: 끝까지 도는지 확인 (15분쯤)
+python3 scripts/exp.py run <라이브러리 이름> --plan union                          # 하네스마다 1시간 × 10회
+python3 scripts/exp.py run <라이브러리 이름> --plan union --jobs 3                 # 동시에 3개
+python3 scripts/exp.py submit <라이브러리 이름>
+```
+
+- 실행하면 처음에 두 묶음의 하네스 목록이 나옵니다. **적용 후 목록에 `gapfuzz_ops`가 있는지 확인하고** 진행합니다.
+- 짧게 돌린 결과(`results/<라이브러리 이름>/60s`, `union_60s`, `UNION.md`)는 확인 후 지웁니다. 올리지 않습니다.
+- `--jobs`는 "물리 코어 수 − 1"과 "(메모리 GB − 2) ÷ 2" 중 작은 값 이하로 줍니다(기본 2). WSL 안에서 `lscpu`, `free -g`로 보이는 값 기준입니다.
+  퍼저 하나가 코어 하나를 계속 쓰고 메모리를 최대 2GB까지 씁니다. 더 높이면 서로 느려져 커버리지가 낮게 나옵니다.
+- 실행 순서는 회차 먼저입니다(1회차의 모든 하네스 → 2회차 …). 중간에 멈춰도 끝난 회차까지는 비교할 수 있습니다.
+
+| 묶음 | 들어가는 하네스 |
+|---|---|
+| 기준 | 설정(`targets/<이름>.json`)의 `"ossfuzz"` 목록 전부 |
+| 적용 후 | 각 하네스의 고친 버전이 있으면 그것(`official` → `official_llm`, 그 밖은 `<이름>_llm`), 없으면 원래 하네스. 여기에 `gapfuzz_ops`(새 하네스)가 있으면 추가 |
+
+- 고치지 않은 하네스는 두 묶음이 같은 실행 기록을 같이 씁니다. 다시 돌리지 않습니다.
+- 이미 `--plan 1h`로 돌린 `official`, `official_llm`의 원본(`out/targets/<이름>/<하네스>/long3600/`)이 남아 있으면 그대로 씁니다.
+- 끊겨도 다시 실행하면 원본이 없는 것만 이어서 돕니다.
+
+결과 파일
+
+| 위치 | 내용 |
+|---|---|
+| `results/<이름>/1h/<하네스>/rNN.json` | 하네스별 회차 결과 (기존과 같은 형식) |
+| `results/<이름>/union_1h/base/rNN.json` | 회차별 기준 묶음을 합친 결과: 하네스 목록, 커버리지, 어느 하네스도 안 부르는 API 수 |
+| `results/<이름>/union_1h/fixed/rNN.json` | 회차별 적용 후 묶음을 합친 결과 |
+| `results/<이름>/UNION.md` | 요약표 (중앙값, A12, p) |
+
+걸리는 시간은 "새로 돌릴 하네스 수 × 회차 × 1시간 ÷ 동시에 돌리는 수"입니다. 실행하면 맨 처음에 예상 시간이 나옵니다.
+적용 후 쪽에 `gapfuzz_ops`가 들어가면 하네스가 하나 더 많아 총 퍼징 시간도 1시간 더 깁니다. `UNION.md`에 이 점이 표시됩니다.

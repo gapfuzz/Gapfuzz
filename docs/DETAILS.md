@@ -264,6 +264,7 @@ python3 scripts/tgt.py union zlib                 # 설정의 "ossfuzz" 목록 �
 python3 -m gapfuzz llmops zlib --union --list     # 어느 하네스도 안 부르는 API의 우선순위 (API 키 필요 없음)
 python3 -m gapfuzz llmops zlib --union --top 10   # 그 API를 부르는 '새 하네스' 생성 → harnesses/zlib/gapfuzz_ops.*
 python3 scripts/tgt.py union zlib --add gapfuzz_ops --name _union_after   # 새 하네스까지 합친 '적용 후'
+python3 scripts/exp.py run zlib --plan union      # 팀 실험: 하네스마다 1시간 × 10회, 회차별로 합쳐서 비교 (EXPERIMENTS.md)
 ```
 
 | | 하네스 하나에 끼워 넣기 (`llmops`) | 전체 기준 새 하네스 (`llmops --union`) |
@@ -282,6 +283,7 @@ zlib으로 확인한 것 (하네스마다 30~120초, 합친 값):
 한계
 
 - 실제 Claude API로는 `--union`을 돌려 보지 않았다(`tests/test_llmops_union.sh`는 미리 써 둔 응답을 쓴다).
+- `exp.py run --plan union`은 zlib에서 하네스마다 15초 × 2회로만 돌려 흐름을 확인했다. 1시간 × 10회로는 돌려 보지 않았다.
 - 합친 분석에서 호출 지점(인자 고정 여부)은 대표 하네스의 소스만 읽는다. 다른 하네스 안의 고정 인자는 그 하네스를 따로 분석해야 나온다.
 - 합친 수치는 하네스마다 같은 시간을 돌린 것을 합친 값이다. 하네스 수가 다르면 총 퍼징 시간도 다르다.
 - protobuf 기반 하네스, zlib의 파일 입출력 하네스 2개처럼 가져오지 않은 하네스가 부르는 API는 여전히 '안 부름'으로 잡힌다.

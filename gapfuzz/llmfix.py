@@ -30,7 +30,9 @@ from .verify import verify
 
 ROOT = Path(__file__).resolve().parent.parent
 API_URL = "https://api.anthropic.com/v1/messages"
-DEFAULT_MODEL = "claude-sonnet-5-5"
+# 기본 모델. 환경 변수 GAPFUZZ_MODEL이나 --model로 바꿀 수 있다. 어떤 모델로 만들었는지는 report.md와 log.json에 남는다.
+# official_llm과 gapfuzz_ops를 같은 모델로 만들기 위해 기본값을 바꾸지 않는다 (기존 official_llm: claude-sonnet-5-5).
+DEFAULT_MODEL = os.environ.get("GAPFUZZ_MODEL", "claude-sonnet-5-5")
 
 SYSTEM = """당신은 libFuzzer 퍼징 하네스를 고치는 보안 엔지니어입니다.
 커버리지 분석 도구 gapfuzz가 하네스 때문에 막힌 라이브러리 분기와 그 원인을 찾았습니다. 주어진 제안만 하네스에 적용하세요.
@@ -122,6 +124,11 @@ def call_claude(messages: list, model: str, key: str, max_tokens: int | None = N
             detail = e.read().decode(errors="replace")[:300]
             if e.code == 400 and "output_config" in payload and re.search(r"output_config|effort", detail):
                 payload.pop("output_config")           # 이 모델은 effort를 받지 않는다
+                continue
+            if e.code == 400 and re.search(r"max_tokens", detail) and payload["max_tokens"] > 8000:
+                m = re.search(r"(\d{4,})", detail)            # 모델의 출력 상한이 더 작다: 메시지에 적힌 값(없으면 절반)으로 낮춰 다시 보낸다
+                lim = int(m.group(1)) if m else 0
+                payload["max_tokens"] = lim if 8000 <= lim < payload["max_tokens"] else payload["max_tokens"] // 2
                 continue
             if e.code in (429, 500, 502, 503, 529) and attempt < 5:
                 time.sleep(10 * (attempt + 1))
