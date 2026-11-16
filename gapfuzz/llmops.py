@@ -29,7 +29,7 @@ from pathlib import Path
 
 from .analyze import Analyzer, DEFAULT_INTERNAL_CLASSES, _code_regions, load_coverage
 from .ast_index import build_index
-from .llmfix import ROOT, _compile, _tgt, call_claude, extract_code, no_code_reason, numbered
+from .llmfix import CRASH_NOTE, ROOT, _compile, _tgt, call_claude, extract_code, no_code_reason, numbered
 from .triage import triage
 
 EXECUTED = ("FULL", "PARTIAL")
@@ -254,8 +254,8 @@ def check(tg, t: dict, name: str, src: Path, before: dict, chosen: list[dict], s
         tri = triage(str(out / "fuzz"), crashes[:5], [str(src)], [str(t["lib"])], [str(src.parent), str(ROOT / "harnesses")],
                      2, 10, root=str(ROOT))
         res["crashes"] = [{"cls": c.verdict.cls, "conf": c.verdict.confidence, "reason": c.verdict.reason,
-                           "evidence": c.verdict.evidence[:4], "kind": c.kind} for c in tri]
-    bad = [c for c in res["crashes"] if c["cls"] in ("HARNESS", "UNCLEAR", "RESOURCE")]
+                           "evidence": c.verdict.evidence[:8], "kind": c.kind} for c in tri]
+    bad = res["crashes"]        # 검사 퍼징에서 크래시가 나면 귀속과 상관없이 채택하지 않는다 (llmfix.check와 같은 이유)
     res["regressed"] = len(lost) > max(1, len(was) // 10)      # 원래 실행되던 API가 눈에 띄게 사라짐: 원래 동작을 망가뜨린 것
     res["ok"] = bool(afters) and res["called"] > 0 and not bad and not res["regressed"]
     res["complete"] = res["ok"] and res["called"] == res["total"]
@@ -272,8 +272,9 @@ def feedback(res: dict) -> str:
         lines += ["원래 하네스에서 실행되던 API가 실행되지 않게 됐습니다. 원래 호출이 예전과 같은 입력으로 계속 실행되게 고치세요:"] \
                  + [f"- `{a}`" for a in res["lost"][:15]]
     for c in res["crashes"]:
-        if c["cls"] in ("HARNESS", "UNCLEAR", "RESOURCE"):
-            lines += [f"크래시가 났고 gapfuzz 크래시 귀속은 '{c['cls']}'(확신 {c['conf']})로 판정했습니다: {c['reason']}"] + [f"  - {e}" for e in c["evidence"]]
+        lines += [f"크래시가 났고 gapfuzz 크래시 귀속은 '{c['cls']}'(확신 {c['conf']})로 판정했습니다: {c['reason']}"] + [f"  - {e}" for e in c["evidence"]]
+    if res["crashes"]:
+        lines.append(CRASH_NOTE)
     lines.append("이미 실행되는 호출은 유지하면서 위 문제를 고친 하네스 전체를 다시 주세요. 안전하게 부를 수 없는 API는 빼고 이유를 적어도 됩니다.")
     return "\n".join(lines)
 

@@ -1,0 +1,211 @@
+{
+ "target": "http-parser",
+ "harness": "official",
+ "fix": [
+  1,
+  2
+ ],
+ "model": "claude-sonnet-5-5",
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 7.6,
+   "usage": {
+    "input_tokens": 3423,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1011,
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/http-parser/llm/official_combined/try1.c",
+   "ok": false,
+   "stage": "compile",
+   "detail": "/work/harnesses/http-parser/llm/official_combined/try1.c:40:48: error: use of undeclared identifier 's_message_done'\n      |                                                ^\n1 error generated."
+  },
+  {
+   "try": 2,
+   "llm_seconds": 16.4,
+   "usage": {
+    "input_tokens": 4551,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 2422,
+    "output_tokens_details": {
+     "thinking_tokens": 1518
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/http-parser/llm/official_combined/try2.c",
+   "stage": "fuzz",
+   "opened": 33,
+   "total": 59,
+   "per_fix": {
+    "1": [
+     31,
+     57
+    ],
+    "2": [
+     2,
+     2
+    ]
+   },
+   "still": [
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 633행 `default`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 674행 `case s_dead`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 676행 `case s_start_res`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 687행 `CURRENT_STATE() == s_header_field`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 692행 `case s_req_path`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 693행 `case s_req_schema`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 695행 `case s_req_schema_slash_slash`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 696행 `case s_req_server_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 697행 `case s_req_server`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 698행 `case s_req_server_with_at`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 700행 `case s_req_query_string`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 701행 `case s_req_fragment_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 702행 `case s_req_fragment`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 705행 `case s_res_status`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 721행 `case s_dead`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1131행 `case s_req_http_I`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1944행 `case s_body_identity`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1987행 `case s_message_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1996행 `case s_chunk_size_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2012행 `case s_chunk_size`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2049행 `case s_chunk_parameters`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2060행 `case s_chunk_size_almost_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2078행 `case s_chunk_data`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2101행 `case s_chunk_data_almost_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2109행 `case s_chunk_data_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2118행 `default`"
+   ],
+   "crashes": [
+    {
+     "cls": "ASSERT",
+     "conf": "강",
+     "reason": "라이브러리의 assert/abort가 실패함",
+     "evidence": [
+      "오류 지점: `http_parser_execute` @ third_party/http-parser/http_parser.c:2119 (library)"
+     ],
+     "kind": "deadly signal"
+    },
+    {
+     "cls": "ASSERT",
+     "conf": "강",
+     "reason": "라이브러리의 assert/abort가 실패함",
+     "evidence": [
+      "오류 지점: `http_parser_execute` @ third_party/http-parser/http_parser.c:2016 (library)"
+     ],
+     "kind": "deadly signal"
+    }
+   ],
+   "ok": true,
+   "complete": false
+  },
+  {
+   "try": 3,
+   "llm_seconds": 22.5,
+   "usage": {
+    "input_tokens": 7019,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 3131,
+    "output_tokens_details": {
+     "thinking_tokens": 2066
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/http-parser/llm/official_combined/try3.c",
+   "stage": "fuzz",
+   "opened": 29,
+   "total": 59,
+   "per_fix": {
+    "1": [
+     27,
+     57
+    ],
+    "2": [
+     2,
+     2
+    ]
+   },
+   "still": [
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 667행 `case s_body_identity_eof`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 674행 `case s_dead`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 687행 `CURRENT_STATE() == s_header_field`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 689행 `CURRENT_STATE() == s_header_value`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 692행 `case s_req_path`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 693행 `case s_req_schema`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 694행 `case s_req_schema_slash`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 695행 `case s_req_schema_slash_slash`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 696행 `case s_req_server_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 697행 `case s_req_server`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 698행 `case s_req_server_with_at`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 699행 `case s_req_query_string_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 700행 `case s_req_query_string`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 701행 `case s_req_fragment_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 702행 `case s_req_fragment`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 705행 `case s_res_status`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 708행 `default`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 721행 `case s_dead`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1131행 `case s_req_http_I`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1136행 `case s_req_http_IC`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1944행 `case s_body_identity`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1987행 `case s_message_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1996행 `case s_chunk_size_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2012행 `case s_chunk_size`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2049행 `case s_chunk_parameters`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2060행 `case s_chunk_size_almost_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2078행 `case s_chunk_data`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2101행 `case s_chunk_data_almost_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2109행 `case s_chunk_data_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2118행 `default`"
+   ],
+   "crashes": [
+    {
+     "cls": "ASSERT",
+     "conf": "강",
+     "reason": "라이브러리의 assert/abort가 실패함",
+     "evidence": [
+      "오류 지점: `http_parser_execute` @ third_party/http-parser/http_parser.c:2083 (library)"
+     ],
+     "kind": "deadly signal"
+    },
+    {
+     "cls": "ASSERT",
+     "conf": "강",
+     "reason": "라이브러리의 assert/abort가 실패함",
+     "evidence": [
+      "오류 지점: `http_parser_execute` @ third_party/http-parser/http_parser.c:2062 (library)"
+     ],
+     "kind": "deadly signal"
+    }
+   ],
+   "ok": true,
+   "complete": false
+  }
+ ],
+ "best": 2
+}

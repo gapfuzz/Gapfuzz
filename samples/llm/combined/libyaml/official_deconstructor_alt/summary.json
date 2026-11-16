@@ -1,0 +1,62 @@
+{
+ "lib": "libyaml",
+ "harness": "official_deconstructor_alt",
+ "fixes": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  8,
+  9
+ ],
+ "ok": true,
+ "tries": 3,
+ "model": "claude-sonnet-5-5",
+ "dedup": true,
+ "opened": 1,
+ "total": 17,
+ "per_fix": {
+  "1": [
+   0,
+   5
+  ],
+  "2": [
+   0,
+   2
+  ],
+  "3": [
+   0,
+   2
+  ],
+  "4": [
+   0,
+   2
+  ],
+  "5": [
+   0,
+   1
+  ],
+  "6": [
+   0,
+   1
+  ],
+  "8": [
+   1,
+   1
+  ],
+  "9": [
+   0,
+   3
+  ]
+ },
+ "crashes": [
+  "LIBRARY"
+ ],
+ "saved": "harnesses/libyaml/official_deconstructor_alt_llm.c",
+ "tokens": [
+  104245,
+  51288
+ ]
+}

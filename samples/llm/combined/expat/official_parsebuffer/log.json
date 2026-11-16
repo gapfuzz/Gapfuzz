@@ -1,0 +1,44 @@
+{
+ "target": "expat",
+ "harness": "official_parsebuffer",
+ "fix": 3,
+ "model": "claude-sonnet-5-5",
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 11.6,
+   "usage": {
+    "input_tokens": 3406,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 2263,
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/expat/llm/official_parsebuffer_combined/try1.c",
+   "stage": "fuzz",
+   "opened": 1,
+   "total": 1,
+   "per_fix": {
+    "3": [
+     1,
+     1
+    ]
+   },
+   "still": [],
+   "crashes": [],
+   "ok": true,
+   "complete": true
+  }
+ ],
+ "best": 1
+}

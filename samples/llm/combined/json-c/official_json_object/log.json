@@ -1,0 +1,237 @@
+{
+ "target": "json-c",
+ "harness": "official_json_object",
+ "fix": [
+  1,
+  2,
+  3,
+  4
+ ],
+ "model": "claude-sonnet-5-5",
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 24.1,
+   "usage": {
+    "input_tokens": 7500,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 3744,
+    "output_tokens_details": {
+     "thinking_tokens": 1301
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/json-c/llm/official_json_object_combined/try1.cc",
+   "stage": "fuzz",
+   "opened": 44,
+   "total": 81,
+   "per_fix": {
+    "1": [
+     11,
+     25
+    ],
+    "2": [
+     2,
+     3
+    ],
+    "3": [
+     1,
+     1
+    ],
+    "4": [
+     30,
+     52
+    ]
+   },
+   "still": [
+    "제안 1: `json_c_visit(json_object *, int, json_c_visit_userfunc *, void *)` 63행 `userret == JSON_C_VISIT_RETURN_POP`",
+    "제안 1: `json_c_visit(json_object *, int, json_c_visit_userfunc *, void *)` 65행 `userret == JSON_C_VISIT_RETURN_STOP`",
+    "제안 1: `json_c_visit(json_object *, int, json_c_visit_userfunc *, void *)` 66행 `userret == JSON_C_VISIT_RETURN_ERROR`",
+    "제안 1: `json_c_visit(json_object *, int, json_c_visit_userfunc *, void *)` 68행 `userret != JSON_C_VISIT_RETURN_CONTINUE`",
+    "제안 1: `json_c_visit(json_object *, int, json_c_visit_userfunc *, void *)` 86행 `userret == JSON_C_VISIT_RETURN_POP`",
+    "제안 1: `json_c_visit(json_object *, int, json_c_visit_userfunc *, void *)` 88행 `userret == JSON_C_VISIT_RETURN_STOP`",
+    "제안 1: `json_c_visit(json_object *, int, json_c_visit_userfunc *, void *)` 89행 `userret == JSON_C_VISIT_RETURN_ERROR`",
+    "제안 1: `json_c_visit(json_object *, int, json_c_visit_userfunc *, void *)` 91행 `userret != JSON_C_VISIT_RETURN_CONTINUE`",
+    "제안 1: `json_c_visit(json_object *, int, json_c_visit_userfunc *, void *)` 114행 `case JSON_C_VISIT_RETURN_SKIP`",
+    "제안 1: `json_c_visit(json_object *, int, json_c_visit_userfunc *, void *)` 115행 `case JSON_C_VISIT_RETURN_POP`",
+    "제안 1: `json_c_visit(json_object *, int, json_c_visit_userfunc *, void *)` 119행 `case JSON_C_VISIT_RETURN_CONTINUE`",
+    "제안 1: `json_c_visit(json_object *, int, json_c_visit_userfunc *, void *)` 120행 `case JSON_C_VISIT_RETURN_STOP`",
+    "제안 1: `json_c_visit(json_object *, int, json_c_visit_userfunc *, void *)` 121행 `case JSON_C_VISIT_RETURN_ERROR`",
+    "제안 1: `json_c_visit(json_object *, int, json_c_visit_userfunc *, void *)` 122행 `default`",
+    "제안 2: `json_object_object_add_ex(struct json_object *, const char *const, struct json_object *const, const unsigned int)` 761행 `jso == val`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 396행 `(!ADVANCE_CHAR(str, tok))`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 419행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 429행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 530행 `*(tok->pb->buf) == '-'`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 535행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 571행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 669행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 838행 `tok->ucs_char < 0x110000`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 909행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 926행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 953행 `printbuf_length(tok->pb) > 0`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1008행 `!ADVANCE_CHAR`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1136행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1143행 `json_parse_uint64(tok->pb->buf, &numuint64) == 0`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1154행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1163행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1175행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1223행 `json_object_array_add(current, obj) != 0`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1290행 `obj_field_name == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1348행 `json_object_object_add(current, obj_field_name, obj) != 0`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1384행 `(tok->flags & JSON_TOKENER_VALIDATE_UTF8)`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1388행 `(tok->depth == 0)`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  },
+  {
+   "try": 2,
+   "llm_seconds": 36.1,
+   "usage": {
+    "input_tokens": 12231,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 5539,
+    "output_tokens_details": {
+     "thinking_tokens": 1969
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/json-c/llm/official_json_object_combined/try2.cc",
+   "stage": "fuzz",
+   "opened": 60,
+   "total": 81,
+   "per_fix": {
+    "1": [
+     25,
+     25
+    ],
+    "2": [
+     2,
+     3
+    ],
+    "3": [
+     1,
+     1
+    ],
+    "4": [
+     32,
+     52
+    ]
+   },
+   "still": [
+    "제안 2: `json_object_object_add_ex(struct json_object *, const char *const, struct json_object *const, const unsigned int)` 761행 `jso == val`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 396행 `(!ADVANCE_CHAR(str, tok))`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 419행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 429행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 530행 `*(tok->pb->buf) == '-'`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 535행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 571행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 669행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 838행 `tok->ucs_char < 0x110000`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 909행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 926행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1008행 `!ADVANCE_CHAR`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1136행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1143행 `json_parse_uint64(tok->pb->buf, &numuint64) == 0`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1154행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1163행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1175행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1223행 `json_object_array_add(current, obj) != 0`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1290행 `obj_field_name == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1348행 `json_object_object_add(current, obj_field_name, obj) != 0`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1388행 `(tok->depth == 0)`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  },
+  {
+   "try": 3,
+   "llm_seconds": 34.1,
+   "usage": {
+    "input_tokens": 17026,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 5793,
+    "output_tokens_details": {
+     "thinking_tokens": 1619
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/json-c/llm/official_json_object_combined/try3.cc",
+   "stage": "fuzz",
+   "opened": 60,
+   "total": 81,
+   "per_fix": {
+    "1": [
+     25,
+     25
+    ],
+    "2": [
+     2,
+     3
+    ],
+    "3": [
+     1,
+     1
+    ],
+    "4": [
+     32,
+     52
+    ]
+   },
+   "still": [
+    "제안 2: `json_object_object_add_ex(struct json_object *, const char *const, struct json_object *const, const unsigned int)` 761행 `jso == val`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 396행 `(!ADVANCE_CHAR(str, tok))`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 419행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 429행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 530행 `*(tok->pb->buf) == '-'`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 535행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 571행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 669행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 838행 `tok->ucs_char < 0x110000`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 909행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 926행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1008행 `!ADVANCE_CHAR`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1136행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1143행 `json_parse_uint64(tok->pb->buf, &numuint64) == 0`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1154행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1163행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1175행 `current == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1223행 `json_object_array_add(current, obj) != 0`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1290행 `obj_field_name == NULL`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1348행 `json_object_object_add(current, obj_field_name, obj) != 0`",
+    "제안 4: `json_tokener_parse_ex(struct json_tokener *, const char *, int)` 1388행 `(tok->depth == 0)`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  }
+ ],
+ "best": 2
+}

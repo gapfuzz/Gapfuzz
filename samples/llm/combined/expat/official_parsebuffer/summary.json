@@ -1,0 +1,25 @@
+{
+ "lib": "expat",
+ "harness": "official_parsebuffer",
+ "fixes": [
+  3
+ ],
+ "ok": true,
+ "tries": 1,
+ "model": "claude-sonnet-5-5",
+ "dedup": true,
+ "opened": 1,
+ "total": 1,
+ "per_fix": {
+  "3": [
+   1,
+   1
+  ]
+ },
+ "crashes": [],
+ "saved": "harnesses/expat/official_parsebuffer_llm.c",
+ "tokens": [
+  3406,
+  2263
+ ]
+}

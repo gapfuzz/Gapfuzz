@@ -1,0 +1,155 @@
+{
+ "target": "libyaml",
+ "harness": "official_deconstructor",
+ "fix": [
+  2,
+  3,
+  4,
+  5,
+  6,
+  10
+ ],
+ "model": "claude-sonnet-5-5",
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 134.1,
+   "usage": {
+    "input_tokens": 23409,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 19972,
+    "output_tokens_details": {
+     "thinking_tokens": 1995
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/libyaml/llm/official_deconstructor_combined/try1.c",
+   "ok": false,
+   "stage": "compile",
+   "detail": "/work/harnesses/libyaml/llm/official_deconstructor_combined/try1.c:17:10: fatal error: 'yaml_write_handler.h' file not found\n      |          ^~~~~~~~~~~~~~~~~~~~~~\n1 error generated."
+  },
+  {
+   "try": 2,
+   "llm_seconds": 117.7,
+   "usage": {
+    "input_tokens": 41531,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 19096,
+    "output_tokens_details": {
+     "thinking_tokens": 728
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/libyaml/llm/official_deconstructor_combined/try2.c",
+   "stage": "fuzz",
+   "opened": 10,
+   "total": 11,
+   "per_fix": {
+    "2": [
+     2,
+     3
+    ],
+    "3": [
+     2,
+     2
+    ],
+    "4": [
+     2,
+     2
+    ],
+    "5": [
+     1,
+     1
+    ],
+    "6": [
+     1,
+     1
+    ],
+    "10": [
+     2,
+     2
+    ]
+   },
+   "still": [
+    "제안 2: `yaml_document_start_event_initialize(yaml_event_t *, yaml_version_directive_t *, yaml_tag_directive_t *, yaml_tag_directive_t *, int)` 63행 `!str`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  },
+  {
+   "try": 3,
+   "llm_seconds": 120.1,
+   "usage": {
+    "input_tokens": 60076,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 19294,
+    "output_tokens_details": {
+     "thinking_tokens": 905
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/libyaml/llm/official_deconstructor_combined/try3.c",
+   "stage": "fuzz",
+   "opened": 10,
+   "total": 11,
+   "per_fix": {
+    "2": [
+     2,
+     3
+    ],
+    "3": [
+     2,
+     2
+    ],
+    "4": [
+     2,
+     2
+    ],
+    "5": [
+     1,
+     1
+    ],
+    "6": [
+     1,
+     1
+    ],
+    "10": [
+     2,
+     2
+    ]
+   },
+   "still": [
+    "제안 2: `yaml_document_start_event_initialize(yaml_event_t *, yaml_version_directive_t *, yaml_tag_directive_t *, yaml_tag_directive_t *, int)` 63행 `!str`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  }
+ ],
+ "best": 2
+}

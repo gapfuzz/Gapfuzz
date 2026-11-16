@@ -189,11 +189,15 @@ def check(tg, t: dict, name: str, src: Path, before: dict, fix_idx, secs: int, t
         tri = triage(str(out / "fuzz"), crashes[:5], [str(src)], [str(t["lib"])], [str(src.parent), str(ROOT / "harnesses")],
                      2, 10, root=str(ROOT))
         res["crashes"] = [{"cls": c.verdict.cls, "conf": c.verdict.confidence, "reason": c.verdict.reason,
-                           "evidence": c.verdict.evidence[:4], "kind": c.kind} for c in tri]
-    harness_bug = [c for c in res["crashes"] if c["cls"] in ("HARNESS", "UNCLEAR", "RESOURCE")]
-    res["ok"] = res["opened"] > 0 and not harness_bug
+                           "evidence": c.verdict.evidence[:8], "kind": c.kind} for c in tri]
+    # 검사 퍼징에서 크래시가 난 하네스는 귀속과 상관없이 채택하지 않는다. 60초 안에 죽는 하네스는 1시간 실험에서도
+    # 시작하자마자 멈추기 때문이다. (2026-11-16 이전에는 LIBRARY·ASSERT 크래시를 통과시켰고, Claude에게 알리지도 않았다.)
+    res["ok"] = res["opened"] > 0 and not res["crashes"]
     res["complete"] = res["ok"] and res["opened"] == res["total"]
     return res
+
+
+CRASH_NOTE = ("실험용 하네스는 검사 퍼징에서 크래시가 없어야 합니다(크래시가 나면 그 실행의 퍼징이 거기서 멈춥니다). 귀속이 라이브러리 쪽이어도 이 크래시로 이어지는 호출·인자·호출 순서를 하네스에서 피하세요: 라이브러리 문서의 소유권·해제 규칙을 다시 확인하고, 구조체의 내부 필드를 직접 바꾸지 말고, 안전하게 부를 수 없으면 그 호출을 빼고 이유를 적으세요.")
 
 
 def feedback(res: dict) -> str:
@@ -203,8 +207,9 @@ def feedback(res: dict) -> str:
     if res["still"]:
         lines += ["아직 막힌 분기:"] + [f"- {s}" for s in res["still"]]
     for c in res["crashes"]:
-        if c["cls"] in ("HARNESS", "UNCLEAR", "RESOURCE"):
-            lines += [f"크래시가 났고 gapfuzz 크래시 귀속은 '{c['cls']}'(확신 {c['conf']})로 판정했습니다: {c['reason']}"] + [f"  - {e}" for e in c["evidence"]]
+        lines += [f"크래시가 났고 gapfuzz 크래시 귀속은 '{c['cls']}'(확신 {c['conf']})로 판정했습니다: {c['reason']}"] + [f"  - {e}" for e in c["evidence"]]
+    if res["crashes"]:
+        lines.append(CRASH_NOTE)
     lines.append("제안의 의도는 유지하면서 위 문제를 고친 하네스 전체를 다시 주세요.")
     return "\n".join(lines)
 

@@ -1,0 +1,32 @@
+{
+ "lib": "zlib",
+ "harness": "official_example_flush",
+ "fixes": [
+  2,
+  8
+ ],
+ "ok": true,
+ "tries": 3,
+ "model": "claude-sonnet-5-5",
+ "dedup": true,
+ "opened": 11,
+ "total": 13,
+ "per_fix": {
+  "2": [
+   3,
+   4
+  ],
+  "8": [
+   8,
+   9
+  ]
+ },
+ "crashes": [
+  "LIBRARY"
+ ],
+ "saved": "harnesses/zlib/official_example_flush_llm.c",
+ "tokens": [
+  29992,
+  16803
+ ]
+}

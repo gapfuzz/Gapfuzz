@@ -1,0 +1,185 @@
+{
+ "target": "libucl",
+ "harness": "official",
+ "fix": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9
+ ],
+ "model": "claude-sonnet-5-5",
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 35.5,
+   "usage": {
+    "input_tokens": 5992,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 4995,
+    "output_tokens_details": {
+     "thinking_tokens": 2225
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/libucl/llm/official_combined/try1.c",
+   "ok": false,
+   "stage": "compile",
+   "detail": "/work/harnesses/libucl/llm/official_combined/try1.c:99:4: error: call to undeclared function 'ucl_object_iter_free'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n      |                         ^\n      |                 ^\n1 error generated."
+  },
+  {
+   "try": 2,
+   "llm_seconds": 16.1,
+   "usage": {
+    "input_tokens": 8922,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 3096,
+    "output_tokens_details": {
+     "thinking_tokens": 359
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/libucl/llm/official_combined/try2.c",
+   "stage": "fuzz",
+   "opened": 11,
+   "total": 15,
+   "per_fix": {
+    "1": [
+     2,
+     2
+    ],
+    "2": [
+     1,
+     4
+    ],
+    "3": [
+     1,
+     2
+    ],
+    "4": [
+     1,
+     1
+    ],
+    "5": [
+     1,
+     1
+    ],
+    "6": [
+     2,
+     2
+    ],
+    "7": [
+     1,
+     1
+    ],
+    "8": [
+     1,
+     1
+    ],
+    "9": [
+     1,
+     1
+    ]
+   },
+   "still": [
+    "제안 2: `ucl_parser_add_chunk_full(struct ucl_parser *, const unsigned char *, size_t, unsigned int, enum ucl_duplicate_strategy, enum ucl_parse_type)` 2182행 `parser == NULL`",
+    "제안 2: `ucl_parser_add_chunk_full(struct ucl_parser *, const unsigned char *, size_t, unsigned int, enum ucl_duplicate_strategy, enum ucl_parse_type)` 3597행 `parser == NULL`",
+    "제안 2: `ucl_parser_add_chunk_priority(struct ucl_parser *, const unsigned char *, size_t, unsigned int)` 3759행 `parser == NULL`",
+    "제안 3: `ucl_parser_add_chunk_full(struct ucl_parser *, const unsigned char *, size_t, unsigned int, enum ucl_duplicate_strategy, enum ucl_parse_type)` 3601행 `data == NULL`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  },
+  {
+   "try": 3,
+   "llm_seconds": 22.9,
+   "usage": {
+    "input_tokens": 12097,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 4111,
+    "output_tokens_details": {
+     "thinking_tokens": 873
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/libucl/llm/official_combined/try3.c",
+   "stage": "fuzz",
+   "opened": 14,
+   "total": 15,
+   "per_fix": {
+    "1": [
+     2,
+     2
+    ],
+    "2": [
+     3,
+     4
+    ],
+    "3": [
+     2,
+     2
+    ],
+    "4": [
+     1,
+     1
+    ],
+    "5": [
+     1,
+     1
+    ],
+    "6": [
+     2,
+     2
+    ],
+    "7": [
+     1,
+     1
+    ],
+    "8": [
+     1,
+     1
+    ],
+    "9": [
+     1,
+     1
+    ]
+   },
+   "still": [
+    "제안 2: `ucl_parser_add_chunk_full(struct ucl_parser *, const unsigned char *, size_t, unsigned int, enum ucl_duplicate_strategy, enum ucl_parse_type)` 2182행 `parser == NULL`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  }
+ ],
+ "best": 3
+}

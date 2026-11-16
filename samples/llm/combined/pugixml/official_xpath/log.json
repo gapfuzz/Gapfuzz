@@ -1,0 +1,220 @@
+{
+ "target": "pugixml",
+ "harness": "official_xpath",
+ "fix": [
+  3,
+  5,
+  6,
+  9
+ ],
+ "model": "claude-sonnet-5-5",
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 46.2,
+   "usage": {
+    "input_tokens": 7443,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 5439,
+    "output_tokens_details": {
+     "thinking_tokens": 2285
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/pugixml/llm/official_xpath_combined/try1.cpp",
+   "stage": "fuzz",
+   "opened": 18,
+   "total": 40,
+   "per_fix": {
+    "3": [
+     5,
+     18
+    ],
+    "5": [
+     5,
+     5
+    ],
+    "6": [
+     1,
+     1
+    ],
+    "9": [
+     7,
+     16
+    ]
+   },
+   "still": [
+    "제안 3: `xml_attribute::value() const` 5450행 `!_attr`",
+    "제안 3: `xpath_query::evaluate_node(const xpath_node &) const` 8813행 `lhs.attribute()`",
+    "제안 3: `xpath_query::evaluate_node(const xpath_node &) const` 8830행 `lhs.attribute()`",
+    "제안 3: `xpath_query::evaluate_node(const xpath_node &) const` 8837행 `rhs.attribute()`",
+    "제안 3: `xpath_query::evaluate_node_set(const xpath_node &) const` 9682행 `key`",
+    "제안 3: `xpath_query::evaluate_boolean(const xpath_node &) const` 10375행 `attr`",
+    "제안 3: `xpath_query::evaluate_boolean(const xpath_node &) const` 10399행 `attr`",
+    "제안 3: `xpath_query::evaluate_boolean(const xpath_node &) const` 11146행 `attr`",
+    "제안 3: `xpath_query::evaluate_number(const xpath_node &) const` 11291행 `attr`",
+    "제안 3: `xpath_query::evaluate_string(const xpath_node &) const` 11578행 `attr`",
+    "제안 3: `xpath_query::evaluate_node_set(const xpath_node &) const` 11729행 `attr`",
+    "제안 3: `xpath_node::xpath_node(const xml_attribute &, const xml_node &)` 12934행 `attribute_`",
+    "제안 3: `xpath_node::parent() const` 12950행 `_attribute`",
+    "제안 9: `xml_node::attribute(const char_t *) const` 5801행 `i`",
+    "제안 9: `xml_document::reset()` 7680행 `extra`",
+    "제안 9: `xpath_query::evaluate_node(const xpath_node &) const` 8774행 `(get_document(node).header & xml_memory_page_contents_shared_mask) == 0`",
+    "제안 9: `xpath_query::evaluate_node(const xpath_node &) const` 8776행 `(node->header & impl::xml_memory_page_name_allocated_or_shared_mask) == 0`",
+    "제안 9: `xpath_query::evaluate_node(const xpath_node &) const` 8777행 `node->value`",
+    "제안 9: `xpath_query::evaluate_node(const xpath_node &) const` 8847행 `!ln`",
+    "제안 9: `xpath_query::evaluate_node(const xpath_node &) const` 8847행 `!rn`",
+    "제안 9: `xpath_query::evaluate_node_set(const xpath_node &) const` 9682행 `key`",
+    "제안 9: `xpath_query::evaluate_node_set(const xpath_node &) const` 10940행 `xn.node()`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  },
+  {
+   "try": 2,
+   "llm_seconds": 71.1,
+   "usage": {
+    "input_tokens": 11656,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 8859,
+    "output_tokens_details": {
+     "thinking_tokens": 3073
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/pugixml/llm/official_xpath_combined/try2.cpp",
+   "stage": "fuzz",
+   "opened": 30,
+   "total": 40,
+   "per_fix": {
+    "3": [
+     12,
+     18
+    ],
+    "5": [
+     5,
+     5
+    ],
+    "6": [
+     0,
+     1
+    ],
+    "9": [
+     13,
+     16
+    ]
+   },
+   "still": [
+    "제안 3: `xpath_query::evaluate_node_set(const xpath_node &) const` 9682행 `key`",
+    "제안 3: `xpath_query::evaluate_boolean(const xpath_node &) const` 10375행 `attr`",
+    "제안 3: `xpath_query::evaluate_boolean(const xpath_node &) const` 10399행 `attr`",
+    "제안 3: `xpath_query::evaluate_node_set(const xpath_node &) const` 10942행 `axis_has_attributes && xn.attribute() && xn.parent()`",
+    "제안 3: `xpath_query::evaluate_node_set(const xpath_node &) const` 10942행 `xn.attribute()`",
+    "제안 3: `xpath_query::evaluate_boolean(const xpath_node &) const` 11146행 `attr`",
+    "제안 6: `xpath_variable::get_string() const` 13181행 `value`",
+    "제안 9: `xpath_query::evaluate_node_set(const xpath_node &) const` 9682행 `key`",
+    "제안 9: `xpath_query::evaluate_node_set(const xpath_node &) const` 10942행 `axis_has_attributes && xn.attribute() && xn.parent()`",
+    "제안 9: `xpath_query::evaluate_node_set(const xpath_node &) const` 10942행 `xn.parent()`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  },
+  {
+   "try": 3,
+   "llm_seconds": 61.8,
+   "usage": {
+    "input_tokens": 18004,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 9477,
+    "output_tokens_details": {
+     "thinking_tokens": 1575
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/pugixml/llm/official_xpath_combined/try3.cpp",
+   "stage": "fuzz",
+   "opened": 31,
+   "total": 40,
+   "per_fix": {
+    "3": [
+     15,
+     18
+    ],
+    "5": [
+     0,
+     5
+    ],
+    "6": [
+     1,
+     1
+    ],
+    "9": [
+     15,
+     16
+    ]
+   },
+   "still": [
+    "제안 3: `xpath_query::evaluate_boolean(const xpath_node &) const` 10375행 `attr`",
+    "제안 3: `xpath_query::evaluate_boolean(const xpath_node &) const` 10399행 `attr`",
+    "제안 3: `xpath_query::evaluate_boolean(const xpath_node &) const` 11146행 `attr`",
+    "제안 5: `xpath_query::evaluate_boolean(const xpath_node &) const` 13509행 `!_impl`",
+    "제안 5: `xpath_query::evaluate_number(const xpath_node &) const` 13530행 `!_impl`",
+    "제안 5: `xpath_query::evaluate_string(const xpath_node &) const` 13552행 `!_impl`",
+    "제안 5: `xpath_query::evaluate_node_set(const xpath_node &) const` 13605행 `!root`",
+    "제안 5: `xpath_query::evaluate_node(const xpath_node &) const` 13627행 `!root`",
+    "제안 9: `xpath_query::evaluate_node_set(const xpath_node &) const` 10940행 `xn.node()`"
+   ],
+   "crashes": [
+    {
+     "cls": "RESOURCE",
+     "conf": "약",
+     "reason": "timeout: 시간·메모리·스택 상한에 걸림 (가장 가까운 코드: library) (재현 1/2: 비결정적)",
+     "evidence": [
+      "오류 지점: `pugi::impl::node_is_before` @ third_party/pugixml/src/pugixml.cpp:8727 (library)",
+      "하네스가 부른 API: `pugi::xpath_node_set::sort` @ third_party/pugixml/src/pugixml.cpp:13115, 하네스 위치: `LLVMFuzzerTestOneInput` @ harnesses/pugixml/llm/official_xpath_combined/try3.cpp:274"
+     ],
+     "kind": "timeout"
+    },
+    {
+     "cls": "RESOURCE",
+     "conf": "약",
+     "reason": "timeout: 시간·메모리·스택 상한에 걸림 (가장 가까운 코드: library) (재현 1/2: 비결정적)",
+     "evidence": [
+      "오류 지점: `pugi::impl::xml_document_struct& pugi::impl::get_document<pugi::xml_attribute_struct>` @ third_party/pugixml/src/pugixml.cpp:1216 (library)",
+      "하네스가 부른 API: `pugi::xpath_node_set::sort` @ third_party/pugixml/src/pugixml.cpp:13115, 하네스 위치: `LLVMFuzzerTestOneInput` @ harnesses/pugixml/llm/official_xpath_combined/try3.cpp:274"
+     ],
+     "kind": "timeout"
+    }
+   ],
+   "ok": false,
+   "complete": false
+  }
+ ],
+ "best": 2
+}

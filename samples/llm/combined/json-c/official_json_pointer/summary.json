@@ -1,0 +1,55 @@
+{
+ "lib": "json-c",
+ "harness": "official_json_pointer",
+ "fixes": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  8,
+  9
+ ],
+ "ok": true,
+ "tries": 3,
+ "model": "claude-sonnet-5-5",
+ "dedup": true,
+ "opened": 10,
+ "total": 11,
+ "per_fix": {
+  "1": [
+   2,
+   3
+  ],
+  "2": [
+   2,
+   2
+  ],
+  "3": [
+   2,
+   2
+  ],
+  "4": [
+   1,
+   1
+  ],
+  "5": [
+   1,
+   1
+  ],
+  "8": [
+   1,
+   1
+  ],
+  "9": [
+   1,
+   1
+  ]
+ },
+ "crashes": [],
+ "saved": "harnesses/json-c/official_json_pointer_llm.cc",
+ "tokens": [
+  21999,
+  15139
+ ]
+}

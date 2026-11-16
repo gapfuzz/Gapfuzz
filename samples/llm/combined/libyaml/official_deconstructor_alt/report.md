@@ -1,0 +1,272 @@
+# LLM 하네스 수정 — libyaml/official_deconstructor_alt, 제안 1,2,3,4,5,6,8,9
+
+- 모델: `claude-sonnet-5-5`
+- 제안: `yaml_emitter_open(yaml_emitter_t *)`의 1번째 인자 `emitter`를 하네스가 고정합니다(70행에서 항상 같은 객체 `&emitter`) (라이브러리 내부 `yaml_emitter_emit` → `yaml_emitter_state_machine` → `yaml_emitter_emit_flow_mapping_key` → `yaml_emitter_check_simple_key`를 거쳐 조건에 쓰임) → 퍼저 입력으로 바꾸세요
+- 제안: `yaml_document_add_sequence(yaml_document_t *, const yaml_char_t *, yaml_sequence_style_t)`의 2번째 인자 `tag`를 하네스가 고정합니다(80행에서 항상 `0`, 266행에서 항상 `0`) → 퍼저 입력으로 바꾸세요
+- 제안: `yaml_document_add_mapping(yaml_document_t *, const yaml_char_t *, yaml_mapping_style_t)`의 2번째 인자 `tag`를 하네스가 고정합니다(101행에서 항상 `0`, 210행에서 항상 `0`, 278행에서 항상 `0`, 490행에서 항상 `0`) → 퍼저 입력으로 바꾸세요
+- 제안: `yaml_emitter_dump(yaml_emitter_t *, yaml_document_t *)`의 1번째 인자 `emitter`를 하네스가 고정합니다(819행에서 항상 같은 객체 `&emitter`) (라이브러리 내부 `yaml_emitter_dump_node`를 거쳐 조건에 쓰임) → 퍼저 입력으로 바꾸세요
+- 제안: `yaml_document_initialize(yaml_document_t *, yaml_version_directive_t *, yaml_tag_directive_t *, yaml_tag_directive_t *, int, int)`의 2번째 인자 `version_directive`를 하네스가 고정합니다(75행에서 항상 `0`) → 퍼저 입력으로 바꾸세요
+- 제안: `yaml_document_initialize(yaml_document_t *, yaml_version_directive_t *, yaml_tag_directive_t *, yaml_tag_directive_t *, int, int)`의 3번째 인자 `tag_directives_start`를 하네스가 고정합니다(75행에서 항상 `0`) → 퍼저 입력으로 바꾸세요
+- 제안: `yaml_document_delete(yaml_document_t *)`의 1번째 인자 `document`를 하네스가 고정합니다(829행에서 항상 같은 객체 `&output_document`) → 퍼저 입력으로 바꾸세요
+- 제안: `yaml_document_add_scalar(yaml_document_t *, const yaml_char_t *, const yaml_char_t *, int, yaml_scalar_style_t)`의 2번째 인자 `tag`를 하네스가 `0`, `"tag:yaml.org,2002:int"`, `"tag:yaml.org,2002:bool"` 중에서만 고릅니다(115행, 120행, 134행, 139행, 162행, 167행, 182행, 187행, 205행, 220행, 226행, 237행, 243행, 261행, 287행, 292행, 302행, 307행, 319행, 324행, 341행, 346행, 357행, 362행, 379행, 384행, 395행, 400행, 415행, 420행, 432행, 437행, 450행, 455행, 467행, 472행, 485행, 500행, 505행, 517행, 522행, 539행, 544행, 572행, 577행, 589행, 594행, 607행, 612행, 624행, 629행, 647행, 652행, 673행, 678행, 693행, 698행, 710행, 715행, 728행, 733행, 745행, 750행, 768행, 773행, 793행, 798행) (라이브러리 내부 `yaml_strdup`를 거쳐 조건에 쓰임) → 나머지 값도 나오게 하세요
+- 겨냥한 분기: 17개
+
+| 시도 | 결과 | 열림 | 제안별 열림 | 크래시 귀속 | 토큰(입력/출력) |
+|---:|---|---:|---|---|---|
+| 1 | 컴파일 실패 | -/- | - | - | 19993/19219 |
+| 2 | 통과 | 1/17 | 1: 0/5, 2: 0/2, 3: 0/2, 4: 0/2, 5: 0/1, 6: 0/1, 8: 1/1, 9: 0/3 | LIBRARY(강) | 34331/15094 |
+| 3 | 통과 | 1/17 | 1: 0/5, 2: 0/2, 3: 0/2, 4: 0/2, 5: 0/1, 6: 0/1, 8: 1/1, 9: 0/3 | LIBRARY(강) | 49921/16975 |
+
+**채택 후보: 시도 2** (`harnesses/libyaml/llm/official_deconstructor_alt_combined/try2.c`). 사람이 읽고 넣으세요.
+
+```diff
+--- 수정 전
++++ 시도 2
+@@ -14,7 +14,6 @@
+ // limitations under the License.
+ 
+ #include "yaml.h"
+-#include "yaml_write_handler.h"
+ #include <assert.h>
+ #include <stdbool.h>
+ #include <stdint.h>
+@@ -26,22 +25,95 @@
+ #undef NDEBUG
+ #endif
+ 
++// [gapfuzz-llm] yaml_write_handler.h가 빌드 환경에 없어 같은 역할의 출력 버퍼 타입을 하네스 안에 직접 정의
++typedef struct yaml_output_buffer {
++  unsigned char *buf;
++  size_t size;
++  size_t capacity;
++} yaml_output_buffer_t;
++
++// [gapfuzz-llm] yaml_write_handler.h가 없어 쓰기 핸들러를 하네스 안에 직접 구현(필요하면 버퍼를 늘림)
++static int yaml_write_handler(void *data, unsigned char *buffer, size_t size) {
++  yaml_output_buffer_t *out = (yaml_output_buffer_t *)data;
++  if (out->size + size > out->capacity || !out->buf) {
++    size_t newcap = out->capacity ? out->capacity : 1000;
++    while (newcap < out->size + size)
++      newcap *= 2;
++    unsigned char *nb = (unsigned char *)realloc(out->buf, newcap);
++    if (!nb)
++      return 0;
++    out->buf = nb;
++    out->capacity = newcap;
++  }
++  memcpy(out->buf + out->size, buffer, size);
++  out->size += size;
++  return 1;
++}
++
++// [gapfuzz-llm] 퍼저 입력으로 고르는 대체 태그 목록(유효/무효 UTF-8 포함)
++static const yaml_char_t *const k_alt_tags[8] = {
++    (const yaml_char_t *)"tag:yaml.org,2002:int",
++    (const yaml_char_t *)"tag:yaml.org,2002:bool",
++    (const yaml_char_t *)"tag:yaml.org,2002:str",
++    (const yaml_char_t *)"!x",
++    (const yaml_char_t *)"tag:yaml.org,2002:seq",
++    (const yaml_char_t *)"tag:yaml.org,2002:map",
++    (const yaml_char_t *)"\xff\xfe",
++    (const yaml_char_t *)"\xE3\x81"};
++
++// [gapfuzz-llm] 스칼라 태그를 입력으로 바꾸기 위한 전역 선택값(NULL이면 원래 태그 사용)
++static const yaml_char_t *g_scalar_alt_tag = NULL;
++
++// [gapfuzz-llm] yaml_document_add_scalar 호출의 tag 인자를 입력 기반으로 바꾸는 래퍼
++static int gapfuzz_add_scalar(yaml_document_t *doc, const yaml_char_t *tag,
++                              const yaml_char_t *value, int length,
++                              yaml_scalar_style_t style) {
++  const yaml_char_t *t = g_scalar_alt_tag ? g_scalar_alt_tag : tag; // [gapfuzz-llm] 입력으로 고른 태그가 있으면 사용
++  return (yaml_document_add_scalar)(doc, t, value, length, style);
++}
++#define yaml_document_add_scalar gapfuzz_add_scalar // [gapfuzz-llm] 모든 add_scalar 호출이 래퍼를 거치도록 함
++
+ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+   if (size < 2)
+     return 0;
+ 
+   bool done = false;
+-  bool is_canonical = data[0] & 1;
+-  bool is_unicode = data[1] & 1;
+-  data += 2;
+-  size -= 2;
++
++  // [gapfuzz-llm] 앞쪽 최대 8바이트를 헤더로 나눠 사용(각 수정이 서로 다른 바이트를 사용)
++  uint8_t hdr[8] = {0};
++  size_t hdr_len = size < 8 ? size : 8;
++  memcpy(hdr, data, hdr_len);
++  data += hdr_len;
++  size -= hdr_len;
++
++  bool is_canonical = hdr[0] & 1;
++  bool is_unicode = hdr[1] & 1;
+ 
+   yaml_parser_t parser;
+   yaml_emitter_t emitter;
+   yaml_event_t input_event;
+   yaml_document_t output_document;
++  yaml_document_t spare_document; // [gapfuzz-llm] 삭제 대상을 입력으로 고르기 위한 보조 문서
++  int spare_ok = 0;
++  yaml_emitter_t *em = &emitter; // [gapfuzz-llm] emitter 인자를 포인터로 두고 설정을 입력으로 바꿈
++  yaml_document_t *del_first = &output_document;
++  yaml_document_t *del_second = &spare_document;
++
++  yaml_version_directive_t version_dir = {1, 1}; // [gapfuzz-llm] 버전 지시자 후보
++  yaml_tag_directive_t tag_dir = {(yaml_char_t *)"!e!",
++                                  (yaml_char_t *)"tag:example.com,2000:"}; // [gapfuzz-llm] 태그 지시자 후보
++  yaml_version_directive_t *version_arg = NULL;
++  yaml_tag_directive_t *tag_start = NULL;
++  yaml_tag_directive_t *tag_end = NULL;
++
++  const yaml_char_t *seq_tag = NULL; // [gapfuzz-llm] 시퀀스 태그를 입력으로 선택
++  const yaml_char_t *map_tag = NULL; // [gapfuzz-llm] 매핑 태그를 입력으로 선택
+ 
+   int root;
++
++  memset(&output_document, 0, sizeof(output_document));
++  memset(&spare_document, 0, sizeof(spare_document));
++  memset(&input_event, 0, sizeof(input_event));
+ 
+   /* Initialize the parser and emitter objects. */
+ 
+@@ -65,20 +137,53 @@
+   yaml_emitter_set_canonical(&emitter, is_canonical);
+   yaml_emitter_set_unicode(&emitter, is_unicode);
+ 
++  // [gapfuzz-llm] emitter 들여쓰기/폭/줄바꿈을 입력으로 바꿔 flow 매핑·단순 키 경로를 다양화
++  yaml_emitter_set_indent(em, hdr[2] & 0x0F);
++  switch ((hdr[2] >> 4) & 3) {
++  case 1: yaml_emitter_set_width(em, -1); break;
++  case 2: yaml_emitter_set_width(em, 10); break;
++  case 3: yaml_emitter_set_width(em, 80); break;
++  default: break;
++  }
++  yaml_emitter_set_break(em, (yaml_break_t)((hdr[7] >> 2) & 3)); // [gapfuzz-llm] 줄바꿈 종류 선택
++
++  // [gapfuzz-llm] 버전/태그 지시자와 각 태그를 입력으로 선택
++  switch (hdr[3] & 3) {
++  case 1: version_arg = &version_dir; break;
++  case 2: version_dir.minor = 2; version_arg = &version_dir; break;
++  case 3: version_dir.minor = 0; version_arg = &version_dir; break;
++  default: version_arg = NULL; break;
++  }
++  if ((hdr[3] >> 2) & 1) {
++    tag_start = &tag_dir;
++    tag_end = &tag_dir + 1;
++  }
++  if (hdr[4] >= 192)
++    seq_tag = k_alt_tags[hdr[4] & 7];
++  if (hdr[5] >= 192)
++    map_tag = k_alt_tags[hdr[5] & 7];
++  g_scalar_alt_tag = (hdr[6] >= 192) ? k_alt_tags[hdr[6] & 7] : NULL;
++
+   /* Create and emit the STREAM-START event. */
+ 
+-  if (!yaml_emitter_open(&emitter))
++  if (!yaml_emitter_open(em)) // [gapfuzz-llm] emitter를 포인터로 전달
+     goto error;
+ 
+   /* Create a output_document object. */
+ 
+-  if (!yaml_document_initialize(&output_document, NULL, NULL, NULL, 0, 0))
++  if (!yaml_document_initialize(&output_document, version_arg, tag_start,
++                                tag_end, 0, 0)) // [gapfuzz-llm] 버전/태그 지시자를 입력으로 전달
+     goto error;
+ 
++  // [gapfuzz-llm] 보조 문서를 입력 비트에 따라 초기화(삭제 순서 선택용)
++  if ((hdr[7] & 1) &&
++      yaml_document_initialize(&spare_document, NULL, NULL, NULL, 0, 0))
++    spare_ok = 1;
++
+   /* Create the root sequence. */
+ 
+-  root = yaml_document_add_sequence(&output_document, NULL,
+-                                    YAML_BLOCK_SEQUENCE_STYLE);
++  root = yaml_document_add_sequence(&output_document, seq_tag,
++                                    YAML_BLOCK_SEQUENCE_STYLE); // [gapfuzz-llm] 태그를 입력으로 선택
+   if (!root)
+     goto error;
+ 
+@@ -98,8 +203,8 @@
+ 
+     /* Create a mapping node and attach it to the root sequence. */
+ 
+-    properties = yaml_document_add_mapping(&output_document, NULL,
+-                                           YAML_BLOCK_MAPPING_STYLE);
++    properties = yaml_document_add_mapping(&output_document, map_tag,
++                                           YAML_BLOCK_MAPPING_STYLE); // [gapfuzz-llm] 태그를 입력으로 선택
+     if (!properties)
+       goto error;
+     if (!yaml_document_append_sequence_item(&output_document, root, properties))
+@@ -207,8 +312,8 @@
+                                        YAML_PLAIN_SCALAR_STYLE);
+         if (!key)
+           goto error;
+-        map = yaml_document_add_mapping(&output_document, NULL,
+-                                        YAML_FLOW_MAPPING_STYLE);
++        map = yaml_document_add_mapping(&output_document, map_tag,
++                                        YAML_FLOW_MAPPING_STYLE); // [gapfuzz-llm] 태그를 입력으로 선택
+         if (!map)
+           goto error;
+         if (!yaml_document_append_mapping_pair(&output_document, properties,
+@@ -263,8 +368,8 @@
+                                        YAML_PLAIN_SCALAR_STYLE);
+         if (!key)
+           goto error;
+-        seq = yaml_document_add_sequence(&output_document, NULL,
+-                                         YAML_BLOCK_SEQUENCE_STYLE);
++        seq = yaml_document_add_sequence(&output_document, seq_tag,
++                                         YAML_BLOCK_SEQUENCE_STYLE); // [gapfuzz-llm] 태그를 입력으로 선택
+         if (!seq)
+           goto error;
+         if (!yaml_document_append_mapping_pair(&output_document, properties,
+@@ -275,8 +380,8 @@
+              tag != input_event.data.document_start.tag_directives.end; tag++) {
+           /* Add {}. */
+ 
+-          map = yaml_document_add_mapping(&output_document, NULL,
+-                                          YAML_FLOW_MAPPING_STYLE);
++          map = yaml_document_add_mapping(&output_document, map_tag,
++                                          YAML_FLOW_MAPPING_STYLE); // [gapfuzz-llm] 태그를 입력으로 선택
+           if (!map)
+             goto error;
+           if (!yaml_document_append_sequence_item(&output_document, seq, map))
+@@ -487,8 +592,8 @@
+                                      YAML_PLAIN_SCALAR_STYLE);
+       if (!key)
+         goto error;
+-      map = yaml_document_add_mapping(&output_document, NULL,
+-                                      YAML_FLOW_MAPPING_STYLE);
++      map = yaml_document_add_mapping(&output_document, map_tag,
++                                      YAML_FLOW_MAPPING_STYLE); // [gapfuzz-llm] 태그를 입력으로 선택
+       if (!map)
+         goto error;
+       if (!yaml_document_append_mapping_pair(&output_document, properties, key,
+@@ -816,17 +921,23 @@
+     yaml_event_delete(&input_event);
+   }
+ 
+-  if (!yaml_emitter_dump(&emitter, &output_document))
++  if (!yaml_emitter_dump(em, &output_document)) // [gapfuzz-llm] emitter를 포인터로 전달
+     goto error;
+ 
+-  yaml_emitter_close(&emitter);
++  yaml_emitter_close(em); // [gapfuzz-llm] emitter를 포인터로 전달
+ 
+ error:
+ 
+   free(out.buf);
+ 
+   yaml_event_delete(&input_event);
+-  yaml_document_delete(&output_document);
++  // [gapfuzz-llm] 문서 삭제 순서를 입력으로 선택(둘 다 삭제하므로 누수 없음, 이중 삭제도 안전)
++  if (spare_ok && (hdr[7] & 2)) {
++    del_first = &spare_document;
++    del_second = &output_document;
++  }
++  yaml_document_delete(del_first); // [gapfuzz-llm] 삭제 대상 문서를 입력으로 선택
++  yaml_document_delete(del_second); // [gapfuzz-llm] 나머지 문서도 삭제
+   yaml_parser_delete(&parser);
+   yaml_emitter_delete(&emitter);
+```

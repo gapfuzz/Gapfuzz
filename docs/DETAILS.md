@@ -493,6 +493,28 @@ TinyXML2는 노드를 자체 메모리 풀로 관리해 ASan이 해제를 못 �
   그래서 판정 근거가 비고("가장 가까운 코드: ?"), Claude에게 어느 호출이 문제인지 전달되지 않은 채 두 번을 더 썼습니다.
   지금은 스택을 읽어 "오류 지점, 한 번에 요청한 할당 크기, 하네스가 부른 API와 하네스 위치"를 근거로 붙입니다(`tests/test_triage_oom.sh`). 분류(`RESOURCE`)와 통과 기준은 바꾸지 않았습니다.
 
+### 사례: 검사를 통과했지만 쓸 수 없던 하네스 6개와 채택 기준 변경 (2026-11-16)
+
+새 하네스 11개와 추가 하네스 18개를 만든 뒤 보니, 채택된 하네스 중 6개가 검사 퍼징(60초 × 2회)에서 매번 크래시가 났는데도 통과로 처리돼 있었습니다.
+검사는 `HARNESS`·`UNCLEAR`·`RESOURCE` 크래시만 탈락시키고 `LIBRARY`·`ASSERT`는 통과시켰으며, 통과시킨 크래시는 Claude에게 알리지도 않았기 때문입니다.
+
+| 하네스 | 크래시 | 실제 원인 |
+|---|---|---|
+| http-parser `official_llm` | 라이브러리 assert 실패 | 하네스가 `parser.state`(내부 필드)를 입력 값으로 직접 덮어씀. "parser 인자가 고정"이라는 제안을 그렇게 해석함 |
+| zlib `official_example_small_llm`, `official_example_flush_llm` | 누수 | OSS-Fuzz 원본이 오류 때 `inflateEnd` 없이 돌아가는 경로가 있고, 인자를 넓히자 그 경로를 탐 |
+| libyaml `official_deconstructor_alt_llm` | 이중 해제 | `yaml_emitter_dump`가 문서 내용을 가져가 해제하는데(문서에 명시), 하네스가 그 뒤 `yaml_document_delete`를 또 부름. 버전 지시자를 넘기기 전에는 드러나지 않던 문제 |
+| json-c `gapfuzz_ops` | 누수 | 하네스가 만든 객체를 해제하지 않는 경로가 있음 |
+| libucl `gapfuzz_ops` | 해제 후 사용 | `ucl_object_merge(top, elt, copy=false)` 뒤 `ucl_object_unref(elt)`, 다음 병합에서 해제된 원소에 접근. 라이브러리의 참조 계수 문제일 가능성이 있으나 확인하지 못함 |
+
+누수 4건과 이중 해제는 접근·할당·해제가 모두 라이브러리 함수 안에서 일어나 `LIBRARY`로 분류됐지만 실제로는 하네스 쪽 문제였습니다(누수·소유권 규칙은 귀속이 약한 부분).
+
+바꾼 것 (`gapfuzz/llmfix.py`, `gapfuzz/llmops.py`, `gapfuzz/triage.py`):
+- **채택 기준**: 검사 퍼징에서 크래시가 난 시도는 귀속과 상관없이 채택하지 않는다. 60초 안에 죽는 하네스는 1시간 실험에서도 시작하자마자 멈춘다.
+- **되묻기**: 크래시가 나면 귀속과 상관없이 근거를 Claude에게 돌려준다. 근거에 "오류·해제·할당 경로가 하네스의 어느 줄에서 시작됐는지"와 실패한 assert 문장을 더했다.
+
+이 기준으로 다시 봐도 나머지 23개(새 하네스 9개, 추가 하네스 14개)와 기존 `official_llm`은 채택본이 모두 크래시 없는 시도였으므로 결과가 같습니다.
+위 6개는 1차 기록을 보존하고(`_union_run1`, `samples/llm/combined_run1/`), 바꾼 도구로 같은 조건에서 다시 만들었습니다.
+
 ## 관련 도구와의 차이
 
 OSS-Fuzz의 **Fuzz Introspector**는 하네스별 정적 도달성과 실행 커버리지를 비교하고, 커버리지를 막는 분기(fuzz blocker)를

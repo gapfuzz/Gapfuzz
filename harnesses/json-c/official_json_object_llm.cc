@@ -1,0 +1,112 @@
+// [gapfuzz-llm] 이 파일은 Claude(claude-sonnet-5-5)가 gapfuzz 제안 1,2,3,4를 OSS-Fuzz 하네스 official_json_object에 적용하고
+// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: samples/llm/combined/json-c/official_json_object/).
+// OSS-Fuzz 하네스: json-c 저장소 fuzz/json_object_fuzzer.cc (커밋 d9b375f) 기반.
+#include <fuzzer/FuzzedDataProvider.h>
+
+#include "json.h"
+#include "json_visit.h"
+
+struct VisitCtx {  // [gapfuzz-llm] 루트/자식/컨테이너 종료 호출별로 반환값을 따로 정하는 userarg
+	int root_ret;
+	int child_ret;
+	int second_ret;
+};
+
+// Function to test json_c_visit
+static int emit_object(json_object *jso, int flags, json_object *parent_jso, const char *jso_key,
+                       size_t *jso_index, void *userarg) {
+	if (userarg == NULL)  // [gapfuzz-llm] userarg가 NULL인 원래 경로도 유지
+		return JSON_C_VISIT_RETURN_CONTINUE;
+	VisitCtx *ctx = (VisitCtx *)userarg;  // [gapfuzz-llm] 퍼저가 고른 반환값 사용
+	if (flags & JSON_C_VISIT_SECOND)
+		return ctx->second_ret;  // [gapfuzz-llm] 컨테이너 종료 시점 호출의 반환 분기(switch) 탐색
+	if (parent_jso == NULL)
+		return ctx->root_ret;  // [gapfuzz-llm] 루트는 CONTINUE로 두어야 자식 순회 분기에 도달 가능
+	return ctx->child_ret;  // [gapfuzz-llm] 자식 노드에서 SKIP/POP/STOP/ERROR/무효 값 반환
+}
+
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+	FuzzedDataProvider fdp(data, size);
+	json_object *jso = json_tokener_parse(fdp.ConsumeRandomLengthString(20).c_str());
+
+	json_object_get_boolean(jso);
+	json_object_get_double(jso);
+	json_object_get_int(jso);
+	json_object_get_int64(jso);
+	json_object_get_uint64(jso);
+	json_object_get_string(jso);
+	json_object_get_string_len(jso);
+	json_object_get_object(jso);
+	json_object_get_array(jso);
+	json_object_get_type(jso);
+
+	const int visit_rets[] = {JSON_C_VISIT_RETURN_CONTINUE, JSON_C_VISIT_RETURN_SKIP,
+	                          JSON_C_VISIT_RETURN_POP,      JSON_C_VISIT_RETURN_STOP,
+	                          JSON_C_VISIT_RETURN_ERROR,    12345};  // [gapfuzz-llm] 유효/무효 반환 코드 후보 목록
+	VisitCtx vctx;  // [gapfuzz-llm] 호출 종류별 반환값을 퍼저 입력으로 선택
+	vctx.root_ret = visit_rets[fdp.ConsumeIntegralInRange<int>(0, 5)];  // [gapfuzz-llm] 루트 반환값
+	vctx.child_ret = visit_rets[fdp.ConsumeIntegralInRange<int>(0, 5)];  // [gapfuzz-llm] 자식 반환값
+	vctx.second_ret = visit_rets[fdp.ConsumeIntegralInRange<int>(0, 5)];  // [gapfuzz-llm] 종료 호출 반환값
+	void *visit_arg = fdp.ConsumeBool() ? (void *)&vctx : NULL;  // [gapfuzz-llm] 고정 NULL 대신 퍼저가 고른 userarg (NULL도 가능)
+	json_c_visit(jso, 0, emit_object, visit_arg);  // [gapfuzz-llm] 퍼저가 고른 userarg 전달
+
+	json_object_set_int(jso, fdp.ConsumeIntegral<int>());
+	json_object_set_int64(jso, fdp.ConsumeIntegral<int64_t>());
+	json_object_set_uint64(jso, fdp.ConsumeIntegral<uint64_t>());
+	json_object_set_double(jso, fdp.ConsumeFloatingPoint<double>());
+	json_object_set_string(jso, fdp.ConsumeRandomLengthString(10).c_str());
+	json_object_set_boolean(jso, fdp.ConsumeBool());
+	std::string str = fdp.ConsumeRandomLengthString(10);
+	json_object_set_string_len(jso, str.c_str(), str.size());
+
+	json_object *dst = NULL;
+	json_object *pre = NULL;
+	json_object **dst_arg = &dst;
+	int dst_mode = fdp.ConsumeIntegralInRange<int>(0, 2);  // [gapfuzz-llm] dst 인자 종류를 퍼저 입력으로 선택
+	if (dst_mode == 1) {
+		dst_arg = NULL;  // [gapfuzz-llm] dst 포인터 자체가 null인 경우 (!dst 분기)
+	} else if (dst_mode == 2) {
+		pre = json_object_new_string("x");
+		dst_arg = &pre;  // [gapfuzz-llm] *dst가 이미 non-null인 경우 (*dst 분기)
+	}
+	json_c_shallow_copy_fn *shallow = fdp.ConsumeBool() ? json_c_shallow_copy_default : nullptr;  // [gapfuzz-llm] shallow_copy에 nullptr도 전달
+	json_object_deep_copy(jso, dst_arg, shallow);  // [gapfuzz-llm] 퍼저가 고른 dst, shallow_copy 사용
+	json_object_put(dst);
+	if (dst_mode == 2)
+		json_object_put(pre);  // [gapfuzz-llm] 사전 할당한 객체 해제
+
+	// [gapfuzz-llm] json_tokener_parse_ex를 직접 호출: tok 플래그/깊이/입력 분할을 다양하게 시도
+	{
+		int depth = fdp.ConsumeBool() ? JSON_TOKENER_DEFAULT_DEPTH
+		                              : fdp.ConsumeIntegralInRange<int>(1, 4);  // [gapfuzz-llm] 얕은 깊이로 depth 관련 분기 탐색 (1 이상만 사용)
+		struct json_tokener *tok = json_tokener_new_ex(depth);  // [gapfuzz-llm] null tok은 문서상 금지이므로 유효한 tok만 사용
+		if (tok != NULL) {
+			int flag_sel = fdp.ConsumeIntegralInRange<int>(0, 3);  // [gapfuzz-llm] 플래그 조합 선택
+			int flags = 0;
+			if (flag_sel & 1)
+				flags |= JSON_TOKENER_STRICT;  // [gapfuzz-llm] STRICT 켠 상태
+			if (flag_sel & 2)
+				flags |= JSON_TOKENER_VALIDATE_UTF8;  // [gapfuzz-llm] UTF-8 검증 켠 상태
+			json_tokener_set_flags(tok, flags);  // [gapfuzz-llm] 선택한 플래그 적용
+
+			std::string tstr = fdp.ConsumeRandomLengthString(80);  // [gapfuzz-llm] 파서 직접 입력(숫자/이스케이프 등 도달용으로 길이 확대)
+			int total = (int)tstr.size();
+			int cut = total;
+			if (total > 0 && fdp.ConsumeBool())
+				cut = fdp.ConsumeIntegralInRange<int>(0, total);  // [gapfuzz-llm] 입력을 두 조각으로 나눠 입력 소진/재개 분기 탐색
+			int first_len = cut;
+			if (fdp.ConsumeBool())
+				first_len = cut + (cut < total ? 0 : 1);  // [gapfuzz-llm] 끝에 NUL 문자를 포함해 넘기는 경우 (c_str은 NUL 종료라 안전)
+			json_object *parsed = json_tokener_parse_ex(tok, tstr.c_str(), first_len);  // [gapfuzz-llm] 첫 조각 직접 호출
+			json_object_put(parsed);  // [gapfuzz-llm] 결과 해제
+			if (parsed == NULL && json_tokener_get_error(tok) == json_tokener_continue && cut < total) {
+				json_object *parsed2 = json_tokener_parse_ex(tok, tstr.c_str() + cut, total - cut);  // [gapfuzz-llm] 같은 tok으로 나머지 조각 이어서 파싱
+				json_object_put(parsed2);  // [gapfuzz-llm] 결과 해제
+			}
+			json_tokener_free(tok);  // [gapfuzz-llm] tok 해제
+		}
+	}
+
+	json_object_put(jso);
+	return 0;
+}

@@ -90,6 +90,7 @@ class Report:
     zero_page: bool = False                             # SEGV 주소가 0번지 근처 (null 포인터 접근)
     uncaught: str = ""                                  # 잡히지 않은 C++ 예외의 타입과 메시지 (std::terminate로 abort)
     request: int = 0                                    # out-of-memory: 한 번에 요청한 할당 크기(바이트). 누적으로 넘은 경우 0
+    assertion: str = ""                                 # 실패한 assert 문장 (glibc의 "Assertion `...' failed.")
 
 
 @dataclass
@@ -191,6 +192,11 @@ def parse_report(text: str, owner: Owner) -> Report | None:
             if m:
                 what = lines[i + 1].strip() if i + 1 < len(lines) and "what()" in lines[i + 1] else ""
                 rep.uncaught = m.group(1) + (f" ({what.split(':', 1)[1].strip()})" if what else "")
+    if not LEGACY:
+        for l in lines[max(0, start - 6):start + 1]:
+            m = re.search(r"Assertion `(.+)' failed", l)
+            if m:
+                rep.assertion = m.group(1)[:200]
     rep.zero_page = not LEGACY and (kind == "SEGV" and any("address points to the zero page" in l for l in lines[start:start + 6])) or (
         kind.startswith("ub:") and "null pointer" in kind)
 
@@ -265,6 +271,14 @@ def classify(rep: Report, root: str) -> Verdict:
         ev.append(f"할당 위치: {_loc(alc, root)} ({alc.owner})")
     if scp:
         ev.append(f"변수가 있던 함수: {_loc(scp, root)} ({scp.owner})")
+    if not LEGACY:
+        # 오류·해제·할당 스택이 하네스의 어느 줄에서 시작됐는지: 라이브러리 안에서 난 오류라도 하네스가 무엇을 불렀는지 알 수 있게
+        for label, frames in (("오류", rep.access), ("해제", rep.freed), ("할당", rep.alloc)):
+            h, api = _entry(frames)
+            if h:
+                ev.append(f"{label} 경로의 하네스 위치: {_loc(h, root)}" + (f" → 부른 API: {_loc(api, root)}" if api else ""))
+        if rep.assertion:
+            ev.append(f"실패한 assert: {rep.assertion}")
 
     # ⓒ 리소스
     if k in ("timeout", "out-of-memory", "stack-overflow", "allocation-size-too-big", "requested allocation size"):
@@ -272,11 +286,6 @@ def classify(rep: Report, root: str) -> Verdict:
         if not LEGACY:
             if rep.request:
                 ev.append(f"한 번에 요청한 할당: {rep.request:,}바이트 ({rep.request / (1 << 20):.0f}MB)")
-            h, api = _entry(rep.access)
-            if h and api:
-                ev.append(f"하네스가 부른 API: {_loc(api, root)}, 하네스 위치: {_loc(h, root)}")
-            elif h:
-                ev.append(f"하네스 위치: {_loc(h, root)}")
         return Verdict("RESOURCE", "강", f"{k}: 시간·메모리·스택 상한에 걸림 (가장 가까운 코드: {owner})", ev)
 
     # ⓑ 잡히지 않은 C++ 예외: 라이브러리는 잘못된 사용을 예외로 알리도록 되어 있는데 하네스가 받지 않음

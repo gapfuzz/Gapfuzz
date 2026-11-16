@@ -1,0 +1,40 @@
+{
+ "lib": "json-c",
+ "harness": "official_json_object",
+ "fixes": [
+  1,
+  2,
+  3,
+  4
+ ],
+ "ok": true,
+ "tries": 3,
+ "model": "claude-sonnet-5-5",
+ "dedup": true,
+ "opened": 60,
+ "total": 81,
+ "per_fix": {
+  "1": [
+   25,
+   25
+  ],
+  "2": [
+   2,
+   3
+  ],
+  "3": [
+   1,
+   1
+  ],
+  "4": [
+   32,
+   52
+  ]
+ },
+ "crashes": [],
+ "saved": "harnesses/json-c/official_json_object_llm.cc",
+ "tokens": [
+  36757,
+  15076
+ ]
+}

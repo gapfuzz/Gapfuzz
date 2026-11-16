@@ -1,0 +1,111 @@
+{
+ "target": "zlib",
+ "harness": "official_example_small",
+ "fix": 9,
+ "model": "claude-sonnet-5-5",
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 30.4,
+   "usage": {
+    "input_tokens": 4500,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 4507,
+    "output_tokens_details": {
+     "thinking_tokens": 2028
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/zlib/llm/official_example_small_combined/try1.c",
+   "stage": "fuzz",
+   "opened": 4,
+   "total": 8,
+   "per_fix": {
+    "9": [
+     4,
+     8
+    ]
+   },
+   "still": [
+    "`deflate(z_streamp, int)` 991행 `deflateStateCheck(strm)`",
+    "`deflate(z_streamp, int)` 991행 `flush > Z_BLOCK`",
+    "`deflate(z_streamp, int)` 991행 `flush < 0`",
+    "`deflate(z_streamp, int)` 996행 `strm->next_out == Z_NULL`"
+   ],
+   "crashes": [
+    {
+     "cls": "LIBRARY",
+     "conf": "약",
+     "reason": "라이브러리가 할당한 메모리가 누수됨 (하네스가 해제 API를 안 불렀을 수도 있음)",
+     "evidence": [
+      "오류 지점: `zcalloc` @ third_party/zlib/zutil.c:305 (library)",
+      "할당 위치: `zcalloc` @ third_party/zlib/zutil.c:305 (library)"
+     ],
+     "kind": "leak"
+    }
+   ],
+   "ok": true,
+   "complete": false
+  },
+  {
+   "try": 2,
+   "llm_seconds": 33.1,
+   "usage": {
+    "input_tokens": 7204,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 5142,
+    "output_tokens_details": {
+     "thinking_tokens": 2000
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/zlib/llm/official_example_small_combined/try2.c",
+   "stage": "fuzz",
+   "opened": 4,
+   "total": 8,
+   "per_fix": {
+    "9": [
+     4,
+     8
+    ]
+   },
+   "still": [
+    "`deflate(z_streamp, int)` 991행 `deflateStateCheck(strm)`",
+    "`deflate(z_streamp, int)` 991행 `flush > Z_BLOCK`",
+    "`deflate(z_streamp, int)` 991행 `flush < 0`",
+    "`deflate(z_streamp, int)` 996행 `strm->next_out == Z_NULL`"
+   ],
+   "crashes": [
+    {
+     "cls": "LIBRARY",
+     "conf": "약",
+     "reason": "라이브러리가 할당한 메모리가 누수됨 (하네스가 해제 API를 안 불렀을 수도 있음)",
+     "evidence": [
+      "오류 지점: `zcalloc` @ third_party/zlib/zutil.c:305 (library)",
+      "할당 위치: `zcalloc` @ third_party/zlib/zutil.c:305 (library)"
+     ],
+     "kind": "leak"
+    }
+   ],
+   "ok": true,
+   "complete": false
+  }
+ ],
+ "best": 1
+}

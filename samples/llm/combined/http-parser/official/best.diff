@@ -1,0 +1,30 @@
+--- 수정 전
++++ 시도 2
+@@ -19,8 +19,26 @@
+     ,.on_chunk_complete = 0
+   };
+ 
++  // 앞쪽 2바이트를 제어용으로 사용: [0]=파서 타입, [1]=파서 상태 선택
++  uint8_t type_sel = 0;
++  uint8_t state_sel = 0;
++  if (size >= 2) {
++    type_sel = data[0];
++    state_sel = data[1];
++    data += 2;
++    size -= 2;
++  }
++
+   http_parser parser;
+-  http_parser_init(&parser, HTTP_BOTH);
++  enum http_parser_type type = (enum http_parser_type)(type_sel % 3); // 요청/응답/둘 다를 모두 시도하도록 입력에서 타입 선택 (HTTP_BOTH 포함)
++  http_parser_init(&parser, type);
++
++  // 0~3은 init 상태 그대로 두어 원래 동작도 계속 나오게 함
++  if (state_sel >= 4) {
++    // s_message_done은 http_parser.c 내부 enum이라 헤더에서 보이지 않으므로 상한을 직접 지정 (상한 초과 값은 라이브러리의 default 분기가 에러로 처리)
++    parser.state = (unsigned int)(1 + (state_sel % 66)); // 파서 객체 상태를 퍼저 입력으로 변경
++  }
++
+   http_parser_execute(&parser, &settings_null, (char*)data, size);
+ 
+   return 0;

@@ -1,0 +1,61 @@
+--- 수정 전
++++ 시도 2
+@@ -9,19 +9,57 @@
+ 		return 0;
+ 	}
+ 
++	/* 앞쪽 바이트 3개는 옵션용, 나머지는 원래대로 파서 입력으로 쓴다 */
++	uint8_t type_sel = data[0];   // [gapfuzz-llm] parse_type을 퍼저 입력으로 선택하기 위한 바이트
++	uint8_t fname_sel = data[1];  // [gapfuzz-llm] set_filevars의 filename/need_expand 선택용 바이트
++	uint8_t unref_sel = data[2];  // [gapfuzz-llm] ucl_object_unref/free에 null을 넘길지 선택용 바이트
++
+ 	struct ucl_parser *parser = ucl_parser_new(UCL_PARSER_KEY_LOWERCASE);
+ 	if (parser == NULL) {
+ 		return 0;
+ 	}
+ 
++	/* 원래 값(MSGPACK)도 계속 나오도록 여러 값 중 고름 */
++	enum ucl_parse_type parse_type;  // [gapfuzz-llm] 고정값 대신 입력으로 parse_type 선택
++	switch (type_sel % 6) {          // [gapfuzz-llm] AUTO/UCL/CBOR/CSEXP/MSGPACK 및 범위 밖 값 모두 도달
++	case 0: parse_type = UCL_PARSE_AUTO; break;
++	case 1: parse_type = UCL_PARSE_UCL; break;
++	case 2: parse_type = UCL_PARSE_CBOR; break;
++	case 3: parse_type = UCL_PARSE_CSEXP; break;
++	case 4: parse_type = (enum ucl_parse_type)(100 + (type_sel % 100)); break;  // [gapfuzz-llm] 정의되지 않은 enum 값으로 switch의 default 분기 도달
++	default: parse_type = UCL_PARSE_MSGPACK; break;
++	}
++
++	/* filename이 null/비null, need_expand 참/거짓 모두 시도 */
++	switch (fname_sel % 4) {  // [gapfuzz-llm] ucl_parser_set_filevars를 직접 호출해 filename 분기 탐색
++	case 0:
++		ucl_parser_set_filevars(parser, NULL, false);  // [gapfuzz-llm] filename == NULL 경로
++		break;
++	case 1:
++		ucl_parser_set_filevars(parser, "/tmp/test.conf", false);  // [gapfuzz-llm] filename != NULL, 확장 없음
++		break;
++	case 2:
++		ucl_parser_set_filevars(parser, ".", true);  // [gapfuzz-llm] filename != NULL, realpath 확장 경로
++		break;
++	default:
++		break;  // [gapfuzz-llm] 호출하지 않는 원래 동작도 유지
++	}
++
+ 	if (ucl_parser_add_chunk_full(parser, (const unsigned char *)data, size,
+-			0, UCL_DUPLICATE_APPEND, UCL_PARSE_MSGPACK)) {
++			0, UCL_DUPLICATE_APPEND, parse_type)) {  // [gapfuzz-llm] 선택된 parse_type 전달
+ 		ucl_object_t *obj = ucl_parser_get_object(parser);
+ 		if (obj != NULL) {
+ 			ucl_object_unref(obj);
+ 		}
+ 	}
+ 
++	if (unref_sel % 4 == 0) {
++		ucl_object_unref(NULL);  // [gapfuzz-llm] unref의 obj == NULL 경로 (null 허용)
++	}
++	else if (unref_sel % 4 == 1) {
++		ucl_object_free(NULL);  // [gapfuzz-llm] 해제 내부 함수의 302행 obj == NULL 분기는 ucl_object_free로 직접 도달 (null이면 즉시 반환)
++	}
++
+ 	ucl_parser_free(parser);
+ 	return 0;
+ }

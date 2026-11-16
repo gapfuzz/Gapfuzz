@@ -1,0 +1,33 @@
+{
+ "lib": "http-parser",
+ "harness": "official",
+ "fixes": [
+  1,
+  2
+ ],
+ "ok": true,
+ "tries": 3,
+ "model": "claude-sonnet-5-5",
+ "dedup": true,
+ "opened": 33,
+ "total": 59,
+ "per_fix": {
+  "1": [
+   31,
+   57
+  ],
+  "2": [
+   2,
+   2
+  ]
+ },
+ "crashes": [
+  "ASSERT",
+  "ASSERT"
+ ],
+ "saved": "harnesses/http-parser/official_llm.c",
+ "tokens": [
+  14993,
+  6564
+ ]
+}

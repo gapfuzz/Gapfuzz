@@ -1,0 +1,218 @@
+# LLM 하네스 수정 — pugixml/official_xpath, 제안 3,5,6,9
+
+- 모델: `claude-sonnet-5-5`
+- 제안: 하네스가 `xml_node::attribute(const char_t *, xml_attribute &) const`를 부르지 않아 2번째 인자 `hint` 값이 들어가지 않습니다 (필드 `_attr`를 거쳐 조건에 쓰임) → 호출을 추가하세요
+- 제안: 하네스가 `xpath_query::xpath_query(xpath_query &&) noexcept`를 부르지 않아 1번째 인자 `rhs` 값이 들어가지 않습니다 (필드 `_impl`를 거쳐 조건에 쓰임) → 호출을 추가하세요
+- 제안: 하네스가 `xpath_variable::set(const char_t *)`를 부르지 않아 1번째 인자 `value` 값이 들어가지 않습니다 (필드 `value`를 거쳐 조건에 쓰임) → 호출을 추가하세요
+- 제안: `xml_node::xml_node(xml_node_struct *)`는 공개 API인데 하네스가 직접 부르지 않고 라이브러리 내부(`impl::{익명}::xpath_ast_node::step_fill`, `impl::{익명}::xpath_ast_node::step_fill`, `impl::{익명}::xpath_ast_node::step_fill`)에서만 불립니다. 내부 호출은 1번째 인자 `p`를 한 가지 방식으로만 넘기므로 (필드 `_root`를 거쳐 조건에 쓰임) → 하네스가 직접 불러 다른 상태의 객체(트리에 연결된 노드, 다른 문서의 노드, null 등)를 넘겨 보세요
+- 겨냥한 분기: 40개
+
+| 시도 | 결과 | 열림 | 제안별 열림 | 크래시 귀속 | 토큰(입력/출력) |
+|---:|---|---:|---|---|---|
+| 1 | 통과 | 18/40 | 3: 5/18, 5: 5/5, 6: 1/1, 9: 7/16 | - | 7443/5439 |
+| 2 | 통과 | 30/40 | 3: 12/18, 5: 5/5, 6: 0/1, 9: 13/16 | - | 11656/8859 |
+| 3 | 실패 | 31/40 | 3: 15/18, 5: 0/5, 6: 1/1, 9: 15/16 | RESOURCE(약), RESOURCE(약) | 18004/9477 |
+
+**채택 후보: 시도 2** (`harnesses/pugixml/llm/official_xpath_combined/try2.cpp`). 사람이 읽고 넣으세요.
+
+```diff
+--- 수정 전
++++ 시도 2
+@@ -5,6 +5,21 @@
+ #include <stdint.h>
+ #include <string.h>
+ #include <string>
++#include <vector>
++#include <utility>
++
++namespace
++{
++	struct node_collector : pugi::xml_tree_walker // [gapfuzz-llm] 문서 안의 모든 노드를 모아 컨텍스트 후보로 쓰기 위해 추가
++	{
++		std::vector<pugi::xml_node>* out;
++		virtual bool for_each(pugi::xml_node& nd)
++		{
++			if (out->size() < 256) out->push_back(nd);
++			return true;
++		}
++	};
++}
+ 
+ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* Data, size_t Size)
+ {
+@@ -32,11 +47,174 @@
+ 		pugi::xml_document doc;
+ 		doc.load_buffer(xml_buffer.data(), xml_buffer.size(), pugi::parse_full);
+ 
++		// 문자열 변수에 실제 값을 설정
++		for (size_t i = 0; i < var_name_storage.size(); ++i) // [gapfuzz-llm] 문자열 변수에 퍼저 입력 값을 넣어 value가 non-null인 경로를 열기 위해 추가
++		{
++			pugi::xpath_variable* var = vars.get(var_name_storage[i].c_str()); // [gapfuzz-llm] 이름으로 변수를 찾기 위해 추가
++			if (var && var->type() == pugi::xpath_type_string) // [gapfuzz-llm] 문자열 타입 변수에만 set(const char_t*) 호출
++			{
++				std::string sval = fdp.ConsumeRandomLengthString(64); // [gapfuzz-llm] 설정할 문자열을 퍼저 입력에서 선택
++				var->set(sval.c_str()); // [gapfuzz-llm] xpath_variable::set(const char_t*) 호출 (null이 아닌 포인터만 전달)
++			}
++		}
++
+ 		q.evaluate_boolean(doc);
+ 		q.evaluate_number(doc);
+ 		q.evaluate_string(doc);
+ 		q.evaluate_node(doc);
+ 		q.evaluate_node_set(doc);
++
++		// 속성/자식/텍스트가 반드시 있는 두 번째 문서를 퍼저 입력으로 직접 구성
++		pugi::xml_document doc2; // [gapfuzz-llm] 랜덤 바이트로는 속성이 거의 안 생겨서 트리를 직접 만든 문서 추가
++		{
++			std::vector<pugi::xml_node> built; // [gapfuzz-llm] 부모 후보 목록
++			built.push_back(doc2);
++			size_t cnt = fdp.ConsumeIntegralInRange<size_t>(1, 8); // [gapfuzz-llm] 만들 노드 수를 퍼저 입력으로 선택
++			for (size_t i = 0; i < cnt; ++i)
++			{
++				pugi::xml_node parent = built[fdp.ConsumeIntegralInRange<size_t>(0, built.size() - 1)]; // [gapfuzz-llm] 부모를 퍼저 입력으로 선택
++				std::string nm = fdp.ConsumeRandomLengthString(8);
++				pugi::xml_node child = parent.append_child(nm.c_str()); // [gapfuzz-llm] 요소 노드 추가
++				if (!child) continue;
++				built.push_back(child);
++				size_t acnt = fdp.ConsumeIntegralInRange<size_t>(0, 3); // [gapfuzz-llm] 속성 개수를 퍼저 입력으로 선택
++				for (size_t a = 0; a < acnt; ++a)
++				{
++					std::string an = fdp.ConsumeRandomLengthString(8);
++					std::string av = fdp.ConsumeRandomLengthString(8);
++					pugi::xml_attribute at = child.append_attribute(an.c_str()); // [gapfuzz-llm] 속성 추가
++					if (at) at.set_value(av.c_str());
++				}
++				if (fdp.ConsumeBool())
++				{
++					std::string tv = fdp.ConsumeRandomLengthString(8);
++					pugi::xml_node t = child.append_child(pugi::node_pcdata); // [gapfuzz-llm] value를 가진 텍스트 노드 추가
++					if (t) t.set_value(tv.c_str());
++				}
++			}
++		}
++
++		// in-place 로드 문서와 append_buffer(extra buffer) 문서
++		std::vector<char> inplace_buf; // [gapfuzz-llm] in-place 로드용 버퍼는 문서보다 오래 살아야 함
++		{
++			std::vector<uint8_t> raw = fdp.ConsumeBytes<uint8_t>(fdp.ConsumeIntegralInRange(0, 256));
++			inplace_buf.assign(raw.begin(), raw.end());
++			inplace_buf.push_back(0);
++		}
++		pugi::xml_document doc3;
++		doc3.load_buffer_inplace(&inplace_buf[0], inplace_buf.size() - 1, pugi::parse_full); // [gapfuzz-llm] in-place 파싱 문서 (문자열이 버퍼를 공유)
++
++		pugi::xml_document doc4;
++		{
++			std::vector<uint8_t> raw = fdp.ConsumeBytes<uint8_t>(fdp.ConsumeIntegralInRange(0, 256));
++			doc4.load_string("<r a='1'/>"); // [gapfuzz-llm] 기본 내용을 둔 뒤
++			doc4.append_buffer(raw.data(), raw.size(), pugi::parse_full); // [gapfuzz-llm] 추가 버퍼를 붙여 extra_buffers가 생기게 함 (reset 경로)
++		}
++
++		// 컨텍스트 후보 수집
++		std::vector<pugi::xml_node> nodes;
++		{
++			node_collector col;
++			col.out = &nodes;
++			nodes.push_back(doc);
++			doc.traverse(col);
++			nodes.push_back(doc2);
++			doc2.traverse(col);
++			nodes.push_back(doc3);
++			doc3.traverse(col);
++			nodes.push_back(doc4);
++			doc4.traverse(col);
++		}
++
++		// xml_node(xml_node_struct*)를 직접 호출: 널 또는 수집된 노드 중에서 선택
++		pugi::xml_node_struct* raw = NULL; // [gapfuzz-llm] 직접 생성할 xml_node에 넘길 내부 포인터
++		if (fdp.ConsumeBool()) // [gapfuzz-llm] null 내부 포인터(빈 노드)도 계속 나오게 함
++			raw = nodes[fdp.ConsumeIntegralInRange<size_t>(0, nodes.size() - 1)].internal_object(); // [gapfuzz-llm] 여러 문서의 트리 노드를 선택
++		pugi::xml_node n(raw); // [gapfuzz-llm] xml_node(xml_node_struct*) 공개 생성자를 직접 호출
++
++		n.type(); // [gapfuzz-llm] _root가 null/non-null인 경우 모두 실행
++		n.value();
++		n.root();
++
++		// 컨텍스트 노드가 속성을 가지고 있으면 실제 속성 이름과 hint를 사용
++		std::vector<pugi::xml_attribute> attrs; // [gapfuzz-llm] 노드의 실제 속성 목록
++		for (pugi::xml_attribute a = n.first_attribute(); a && attrs.size() < 16; a = a.next_attribute())
++			attrs.push_back(a);
++
++		std::string attr_name = fdp.ConsumeRandomLengthString(32); // [gapfuzz-llm] 퍼저 입력의 이름도 계속 사용
++		if (!attrs.empty() && fdp.ConsumeBool())
++			attr_name = attrs[fdp.ConsumeIntegralInRange<size_t>(0, attrs.size() - 1)].name(); // [gapfuzz-llm] 존재하는 속성 이름을 골라 찾기 성공 경로를 열기 위해 추가
++		pugi::xml_attribute hint; // [gapfuzz-llm] hint: 기본은 빈 속성
++		if (!attrs.empty() && fdp.ConsumeBool())
++			hint = attrs[fdp.ConsumeIntegralInRange<size_t>(0, attrs.size() - 1)]; // [gapfuzz-llm] 실제 속성 중 하나를 hint로 사용
++		pugi::xml_attribute found = n.attribute(attr_name.c_str(), hint); // [gapfuzz-llm] attribute(const char_t*, xml_attribute&) 호출
++		found.value(); // [gapfuzz-llm] 빈 속성이면 !_attr 경로, 아니면 값 경로 실행
++
++		// 속성을 포함한 XPath 노드 컨텍스트
++		pugi::xpath_node xn_node(n);
++		pugi::xpath_node xn_empty; // [gapfuzz-llm] 완전히 빈 xpath_node 컨텍스트
++		pugi::xpath_node xn_attr; // [gapfuzz-llm] 속성 컨텍스트 후보 (기본은 빈 값)
++		if (found && n)
++			xn_attr = pugi::xpath_node(found, n); // [gapfuzz-llm] 속성 xpath_node 생성 (부모 노드가 유효할 때만)
++		else if (!attrs.empty() && n)
++			xn_attr = pugi::xpath_node(attrs[0], n); // [gapfuzz-llm] 못 찾았어도 실제 속성으로 컨텍스트 구성
++		pugi::xpath_node xn_noattr(pugi::xml_attribute(), n); // [gapfuzz-llm] 빈 속성으로 생성자 호출
++
++		pugi::xpath_node ctxs[4] = { xn_node, xn_empty, xn_attr, xn_noattr };
++		for (int ci = 0; ci < 4; ++ci)
++		{
++			q.evaluate_boolean(ctxs[ci]); // [gapfuzz-llm] 다양한 컨텍스트로 평가
++			q.evaluate_number(ctxs[ci]);
++			q.evaluate_string(ctxs[ci]);
++			q.evaluate_node(ctxs[ci]);
++			pugi::xpath_node_set ns = q.evaluate_node_set(ctxs[ci]);
++			ns.sort(fdp.ConsumeBool()); // [gapfuzz-llm] 정렬로 속성/노드 문서 순서 비교 경로 실행
++		}
++		xn_attr.parent(); // [gapfuzz-llm] 속성 xpath_node의 parent() 경로
++		xn_attr.attribute();
++		xn_node.parent();
++
++		// 속성과 노드를 함께 반환하는 보조 쿼리 (노드 집합 정렬, 중복 제거, 속성 비교 경로)
++		static const char* const extra_queries[] = { // [gapfuzz-llm] 속성이 집합에 들어가는 고정 XPath 몇 가지 중 입력으로 선택
++			"//@* | //node()", "//@*/.. | //@*", "(//@* | //*)[position() > 1]",
++			"//@*/following::node() | //@*", "//node() | //@* | //*/@*", "//@*[1]"
++		};
++		const char* eq = extra_queries[fdp.ConsumeIntegralInRange<size_t>(0, 5)];
++		pugi::xpath_query q2(eq);
++		pugi::xml_node roots[4] = { doc, doc2, doc3, doc4 };
++		for (int ri = 0; ri < 4; ++ri)
++		{
++			pugi::xpath_node_set ns = q2.evaluate_node_set(roots[ri]); // [gapfuzz-llm] 속성이 들어간 노드 집합 생성
++			ns.sort(fdp.ConsumeBool());
++			q2.evaluate_node(roots[ri]);
++			q2.evaluate_boolean(roots[ri]);
++			q2.evaluate_number(roots[ri]);
++			q2.evaluate_string(roots[ri]);
++			if (!ns.empty())
++			{
++				const pugi::xpath_node& pick = ns[fdp.ConsumeIntegralInRange<size_t>(0, ns.size() - 1)];
++				q2.evaluate_node(pick); // [gapfuzz-llm] 집합에서 고른 속성/노드를 컨텍스트로 평가
++				q2.evaluate_string(pick);
++				q.evaluate_node_set(pick); // [gapfuzz-llm] 원래 쿼리도 속성 컨텍스트로 평가
++				q.evaluate_boolean(pick);
++				q.evaluate_number(pick);
++				q.evaluate_string(pick);
++			}
++		}
++
++#ifdef PUGIXML_HAS_MOVE
++		// 이동 생성자 호출: 이동된 q는 _impl이 null인 상태가 됨
++		if (fdp.ConsumeBool()) // [gapfuzz-llm] 이동 여부를 퍼저 입력으로 선택 (이동 안 하는 경우도 유지)
++		{
++			pugi::xpath_query moved(std::move(q)); // [gapfuzz-llm] xpath_query 이동 생성자 호출
++			moved.evaluate_boolean(doc);
++			q.evaluate_boolean(doc); // [gapfuzz-llm] 이동된(빈) 쿼리는 !_impl 경로 실행
++			q.evaluate_number(doc);
++			q.evaluate_string(doc);
++			q.evaluate_node_set(doc);
++			q.evaluate_node(doc);
++		}
++#endif
+ 	}
+ #ifndef PUGIXML_NO_EXCEPTIONS
+ 	catch (pugi::xpath_exception&)
+```
