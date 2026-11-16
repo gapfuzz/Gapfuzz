@@ -1,0 +1,86 @@
+{
+ "target": "zlib",
+ "harness": "_union",
+ "model": "claude-sonnet-5-5",
+ "chosen": [
+  "inflateBack(z_streamp, in_func, void *, out_func, void *)",
+  "deflateCopy(z_streamp, z_streamp)",
+  "inflateCopy(z_streamp, z_streamp)",
+  "inflateBackInit_(z_streamp, int, unsigned char *, const char *, int)",
+  "deflatePrime(z_streamp, int, int)",
+  "zlibCompileFlags(void)",
+  "inflatePrime(z_streamp, int, int)",
+  "deflateGetDictionary(z_streamp, Bytef *, uInt *)",
+  "inflateValidate(z_streamp, int)",
+  "inflateGetDictionary(z_streamp, Bytef *, uInt *)"
+ ],
+ "before": {
+  "not_called": 54,
+  "apis": 88,
+  "lines": 65.09,
+  "branches": 53.96
+ },
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 51.3,
+   "usage": {
+    "input_tokens": 5867,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 7474,
+    "output_tokens_details": {
+     "thinking_tokens": 2872
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/zlib/llm/union_ops/try1.cc",
+   "ok": false,
+   "stage": "compile",
+   "detail": "/work/harnesses/zlib/llm/union_ops/try1.cc:36:14: error: assigning to 'unsigned char *' from 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers\n      |          ~~~~^\n1 error generated."
+  },
+  {
+   "try": 2,
+   "llm_seconds": 22.9,
+   "usage": {
+    "input_tokens": 10616,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 4584,
+    "output_tokens_details": {
+     "thinking_tokens": 361
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/zlib/llm/union_ops/try2.cc",
+   "stage": "fuzz",
+   "called": 10,
+   "total": 10,
+   "missing": [],
+   "lost": [],
+   "not_called_after": 62,
+   "lines": 65.89,
+   "branches": 55.68,
+   "crashes": [],
+   "regressed": false,
+   "ok": true,
+   "complete": true
+  }
+ ],
+ "best": 2,
+ "saved": "harnesses/zlib/gapfuzz_ops.cc"
+}

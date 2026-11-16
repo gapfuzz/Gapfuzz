@@ -1,0 +1,99 @@
+{
+ "target": "libyaml",
+ "harness": "_union",
+ "model": "claude-sonnet-5-5",
+ "chosen": [
+  "yaml_emitter_set_indent(yaml_emitter_t *, int)",
+  "yaml_emitter_set_width(yaml_emitter_t *, int)",
+  "yaml_parser_set_input(yaml_parser_t *, yaml_read_handler_t *, void *)",
+  "yaml_emitter_set_output_string(yaml_emitter_t *, unsigned char *, size_t, size_t *)",
+  "yaml_parser_set_encoding(yaml_parser_t *, yaml_encoding_t)",
+  "yaml_emitter_set_encoding(yaml_emitter_t *, yaml_encoding_t)",
+  "yaml_emitter_set_break(yaml_emitter_t *, yaml_break_t)",
+  "yaml_set_max_nest_level(int)",
+  "yaml_get_version_string(void)",
+  "yaml_get_version(int *, int *, int *)"
+ ],
+ "before": {
+  "not_called": 13,
+  "apis": 50,
+  "lines": 86.24,
+  "branches": 68.75
+ },
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 51.0,
+   "usage": {
+    "input_tokens": 3788,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 6489,
+    "output_tokens_details": {
+     "thinking_tokens": 2845
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/libyaml/llm/union_ops/try1.c",
+   "stage": "fuzz",
+   "called": 9,
+   "total": 10,
+   "missing": [
+    "yaml_set_max_nest_level(int)"
+   ],
+   "lost": [],
+   "not_called_after": 30,
+   "lines": 68.15,
+   "branches": 58.45,
+   "crashes": [],
+   "regressed": false,
+   "ok": true,
+   "complete": false
+  },
+  {
+   "try": 2,
+   "llm_seconds": 25.8,
+   "usage": {
+    "input_tokens": 7623,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 4290,
+    "output_tokens_details": {
+     "thinking_tokens": 863
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/libyaml/llm/union_ops/try2.c",
+   "stage": "fuzz",
+   "called": 9,
+   "total": 10,
+   "missing": [
+    "yaml_set_max_nest_level(int)"
+   ],
+   "lost": [],
+   "not_called_after": 30,
+   "lines": 68.37,
+   "branches": 58.23,
+   "crashes": [],
+   "regressed": false,
+   "ok": true,
+   "complete": false
+  }
+ ],
+ "best": 1,
+ "saved": "harnesses/libyaml/gapfuzz_ops.c"
+}

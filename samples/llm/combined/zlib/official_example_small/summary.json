@@ -1,0 +1,25 @@
+{
+ "lib": "zlib",
+ "harness": "official_example_small",
+ "fixes": [
+  9
+ ],
+ "ok": true,
+ "tries": 3,
+ "model": "claude-sonnet-5-5",
+ "dedup": true,
+ "opened": 5,
+ "total": 8,
+ "per_fix": {
+  "9": [
+   5,
+   8
+  ]
+ },
+ "crashes": [],
+ "saved": "harnesses/zlib/official_example_small_llm.c",
+ "tokens": [
+  24389,
+  13393
+ ]
+}

@@ -1,0 +1,97 @@
+{
+ "target": "http-parser",
+ "harness": "_union",
+ "model": "claude-sonnet-5-5",
+ "chosen": [
+  "http_status_str(enum http_status)",
+  "http_parser_pause(http_parser *, int)",
+  "http_should_keep_alive(const http_parser *)",
+  "http_method_str(enum http_method)",
+  "http_parser_version(void)",
+  "http_errno_name(enum http_errno)",
+  "http_errno_description(enum http_errno)",
+  "http_parser_settings_init(http_parser_settings *)",
+  "http_parser_set_max_header_size(uint32_t)",
+  "http_body_is_final(const http_parser *)"
+ ],
+ "before": {
+  "not_called": 10,
+  "apis": 14,
+  "lines": 66.58,
+  "branches": 61.33
+ },
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 40.9,
+   "usage": {
+    "input_tokens": 2961,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 5314,
+    "output_tokens_details": {
+     "thinking_tokens": 2140
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/http-parser/llm/union_ops/try1.c",
+   "stage": "fuzz",
+   "called": 9,
+   "total": 10,
+   "missing": [
+    "http_parser_set_max_header_size(uint32_t)"
+   ],
+   "lost": [],
+   "not_called_after": 3,
+   "lines": 48.5,
+   "branches": 48.5,
+   "crashes": [],
+   "regressed": false,
+   "ok": true,
+   "complete": false
+  },
+  {
+   "try": 2,
+   "llm_seconds": 28.9,
+   "usage": {
+    "input_tokens": 6330,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 4406,
+    "output_tokens_details": {
+     "thinking_tokens": 830
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/http-parser/llm/union_ops/try2.c",
+   "stage": "fuzz",
+   "called": 10,
+   "total": 10,
+   "missing": [],
+   "lost": [],
+   "not_called_after": 2,
+   "lines": 39.78,
+   "branches": 41.71,
+   "crashes": [],
+   "regressed": false,
+   "ok": true,
+   "complete": true
+  }
+ ],
+ "best": 2,
+ "saved": "harnesses/http-parser/gapfuzz_ops.c"
+}

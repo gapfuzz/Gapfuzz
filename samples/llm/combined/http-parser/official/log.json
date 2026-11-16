@@ -1,0 +1,219 @@
+{
+ "target": "http-parser",
+ "harness": "official",
+ "fix": [
+  1,
+  2
+ ],
+ "model": "claude-sonnet-5-5",
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 7.1,
+   "usage": {
+    "input_tokens": 3423,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1043,
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/http-parser/llm/official_combined/try1.c",
+   "stage": "fuzz",
+   "opened": 20,
+   "total": 59,
+   "per_fix": {
+    "1": [
+     18,
+     57
+    ],
+    "2": [
+     2,
+     2
+    ]
+   },
+   "still": [
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 633행 `default`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 667행 `case s_body_identity_eof`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 674행 `case s_dead`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 680행 `default`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 721행 `case s_dead`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 988행 `case (HTTP_##meth << 16 | pos << 8 | ch)`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1131행 `case s_req_http_I`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1136행 `case s_req_http_IC`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1503행 `!lenient`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1511행 `case h_general`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1522행 `!lenient`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1532행 `case h_connection`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1533행 `case h_transfer_encoding`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1537행 `case h_content_length`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1542행 `case h_content_length_num`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1572행 `case h_content_length_ws`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1579행 `case h_matching_transfer_encoding_token_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1597행 `case h_matching_transfer_encoding_chunked`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1607행 `case h_matching_transfer_encoding_token`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1614행 `case h_matching_connection_token_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1633행 `case h_matching_connection_keep_alive`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1644행 `case h_matching_connection_close`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1654행 `case h_matching_connection_upgrade`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1664행 `case h_matching_connection_token`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1671행 `case h_transfer_encoding_chunked`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1675행 `case h_connection_keep_alive`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1676행 `case h_connection_close`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1677행 `case h_connection_upgrade`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1693행 `default`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1944행 `case s_body_identity`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1987행 `case s_message_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1996행 `case s_chunk_size_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2012행 `case s_chunk_size`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2049행 `case s_chunk_parameters`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2060행 `case s_chunk_size_almost_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2078행 `case s_chunk_data`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2101행 `case s_chunk_data_almost_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2109행 `case s_chunk_data_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2118행 `default`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  },
+  {
+   "try": 2,
+   "llm_seconds": 21.0,
+   "usage": {
+    "input_tokens": 6818,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 2578,
+    "output_tokens_details": {
+     "thinking_tokens": 1256
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/http-parser/llm/official_combined/try2.c",
+   "stage": "fuzz",
+   "opened": 44,
+   "total": 59,
+   "per_fix": {
+    "1": [
+     42,
+     57
+    ],
+    "2": [
+     2,
+     2
+    ]
+   },
+   "still": [
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 674행 `case s_dead`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 721행 `case s_dead`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 988행 `case (HTTP_##meth << 16 | pos << 8 | ch)`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1131행 `case s_req_http_I`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1136행 `case s_req_http_IC`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1944행 `case s_body_identity`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1987행 `case s_message_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1996행 `case s_chunk_size_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2012행 `case s_chunk_size`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2049행 `case s_chunk_parameters`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2060행 `case s_chunk_size_almost_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2078행 `case s_chunk_data`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2101행 `case s_chunk_data_almost_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2109행 `case s_chunk_data_done`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2118행 `default`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  },
+  {
+   "try": 3,
+   "llm_seconds": 28.0,
+   "usage": {
+    "input_tokens": 9106,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 3881,
+    "output_tokens_details": {
+     "thinking_tokens": 1607
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/http-parser/llm/official_combined/try3.c",
+   "stage": "fuzz",
+   "opened": 26,
+   "total": 59,
+   "per_fix": {
+    "1": [
+     24,
+     57
+    ],
+    "2": [
+     2,
+     2
+    ]
+   },
+   "still": [
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 633행 `default`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 674행 `case s_dead`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 692행 `case s_req_path`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 693행 `case s_req_schema`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 694행 `case s_req_schema_slash`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 695행 `case s_req_schema_slash_slash`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 696행 `case s_req_server_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 697행 `case s_req_server`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 698행 `case s_req_server_with_at`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 699행 `case s_req_query_string_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 700행 `case s_req_query_string`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 701행 `case s_req_fragment_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 702행 `case s_req_fragment`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 721행 `case s_dead`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 988행 `case (HTTP_##meth << 16 | pos << 8 | ch)`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1131행 `case s_req_http_I`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1136행 `case s_req_http_IC`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1532행 `case h_connection`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1533행 `case h_transfer_encoding`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1537행 `case h_content_length`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1572행 `case h_content_length_ws`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1579행 `case h_matching_transfer_encoding_token_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1607행 `case h_matching_transfer_encoding_token`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1614행 `case h_matching_connection_token_start`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1633행 `case h_matching_connection_keep_alive`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1654행 `case h_matching_connection_upgrade`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1664행 `case h_matching_connection_token`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1671행 `case h_transfer_encoding_chunked`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1675행 `case h_connection_keep_alive`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1676행 `case h_connection_close`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1677행 `case h_connection_upgrade`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 1693행 `default`",
+    "제안 1: `http_parser_execute(http_parser *, const http_parser_settings *, const char *, size_t)` 2118행 `default`"
+   ],
+   "crashes": [],
+   "ok": true,
+   "complete": false
+  }
+ ],
+ "best": 2
+}

@@ -1,0 +1,296 @@
+// [gapfuzz-ops] 이 파일은 Claude(claude-sonnet-5-5)가 새로 쓴 하네스입니다. OSS-Fuzz 하네스 전체를 합쳐도 불리지 않던 API 10개를 부릅니다.
+// [gapfuzz-ops] gapfuzz가 검사해 통과했습니다 (python3 -m gapfuzz llmops expat --union, 기록: samples/llm/ops/expat/_union/).
+/*
+ * gapfuzz 하네스: expat 속성 설정 / 일시중지·재개 / 입력 컨텍스트 / 기본 핸들러 API
+ * 입력 구조: [헤더: 플래그, 설정 호출 목록] [나머지: XML 데이터]
+ */
+
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+
+#include "expat.h"
+
+#define MAX_INPUT (64 * 1024)
+#define MAX_ITER 64
+
+/* 입력 바이트 읽기 도구 (끝을 넘으면 0 반환) */
+typedef struct {
+  const uint8_t *p;
+  size_t n;
+  size_t pos;
+} Reader;
+
+static uint8_t
+rd_u8(Reader *r) {
+  return r->pos < r->n ? r->p[r->pos++] : 0;
+}
+
+static uint64_t
+rd_u64(Reader *r) {
+  uint64_t v = 0;
+  int i;
+  for (i = 0; i < 8; i++) {
+    v = (v << 8) | rd_u8(r);
+  }
+  return v;
+}
+
+/* 핸들러에서 쓰는 상태 */
+typedef struct {
+  XML_Parser parser;
+  int use_ctx;       /* XML_GetInputContext 호출 여부 */
+  int use_default;   /* XML_DefaultCurrent 호출 여부 */
+  int stop_every;    /* 0이면 중지하지 않음 */
+  int stops_left;    /* 중지 횟수 상한 */
+  unsigned count;
+  volatile unsigned sink;
+} Ctx;
+
+static void
+on_event(Ctx *c) {
+  c->count++;
+
+  if (c->use_ctx) {
+    // [gapfuzz-ops] XML_GetInputContext
+    int offset = 0, size = 0;
+    const char *buf = XML_GetInputContext(c->parser, &offset, &size);
+    if (buf != NULL && offset >= 0 && size >= 0 && offset < size) {
+      int i, lim = size - offset;
+      if (lim > 64)
+        lim = 64;
+      for (i = 0; i < lim; i++)
+        c->sink += (unsigned char)buf[offset + i];
+    }
+  }
+
+  if (c->use_default) {
+    // [gapfuzz-ops] XML_DefaultCurrent
+    XML_DefaultCurrent(c->parser);
+  }
+
+  if (c->stop_every > 0 && c->stops_left > 0
+      && (c->count % (unsigned)c->stop_every) == 0) {
+    c->stops_left--;
+    /* 재개 가능한 중지: 이후 XML_ResumeParser 로 이어간다 */
+    (void)XML_StopParser(c->parser, XML_TRUE);
+  }
+}
+
+static void XMLCALL
+h_start(void *ud, const XML_Char *name, const XML_Char **atts) {
+  (void)name;
+  (void)atts;
+  on_event((Ctx *)ud);
+}
+
+static void XMLCALL
+h_end(void *ud, const XML_Char *name) {
+  (void)name;
+  on_event((Ctx *)ud);
+}
+
+static void XMLCALL
+h_chars(void *ud, const XML_Char *s, int len) {
+  (void)s;
+  (void)len;
+  on_event((Ctx *)ud);
+}
+
+static void XMLCALL
+h_default(void *ud, const XML_Char *s, int len) {
+  Ctx *c = (Ctx *)ud;
+  if (len > 0 && s != NULL)
+    c->sink += (unsigned char)s[0];
+}
+
+/* 입력에서 NUL 종료 문자열 생성 (최대 16자) */
+static void
+rd_string(Reader *r, char out[17], int *is_empty) {
+  size_t len = rd_u8(r) % 17;
+  size_t i;
+  for (i = 0; i < len; i++)
+    out[i] = (char)rd_u8(r);
+  out[len] = '\0';
+  *is_empty = (len == 0);
+}
+
+static const char *const k_encodings[] = {"UTF-8",      "UTF-16",   "ISO-8859-1",
+                                          "US-ASCII",   "UTF-16LE", "UTF-16BE"};
+
+/* 설정 호출 하나를 입력으로 골라 실행 */
+static void
+apply_op(XML_Parser p, Reader *r) {
+  uint8_t op = rd_u8(r) % 7;
+
+  switch (op) {
+  case 0: {
+    // [gapfuzz-ops] XML_SetPropertyDouble
+    enum XML_Parser_Property prop = (enum XML_Parser_Property)(rd_u8(r) % 8);
+    uint8_t hi = rd_u8(r);
+    uint8_t lo = rd_u8(r);
+    double v = (double)(((unsigned)hi << 8) | lo) / 256.0;
+    (void)XML_SetPropertyDouble(p, prop, v);
+    break;
+  }
+  case 1: {
+    // [gapfuzz-ops] XML_SetPropertyUInt64
+    enum XML_Parser_Property prop = (enum XML_Parser_Property)(rd_u8(r) % 8);
+    uint64_t v = rd_u64(r);
+    (void)XML_SetPropertyUInt64(p, prop, v);
+    break;
+  }
+  case 2: {
+    // [gapfuzz-ops] XML_SetPropertyBool
+    enum XML_Parser_Property prop = (enum XML_Parser_Property)(rd_u8(r) % 8);
+    uint8_t b = rd_u8(r);
+    (void)XML_SetPropertyBool(p, prop, (XML_Bool)(b & 1));
+    break;
+  }
+  case 3: {
+    // [gapfuzz-ops] XML_SetEncoding
+    uint8_t sel = rd_u8(r);
+    if (sel & 1) {
+      (void)XML_SetEncoding(
+          p, k_encodings[(sel >> 1) % (sizeof(k_encodings) / sizeof(k_encodings[0]))]);
+    } else {
+      char buf[17];
+      int empty;
+      rd_string(r, buf, &empty);
+      (void)XML_SetEncoding(p, empty ? NULL : buf); /* NULL이면 인코딩 지정 해제 */
+    }
+    break;
+  }
+  case 4: {
+    // [gapfuzz-ops] XML_GetFeatureList
+    const XML_Feature *f = XML_GetFeatureList();
+    int i;
+    if (f != NULL) {
+      for (i = 0; i < MAX_ITER && f[i].feature != XML_FEATURE_END; i++) {
+        if (f[i].name != NULL)
+          (void)strlen(f[i].name);
+      }
+    }
+    break;
+  }
+  case 5: {
+    // [gapfuzz-ops] XML_SetHashSalt
+    unsigned long salt = (unsigned long)rd_u64(r);
+    (void)XML_SetHashSalt(p, salt);
+    break;
+  }
+  default: {
+    // [gapfuzz-ops] XML_SetBase
+    char buf[17];
+    int empty;
+    rd_string(r, buf, &empty);
+    (void)XML_SetBase(p, empty ? NULL : buf); /* 실패 시 파서에 변화 없음 */
+    break;
+  }
+  }
+}
+
+int
+LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+  Reader rd;
+  Ctx ctx;
+  XML_Parser p;
+  uint8_t flags, nops, chunk_sel;
+  size_t i, rem, chunk, off;
+  const uint8_t *body;
+  int resumes = 0;
+  int iter = 0;
+
+  if (size < 3)
+    return 0;
+  if (size > MAX_INPUT)
+    size = MAX_INPUT;
+
+  rd.p = data;
+  rd.n = size;
+  rd.pos = 0;
+
+  flags = rd_u8(&rd);
+  nops = rd_u8(&rd) % 9; /* 설정 호출 0~8개 */
+  chunk_sel = rd_u8(&rd);
+
+  p = (flags & 1) ? XML_ParserCreateNS(NULL, '!') : XML_ParserCreate(NULL);
+  if (p == NULL)
+    return 0;
+
+  memset(&ctx, 0, sizeof(ctx));
+  ctx.parser = p;
+  ctx.use_ctx = (flags >> 1) & 1;
+  ctx.use_default = (flags >> 2) & 1;
+  ctx.stop_every = ((flags >> 3) & 1) ? 1 + (chunk_sel & 7) : 0;
+  ctx.stops_left = 32;
+
+  /* 파싱 전 설정 호출: 순서와 종류는 입력이 결정 */
+  for (i = 0; i < nops; i++)
+    apply_op(p, &rd);
+
+  XML_SetUserData(p, &ctx);
+  XML_SetElementHandler(p, h_start, h_end);
+  XML_SetCharacterDataHandler(p, h_chars);
+  if (ctx.use_default)
+    XML_SetDefaultHandler(p, h_default);
+
+  body = data + rd.pos;
+  rem = size - rd.pos;
+
+  chunk = 1 + ((size_t)(chunk_sel >> 3) * 16);
+  if (rem / chunk >= MAX_ITER)
+    chunk = (rem + MAX_ITER - 1) / MAX_ITER;
+  if (chunk == 0)
+    chunk = 1;
+
+  off = 0;
+  for (;;) {
+    size_t len = rem - off < chunk ? rem - off : chunk;
+    int is_final = (off + len >= rem);
+    enum XML_Status st;
+
+    if (++iter > MAX_ITER)
+      break;
+
+    st = XML_Parse(p, (const char *)body + off, (int)len, is_final);
+
+    /* 중지된 파서는 XML_ResumeParser 로만 이어갈 수 있다 */
+    while (st == XML_STATUS_SUSPENDED && resumes < MAX_ITER) {
+      XML_ParsingStatus ps;
+      XML_GetParsingStatus(p, &ps);
+      if (ps.parsing != XML_SUSPENDED)
+        break;
+      resumes++;
+      // [gapfuzz-ops] XML_ResumeParser
+      st = XML_ResumeParser(p);
+    }
+
+    if (st == XML_STATUS_ERROR || st == XML_STATUS_SUSPENDED)
+      break;
+    off += len;
+    if (is_final)
+      break;
+  }
+
+  /* 핸들러 밖에서의 호출 (보통 NULL 반환) */
+  if (ctx.use_ctx) {
+    // [gapfuzz-ops] XML_GetInputContext
+    int offset = 0, sz = 0;
+    (void)XML_GetInputContext(p, &offset, &sz);
+  }
+
+  /* 파싱 후 호출: 오류 경로 확인용 */
+  if ((flags >> 6) & 1) {
+    size_t extra = 1 + (flags >> 7);
+    Reader rd2;
+    rd2.p = data;
+    rd2.n = size;
+    rd2.pos = 2; /* 헤더의 설정 바이트를 다시 사용 */
+    while (extra-- > 0)
+      apply_op(p, &rd2);
+  }
+
+  XML_ParserFree(p);
+  return 0;
+}

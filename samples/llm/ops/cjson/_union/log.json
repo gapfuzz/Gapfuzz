@@ -1,0 +1,61 @@
+{
+ "target": "cjson",
+ "harness": "_union",
+ "model": "claude-sonnet-5-5",
+ "chosen": [
+  "cJSON_Compare(const cJSON *const, const cJSON *const, const cJSON_bool)",
+  "cJSON_AddItemReferenceToObject(cJSON *, const char *, cJSON *)",
+  "cJSON_ReplaceItemInObjectCaseSensitive(cJSON *, const char *, cJSON *)",
+  "cJSON_Duplicate(const cJSON *, cJSON_bool)",
+  "cJSON_CreateIntArray(const int *, int)",
+  "cJSON_DeleteItemFromArray(cJSON *, int)",
+  "cJSON_CreateStringArray(const char *const *, int)",
+  "cJSON_SetValuestring(cJSON *, const char *)",
+  "cJSON_CreateFloatArray(const float *, int)",
+  "cJSON_CreateDoubleArray(const double *, int)"
+ ],
+ "before": {
+  "not_called": 71,
+  "apis": 78,
+  "lines": 42.43,
+  "branches": 45.07
+ },
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 66.8,
+   "usage": {
+    "input_tokens": 3718,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 9360,
+    "output_tokens_details": {
+     "thinking_tokens": 4606
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/cjson/llm/union_ops/try1.c",
+   "stage": "fuzz",
+   "called": 10,
+   "total": 10,
+   "missing": [],
+   "lost": [],
+   "not_called_after": 53,
+   "lines": 45.57,
+   "branches": 47.3,
+   "crashes": [],
+   "regressed": false,
+   "ok": true,
+   "complete": true
+  }
+ ],
+ "best": 1,
+ "saved": "harnesses/cjson/gapfuzz_ops.c"
+}

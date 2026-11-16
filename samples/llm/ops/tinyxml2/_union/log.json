@@ -1,0 +1,61 @@
+{
+ "target": "tinyxml2",
+ "harness": "_union",
+ "model": "claude-sonnet-5-5",
+ "chosen": [
+  "XMLPrinter::VisitEnter(const XMLElement &, const XMLAttribute *)",
+  "XMLElement::BoolText(bool) const",
+  "XMLDocument::Print(XMLPrinter *) const",
+  "XMLElement::SetText(bool)",
+  "XMLElement::ShallowClone(XMLDocument *) const",
+  "XMLNode::ChildElementCount(const char *) const",
+  "XMLNode::InsertAfterChild(XMLNode *, XMLNode *)",
+  "XMLElement::ShallowEqual(const XMLNode *) const",
+  "XMLElement::Int64Text(int64_t) const",
+  "XMLDocument::DeepCopy(XMLDocument *) const"
+ ],
+ "before": {
+  "not_called": 259,
+  "apis": 303,
+  "lines": 39.65,
+  "branches": 43.37
+ },
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 22.9,
+   "usage": {
+    "input_tokens": 2477,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 3511,
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/tinyxml2/llm/union_ops/try1.cpp",
+   "stage": "fuzz",
+   "called": 10,
+   "total": 10,
+   "missing": [],
+   "lost": [],
+   "not_called_after": 188,
+   "lines": 62.18,
+   "branches": 68.09,
+   "crashes": [],
+   "regressed": false,
+   "ok": true,
+   "complete": true
+  }
+ ],
+ "best": 1,
+ "saved": "harnesses/tinyxml2/gapfuzz_ops.cpp"
+}

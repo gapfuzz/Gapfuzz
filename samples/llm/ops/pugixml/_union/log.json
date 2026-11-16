@@ -1,0 +1,61 @@
+{
+ "target": "pugixml",
+ "harness": "_union",
+ "model": "claude-sonnet-5-5",
+ "chosen": [
+  "xml_document::save(std::basic_ostream<wchar_t> &, const char_t *, unsigned int) const",
+  "xml_text::operator=(bool)",
+  "xml_document::load(std::basic_istream<wchar_t> &, unsigned int)",
+  "xml_document::load(std::basic_istream<char> &, unsigned int, xml_encoding)",
+  "xml_text::as_ullong(unsigned long long) const",
+  "xml_text::as_uint(unsigned int) const",
+  "xpath_node_set::sort(bool)",
+  "xml_node::remove_child(string_view_t)",
+  "xpath_variable_set::xpath_variable_set(const xpath_variable_set &)",
+  "xml_node::insert_copy_before(const xml_node &, const xml_node &)"
+ ],
+ "before": {
+  "not_called": 288,
+  "apis": 349,
+  "lines": 44.07,
+  "branches": 43.39
+ },
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 118.8,
+   "usage": {
+    "input_tokens": 2422,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 13917,
+    "output_tokens_details": {
+     "thinking_tokens": 7472
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/pugixml/llm/union_ops/try1.cpp",
+   "stage": "fuzz",
+   "called": 10,
+   "total": 10,
+   "missing": [],
+   "lost": [],
+   "not_called_after": 249,
+   "lines": 49.01,
+   "branches": 44.3,
+   "crashes": [],
+   "regressed": false,
+   "ok": true,
+   "complete": true
+  }
+ ],
+ "best": 1,
+ "saved": "harnesses/pugixml/gapfuzz_ops.cpp"
+}

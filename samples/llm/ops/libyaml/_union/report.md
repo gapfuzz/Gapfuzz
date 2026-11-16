@@ -1,0 +1,195 @@
+# 호출 안 함 API 추가 — libyaml/_union
+
+- 모델: `claude-sonnet-5-5`
+- 수정 전: 공개 API 50개 중 호출 안 함 13개, 라인 86.24% · 분기 68.75%
+- 추가를 요청한 API 10개: `yaml_emitter_set_indent`, `yaml_emitter_set_width`, `yaml_parser_set_input`, `yaml_emitter_set_output_string`, `yaml_parser_set_encoding`, `yaml_emitter_set_encoding`, `yaml_emitter_set_break`, `yaml_set_max_nest_level`, `yaml_get_version_string`, `yaml_get_version`
+
+| 시도 | 결과 | 실행된 API | 호출 안 함 | 라인 | 분기 | 사라진 API | 크래시 귀속 | 토큰(입력/출력) |
+|---:|---|---:|---:|---:|---:|---:|---|---|
+| 1 | 통과 | 9/10 | 30 | 68.15% | 58.45% | 0 | - | 3788/6489 |
+| 2 | 통과 | 9/10 | 30 | 68.37% | 58.23% | 0 | - | 7623/4290 |
+
+수정 전 수치는 진단 때(기본 120초 × 1회), 시도별 수치는 검사 퍼징(짧음)의 중앙값이라 길이가 다릅니다. 정식 비교는 같은 조건의 긴 실험으로 하세요.
+
+실행되지 않은 API: `yaml_set_max_nest_level`
+
+**채택: 시도 1** → `harnesses/libyaml/gapfuzz_ops.c`. 사람이 읽고 쓰세요.
+
+```diff
+--- 수정 전
++++ 시도 1
+@@ -0,0 +1,173 @@
++// 새 하네스: libyaml의 미커버 API(emitter 옵션, 사용자 정의 입력 핸들러, 인코딩 지정, 버전 조회)를 호출한다.
++// 구성: 퍼저 입력 -> (사용자 정의 read handler) parser -> 이벤트 -> emitter -> 문자열 버퍼
++
++#include "yaml.h"
++#include <assert.h>
++#include <stdlib.h>
++#include <stdio.h>
++#include <string.h>
++#include <stdint.h>
++#include <stdbool.h>
++
++#ifdef NDEBUG
++#undef NDEBUG
++#endif
++
++#define MAX_INPUT   (64 * 1024)   // 입력 상한 64KB
++#define MAX_EVENTS  64            // 이벤트 반복 상한
++#define HEADER_SIZE 5             // 선택값으로 쓰는 앞쪽 바이트 수
++
++// 사용자 정의 read handler가 쓰는 문맥. 입력을 조각내어 돌려준다.
++typedef struct {
++  const uint8_t *buf;
++  size_t len;
++  size_t pos;
++  size_t chunk;   // 한 번에 돌려줄 최대 바이트 수 (1 이상)
++} reader_ctx_t;
++
++// yaml_read_handler_t 규약: 성공하면 1, 끝이면 *size_read = 0 으로 1 반환
++static int read_handler(void *ext, unsigned char *buffer, size_t size,
++                        size_t *size_read) {
++  reader_ctx_t *ctx = (reader_ctx_t *)ext;
++  size_t remain = ctx->len - ctx->pos;
++  size_t n = remain;
++  if (n > size) n = size;
++  if (n > ctx->chunk) n = ctx->chunk;
++  if (n > 0) memcpy(buffer, ctx->buf + ctx->pos, n);
++  ctx->pos += n;
++  *size_read = n;
++  return 1;
++}
++
++// emitter 옵션 5가지를 입력이 정한 순서로 적용하기 위한 값 묶음
++typedef struct {
++  yaml_encoding_t enc;
++  yaml_break_t brk;
++  int indent;
++  int width;
++} emitter_opts_t;
++
++int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
++  if (size < HEADER_SIZE) return 0;
++  if (size > MAX_INPUT) size = MAX_INPUT;
++
++  // 앞쪽 바이트를 선택값으로 해석
++  uint8_t b0 = data[0], b1 = data[1], b2 = data[2], b3 = data[3], b4 = data[4];
++  const uint8_t *payload = data + HEADER_SIZE;
++  size_t payload_len = size - HEADER_SIZE;
++
++  yaml_encoding_t parser_enc = (yaml_encoding_t)(b0 & 3);          // ANY/UTF8/UTF16LE/UTF16BE
++  bool set_parser_enc = (b0 >> 2) & 1;
++  bool input_first = (b0 >> 3) & 1;                                // set_input / set_encoding 순서
++  unsigned rot = (b0 >> 4) & 7;                                    // emitter 옵션 적용 순서 회전량
++
++  emitter_opts_t opts;
++  opts.enc = (yaml_encoding_t)(b1 & 3);
++  opts.brk = (yaml_break_t)((b1 >> 2) & 3);                        // ANY/CR/LN/CRLN
++  opts.indent = (int)(b2 % 16) - 3;                                // -3..12 (범위 밖 값도 시험)
++  {
++    static const int widths[] = {-1, 0, 1, 2, 5, 10, 20, 40, 80, 120, 500, 100000};
++    opts.width = widths[b3 % (sizeof(widths) / sizeof(widths[0]))];
++  }
++
++  // 출력 버퍼 크기: 1KB ~ 1MB
++  size_t out_size = (size_t)1024 << (b4 % 11);
++  size_t chunk = (size_t)(b4 >> 4) * 7 + 1;                        // 1..106
++
++  yaml_parser_t parser;
++  yaml_emitter_t emitter;
++  unsigned char *out = NULL;
++  size_t size_written = 0;
++  reader_ctx_t ctx;
++  ctx.buf = payload;
++  ctx.len = payload_len;
++  ctx.pos = 0;
++  ctx.chunk = chunk;
++
++  // 버전 조회 API (부작용 없음)
++  {
++    // [gapfuzz-ops] yaml_get_version_string
++    const char *ver = yaml_get_version_string();
++    volatile size_t ver_len = ver ? strnlen(ver, 64) : 0;
++    (void)ver_len;
++  }
++  {
++    // [gapfuzz-ops] yaml_get_version
++    int major = 0, minor = 0, patch = 0;
++    yaml_get_version(&major, &minor, &patch);
++    volatile int sink = major + minor + patch;
++    (void)sink;
++  }
++
++  if (!yaml_parser_initialize(&parser)) return 0;
++
++  if (!yaml_emitter_initialize(&emitter)) {
++    yaml_parser_delete(&parser);
++    return 0;
++  }
++
++  out = (unsigned char *)malloc(out_size);
++  if (!out) {
++    yaml_emitter_delete(&emitter);
++    yaml_parser_delete(&parser);
++    return 0;
++  }
++
++  // 파서 설정: 입력 핸들러와 인코딩은 각각 한 번만 설정 (헤더 규칙: 중복 설정 금지)
++  for (int step = 0; step < 2; step++) {
++    bool do_input = input_first ? (step == 0) : (step == 1);
++    if (do_input) {
++      // [gapfuzz-ops] yaml_parser_set_input
++      yaml_parser_set_input(&parser, read_handler, &ctx);
++    } else if (set_parser_enc) {
++      // [gapfuzz-ops] yaml_parser_set_encoding
++      yaml_parser_set_encoding(&parser, parser_enc);
++    }
++  }
++
++  // 출력 대상은 한 번만 설정
++  // [gapfuzz-ops] yaml_emitter_set_output_string
++  yaml_emitter_set_output_string(&emitter, out, out_size, &size_written);
++
++  // emitter 옵션을 입력이 정한 순서로 적용 (emit 시작 전에 모두 끝냄)
++  for (unsigned i = 0; i < 5; i++) {
++    switch ((i + rot) % 5) {
++      case 0:
++        // [gapfuzz-ops] yaml_emitter_set_encoding
++        yaml_emitter_set_encoding(&emitter, opts.enc);
++        break;
++      case 1:
++        // [gapfuzz-ops] yaml_emitter_set_break
++        yaml_emitter_set_break(&emitter, opts.brk);
++        break;
++      case 2:
++        // [gapfuzz-ops] yaml_emitter_set_indent
++        yaml_emitter_set_indent(&emitter, opts.indent);
++        break;
++      case 3:
++        // [gapfuzz-ops] yaml_emitter_set_width
++        yaml_emitter_set_width(&emitter, opts.width);
++        break;
++      default:
++        // 입력 비트로 canonical/unicode도 섞어 조합을 늘린다
++        yaml_emitter_set_canonical(&emitter, (b2 >> 4) & 1);
++        yaml_emitter_set_unicode(&emitter, (b2 >> 5) & 1);
++        break;
++    }
++  }
++
++  // 파서 이벤트를 emitter로 전달 (최대 MAX_EVENTS회)
++  for (int i = 0; i < MAX_EVENTS; i++) {
++    yaml_event_t event;
++    if (!yaml_parser_parse(&parser, &event)) break;   // 실패 시 event는 쓰지 않는다
++    bool end = (event.type == YAML_STREAM_END_EVENT);
++    // emit은 성공/실패와 관계없이 event를 소유하고 해제하므로 따로 delete하지 않는다
++    if (!yaml_emitter_emit(&emitter, &event)) break;
++    if (end) break;
++  }
++
++  yaml_emitter_delete(&emitter);
++  yaml_parser_delete(&parser);
++  free(out);
++  return 0;
++}
+```
