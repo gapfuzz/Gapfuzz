@@ -162,14 +162,31 @@ def day_state(lib: str, h: str) -> dict:
     return json.load(open(p)) if p.exists() else {}
 
 
+def all_libs() -> list[str]:
+    """비교 대상 7개 + 하네스 전체 기준 실험만 하는 라이브러리(설정에 "ossfuzz" 목록이 있는 것)."""
+    extra = []
+    for p in sorted((ROOT / "targets").glob("*.json")):
+        if p.stem.startswith("_") or p.stem in LIBS:
+            continue
+        try:
+            if "ossfuzz" in json.load(open(p)):
+                extra.append(p.stem)
+        except ValueError:
+            pass
+    return LIBS + extra
+
+
 def libs(_a) -> int:
-    print(f"{'라이브러리':10} {'커밋':10}  {'1시간 × 10회':>14}  {'24시간':>12}  소스       담당")
-    for lib in LIBS:
+    print(f"{'라이브러리':12} {'커밋':10}  {'하네스':>6}  {'1시간 × 10회':>14}  {'하네스 전체':>11}  {'24시간':>10}  소스       담당")
+    for lib in all_libs():
         t = target(lib)
         have = (ROOT / t["clone_dir"]).exists()
         one = min(len(done_trials(lib, h)) for h in HARNESSES)
         day = min((day_state(lib, h).get("done_secs", 0) for h in HARNESSES)) / 3600
-        print(f"{lib:10} {t['commit'][:10]}  {one:>11}/10  {day:>9.1f}/24  {'받음' if have else 'fetch 필요':10} {owner_of(lib) or '-'}")
+        ud = union_dir(lib, 3600) / "fixed"
+        nu = len(list(ud.glob("r*.json"))) if ud.exists() else 0
+        print(f"{lib:12} {t['commit'][:10]}  {len(tg.ossfuzz_harnesses(t)):>6}  {one:>11}/10  {nu:>8}/10  {day:>7.1f}/24  "
+              f"{'받음' if have else 'fetch 필요':10} {owner_of(lib) or '-'}")
     return 0
 
 

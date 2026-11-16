@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """라이브러리 설정 파일(targets/<이름>.json)로 빌드·퍼징·커버리지·갭 분석을 돌리는 범용 실행기.
 
-모든 라이브러리가 이 실행기를 쓴다(예전의 TinyXML2 전용 스크립트는 legacy/로 옮김).
+모든 라이브러리가 이 실행기를 쓴다.
 
   python3 scripts/tgt.py build   pugixml harnesses/pugixml/official.cpp
   python3 scripts/tgt.py repeat  pugixml --trials 5 --secs 120 official official_llm

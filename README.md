@@ -74,7 +74,7 @@ OSS-Fuzz에 등록된 C/C++ 라이브러리 8개에 적용한 중간 결과입�
 
 ## 결과
 
-프로젝트 초기에 사람이 새로 설계한 TinyXML2 스테이트풀 하네스로 낸 결과는 다른 라이브러리와 기준이 달라 `legacy/tinyxml2_stateful/`로 옮겼습니다. 아래는 모두 OSS-Fuzz 하네스 기준입니다.
+아래는 모두 OSS-Fuzz 하네스 기준입니다.
 
 ### 진단 검증: 제안대로 고치면 열리나 (120초 × 5회)
 
@@ -170,7 +170,6 @@ harnesses/      harnesses/<라이브러리>/ 아래에 OSS-Fuzz 하네스(offici
                 Claude가 고친 하네스(official_llm). 8개 라이브러리 모두 같은 구조
 targets/        라이브러리 설정 (소스 저장소와 고정 커밋, 빌드 옵션)
 scripts/        실험 실행기 (tgt.py 빌드·퍼징·분석, exp.py 팀 실험, make_llm_harness.py Claude 하네스 생성 …)
-legacy/         프로젝트 초기의 TinyXML2 전용 스크립트 (보관용)
 experiments/    장시간 실험에서 확인할 "고칠 곳" 분기 목록 (대조군 표시 포함)
 results/        팀 실험 결과 (1시간 회차마다, 24시간 구간마다 작은 JSON)
 samples/        지금까지의 실험 결과 (검증, 통계, Claude 수정 기록, 24시간 실험)

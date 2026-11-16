@@ -95,7 +95,6 @@ TinyXML2로 시작해 pugixml, expat, cJSON, jsoncpp, json-c, zlib, libyaml까�
 
 "호출 안 함" API마다 호출 그래프로 닿는 아직 실행되지 않은 함수들의 코드 영역 수를 세어 순위를 매기고,
 상위 API의 호출을 Claude API가 하네스에 추가한 뒤 도구가 컴파일·퍼징·크래시 귀속으로 검사합니다. 라이브러리별 규칙이 없어 모든 대상에 씁니다.
-프로젝트 초기에 TinyXML2 전용 규칙으로 연산 초안을 만들던 `ops` 명령은 `legacy/opgen.py`로 옮겼습니다(아래 "호출 안 함 API 연산 자동 생성" 결과는 그때 것).
 
 ## 설치
 
@@ -160,9 +159,6 @@ python3 scripts/label_kit.py agree labeling/sheet_A.csv labeling/sheet_B.csv
 python3 scripts/label_kit.py merge labeling/sheet_A.csv labeling/sheet_B.csv --out labeling/consensus.json
 ```
 
-프로젝트 초기에 TinyXML2만 대상으로 쓰던 스크립트(`build.sh`, `run.sh`, `repeat.sh`, `long_runs.py`, `day_run.py`, `bug_bench.py` 등)는
-`legacy/`로 옮겼습니다. 아래 "실험 결과 (TinyXML2)"의 수치는 그 스크립트로 낸 것입니다.
-
 테스트: `tests/run_all.sh`
 - `run_tests.sh` — 호출 경로 분류 (TinyXML2 + 시험용 하네스, 범용 실행기로 짧게 퍼징)
 - `test_causes.sh` — 하네스 고정 인자·값 범위 좁힘·지역 변수 추적 (가짜 라이브러리, 결정적)
@@ -191,7 +187,6 @@ harnesses/    <라이브러리>/official.*      OSS-Fuzz 하네스 그대로
 targets/      <라이브러리>.json   라이브러리 설정 (소스 위치, 헤더, 네임스페이스, 내부 클래스, 딕셔너리). 8개 모두 같은 형식
 scripts/      tgt.py(빌드·퍼징·분석, 모든 라이브러리 공용)  exp.py(팀 실험)  setup.sh  make_llm_harness.py(Claude 하네스 생성)
               export_site.py(사이트 데이터)  audit.py(판정 정확도)  label_kit.py(독립 라벨링)  diag_compare.py(진단 시간 비교)
-legacy/       프로젝트 초기의 TinyXML2 전용 스크립트 (보관용, legacy/README.md)
 tests/        run_all.sh 외 테스트, fixtures/fakelib (테스트용 가짜 라이브러리), triage_real (실제 크래시 9건)
 samples/      실험 결과 예시 (verify, repeat, llm/runs: Claude 수정 diff·보고서, day: 24시간 실험)
 experiments/  targets/<라이브러리>.json  1시간 실험에서 확인할 "고칠 곳" 분기 목록
@@ -205,10 +200,7 @@ Dockerfile    실험 환경 (Ubuntu 24.04, clang 18.1.3)
 
 ## 실험 결과
 
-> **TinyXML2 정리 (2026-11-12).** 프로젝트 초기에는 사람이 새로 설계한 TinyXML2 스테이트풀 하네스(`stateful`)와 거기에 제안을 적용한 버전(`stateful_v3`)을 비교했습니다.
-> 다른 라이브러리는 모두 "OSS-Fuzz 하네스 → gapfuzz 적용"으로 비교하는데 TinyXML2만 기준이 달라서, 스테이트풀 하네스와 그 결과를 저장소에서 내리고
-> TinyXML2도 `official` → `official_llm`으로 다시 실험합니다. 예전 결과(1시간 × 10회, 24시간, 판정 정확도 61개 라벨, 버그 재발견)는
-> [`legacy/tinyxml2_stateful/RESULTS.md`](../legacy/tinyxml2_stateful/RESULTS.md)에 보관했습니다. 그 수치는 사람이 설계한 하네스 위에서 낸 것이므로 다른 라이브러리 결과와 나란히 쓰지 않습니다.
+> TinyXML2도 다른 라이브러리와 같은 기준(`official` → `official_llm`)으로 실험합니다.
 
 ### 공식 하네스 제안 검증 (OSS-Fuzz 기여 후보)
 
@@ -290,8 +282,6 @@ zlib으로 확인한 것 (하네스마다 30~120초, 합친 값):
 
 ### 확장 분석: 상태·콜백·실행 중 관찰·입력 확인 (2026-11-11 추가)
 
-> 아래에서 "TinyXML2 stateful"이라고 한 것은 2026-11-12에 저장소에서 내린 스테이트풀 하네스 기준 수치입니다(`legacy/tinyxml2_stateful/`). TinyXML2를 OSS-Fuzz 하네스 기준으로 다시 실험하면 갱신합니다.
-
 기존 원인 추적은 "인자 하나가 고정됐다"와 "세터를 안 불렀다"만 봤다. 여기에 네 가지를 더했다.
 **기존 판정과 숫자는 그대로 두고**, 새로 나온 것은 `gap.json`의 `harness_fix_candidates`(고칠 곳 후보)와
 리포트의 "고칠 곳 후보 (확장 분석)" 절에 따로 넣는다. 검증이 덜 된 후보이기 때문이다.
@@ -315,19 +305,15 @@ tests/test_ext.sh                                   # 가짜 C 라이브러리�
 
 **확인한 것**
 
-- 저장해 둔 실행 10개(8개 라이브러리의 OSS-Fuzz 하네스 r1 + TinyXML2 stateful, stateful_v3)를 다시 분석했을 때
+- 저장해 둔 실행(8개 라이브러리의 OSS-Fuzz 하네스 r1)을 다시 분석했을 때
   API 분류, 분기별 대표 판정, `harness_fixes` 목록이 수정 전과 **완전히 같다**. 예전 수치(65/71 등)는 영향받지 않는다.
-- 후보 수: zlib 26, cJSON 16, libyaml 12, expat 11, json-c 7, pugixml 5, jsoncpp 2, TinyXML2 OSS-Fuzz 하네스 1, stateful 1, stateful_v3 0.
+- 후보 수: zlib 26, cJSON 16, libyaml 12, expat 11, json-c 7, pugixml 5, jsoncpp 2, TinyXML2 1.
   콜백 판정은 zlib 2곳, expat 1곳에서 나왔다. 어서션 안의 분기는 jsoncpp에서 10개 나왔다(다른 라이브러리는 어서션이 꺼진 빌드).
-- argtrace: 8개 라이브러리 OSS-Fuzz 하네스와 TinyXML2 stateful(인자 94곳)에서, 값이 한 가지뿐이라 **판정이 바뀐 인자는 없었다**
+- argtrace: 8개 라이브러리 OSS-Fuzz 하네스에서, 값이 한 가지뿐이라 **판정이 바뀐 인자는 없었다**
   (expat의 `sizeof(...)` 2곳만 한 가지 값이었고 이는 원래 상수). 지금 하네스들은 변수로 넘기는 인자가 실제로도 바뀐다는 뜻이고,
   바뀌는 인자에는 "N번 호출에서 값 K가지"가 근거로 붙는다. 판정이 바뀌는 경우는 `tests/test_ext.sh`의 가짜 라이브러리로 확인했다.
 - inputcheck (40초 × 2회, 기준 코퍼스에서 이어서): expat은 216개 중 딕셔너리로 3개, 시간만 더 줘도 8개가 열렸고 205개는 미확인.
   TinyXML2 OSS-Fuzz 하네스는 9개 중 1개가 딕셔너리로 열렸다. zlib은 105개 중 0개(이진 형식이라 토큰이 잘 안 맞음).
-- TinyXML2 stateful의 사람 정답(61개)과 비교: `STATE_ORDER` 조언이 붙은 11개 분기는 모두 정답이 H(하네스)였고,
-  예전에 놓치던 `XMLDocument::Clear`의 `_unlinked.Size()` 분기에 "New*를 부른 뒤 붙이지 않은 채 Clear" 조언이 붙는다.
-  다만 `STATE` 후보는 이미 `SETTER_NOT_CALLED`로 잡던 1개뿐이라, **후보를 포함해도 재현율은 20/41(49%) 그대로**다.
-  TinyXML2에서 놓친 H 분기는 "API를 안 불러서"가 아니라 "부르는 순서·조합" 문제여서, 목록에 넣을 구체적 수정이 아니라 조언으로만 나온다.
 
 **한계**
 
@@ -405,7 +391,7 @@ expat·json-c는 cmake가 만드는 설정 헤더가 필요해 `harnesses/<이�
 
 **제안을 적용한 라이브러리 7개 합계: 적용한 제안 35개가 겨냥한 분기 97개 중 85개가 열림, 적용하지 않은 제안의 분기는 10개 중 0개.**
 
-**안정성** (`legacy/stability.py` → `samples/verify/stability.md`, 기존 결과만으로 계산):
+**안정성** (기존 결과만으로 계산):
 - 겨냥한 분기는 수정 전 대표 1회(r1)만이 아니라 **5회 모두에서 막혀 있었다** (공식 하네스 기준 76/76).
 - 열린 분기는 **5회 모두 열렸다** (85/85). 안 열린 분기와 대조군은 5회 모두 안 열렸다. 1–4회만 열린 "운 좋은" 분기는 0개.
 - 한계: 회당 120초로 짧고, TinyXML2 밖 라이브러리는 장시간 실험을 하지 않았다. 정답 판단(어떤 분기가 막혔나)은 도구 자신의 커버리지 기준이다.
@@ -495,19 +481,6 @@ TinyXML2 실제 크래시 9건으로 쟀습니다(`tests/triage_real/`, 결과 `
 TinyXML2는 노드를 자체 메모리 풀로 관리해 ASan이 해제를 못 보므로, 지운 노드를 쓰는 하네스 버그는 UBSan의 vptr 검사로 드러납니다.
 "해제 API로 지운 객체를 다시 씀" 규칙은 메모리 풀 때문에 TinyXML2 실제 데이터에는 나오지 않아, 힙 객체를 쓰는 가짜 라이브러리 사례(`test_triage.sh`의 D·F·I)로 검증했습니다.
 
-### 크래시 사례: 하네스 버그
-
-ASan을 처음 켰을 때 (지금은 내린) TinyXML2 스테이트풀 하네스 초안에서 `XMLPrinter::Write`의 heap-use-after-free가 잡혔습니다.
-`triage`는 이것을 **ⓑ 하네스 버그 의심(확신 강, 3/3 재현)**으로 분류하고, 근거로 해제 위치가 하네스 236행(임시 문자열 소멸)임을 보여 줍니다.
-
-- 원인: `SetValue(str, staticMem=true)`는 문자열을 복사하지 않고 포인터만 저장합니다(`SetInternedStr`).
-  하네스가 반복마다 사라지는 임시 문자열을 넘겨, 이후 출력할 때 해제된 메모리를 읽었습니다.
-- 수정: `staticMem=true`일 때는 프로그램 끝까지 살아 있는 정적 문자열만 넘김.
-- 검증: 크래시 입력 2개(같은 크래시로 묶임)가 수정 전에는 재현되고, 수정 후에는 정상 실행됩니다.
-  입력과 수정 전 하네스, 분류 결과는 `samples/harness_bug_crashes/`에 있습니다.
-
-퍼징 크래시를 바로 라이브러리 버그로 보고하면 안 되는 이유를 보여 주는 사례입니다.
-
 ## 관련 도구와의 차이
 
 OSS-Fuzz의 **Fuzz Introspector**는 하네스별 정적 도달성과 실행 커버리지를 비교하고, 커버리지를 막는 분기(fuzz blocker)를
@@ -525,7 +498,7 @@ OSS-Fuzz의 **Fuzz Introspector**는 하네스별 정적 도달성과 실행 커
 
 참고로 Fuzz Introspector의 fuzz blocker 결과 위에서 원인을 분류하려는 연구(FuzzGauge, Purdue 석사논문, 2025)가 있습니다.
 gapfuzz의 원인 추적은 하네스 호출 지점의 인자까지 내려간다는 점이 다릅니다.
-같은 하네스·같은 커버리지에 Fuzz Introspector를 직접 돌려 봤습니다(`legacy/run_fi.sh`, 결과 `samples/compare_fuzz_introspector.md`).
+같은 하네스·같은 커버리지에 Fuzz Introspector를 직접 돌려 봤습니다(결과 `samples/compare_fuzz_introspector.md`).
 이 환경에서는 LLVM 방식(OSS-Fuzz 기본)은 빌드할 수 없어 **소스 분석 방식**만 돌렸고, 그 방식은 TinyXML2에서 하네스가 닿는 함수 3개, 막힌 분기 0개를 보고했습니다.
 FI 공식 사례 문서(jsonnet)에도 "콜 트리를 보면 인자가 항상 상수로 고정돼 있다"는 원인을 사람이 찾는 과정이 나오며, 이 단계를 gapfuzz가 자동화합니다.
 LLVM 방식과의 정량 비교는 Docker 환경에서 다시 해야 합니다(`python3 infra/helper.py introspector tinyxml2 --seconds=120`).
@@ -540,7 +513,7 @@ LLVM 방식과의 정량 비교는 Docker 환경에서 다시 해야 합니다(`
 - **원인 추적은 짧은 데이터 흐름까지**입니다. 조건이 읽는 매개변수·필드(게터 포함), 한 번 거친 지역 변수, 필드를 설정하는 생성자·대입문,
   그리고 라이브러리 내부 호출을 통한 매개변수 전달까지 봅니다. 포인터 별칭, 하네스의 **호출 순서·상태**에 달린 조건은 못 봅니다.
 - **다단계 추적은 경로의 앞선 조건을 고려하지 않습니다.** 바깥 함수가 먼저 null을 거르면 안쪽의 null 검사에는 닿지 않는데도 제안할 수 있습니다(cJSON 사례).
-- **"고칠 곳" 재현율**은 DIRECT_CALL 추가 전 공식 하네스 40%, 추가 후 90%(규칙을 만든 데이터라 낙관적)입니다. 예전 TinyXML2 스테이트풀 하네스에서는 49%였고(`legacy/tinyxml2_stateful/RESULTS.md`), "인자는 바뀌지만 맞는 값이 안 나옴"(VARIES)이 목록에서 빠지기 때문입니다. 목록에 오른 29개는 틀린 것이 없었지만 표본이 작고, 정답을 도구 작성자가 달았습니다.
+- **"고칠 곳" 재현율**은 DIRECT_CALL 추가 전 공식 하네스 40%, 추가 후 90%(규칙을 만든 데이터라 낙관적)입니다. 고칠 곳으로 낸 23개(4 + 19)는 틀린 것이 없었지만 표본이 작고, 정답을 도구 작성자가 달았습니다.
 - **"하네스가 인자를 고정"은 하네스 쪽 사실**이고, 그 인자를 바꾸면 반드시 열린다는 보장은 아닙니다. 그래서 `verify`로 확인합니다.
 - **매크로로 만든 조건**은 AST 위치가 맞지 않아 "출처 불명"이 되기 쉽습니다(pugixml 막힌 분기 99개 중 14개).
 - **도달 불가능한 방어 코드**를 따로 가려내지 않습니다(TinyXML2 539·544행). 이런 분기는 "라이브러리 내부"로 남습니다.
