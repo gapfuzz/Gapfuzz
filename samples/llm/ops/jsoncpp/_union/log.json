@@ -1,0 +1,107 @@
+{
+ "target": "jsoncpp",
+ "harness": "_union",
+ "model": "claude-sonnet-5-5",
+ "chosen": [
+  "Reader::parse(const std::string &, Value &, bool)",
+  "StyledWriter::write(const Value &)",
+  "Value::isConvertibleTo(ValueType) const",
+  "StyledStreamWriter::write(OStream &, const Value &)",
+  "Value::resize(ArrayIndex)",
+  "operator<<(OStream &, const Value &)",
+  "Path::Path(const String &, const PathArgument &, const PathArgument &, const PathArgument &, const PathArgument &, const PathArgument &)",
+  "Value::compare(const Value &) const",
+  "as() const",
+  "Value::operator!=(const Value &) const"
+ ],
+ "before": {
+  "not_called": 213,
+  "apis": 271,
+  "lines": 29.28,
+  "branches": 28.77
+ },
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 39.0,
+   "usage": {
+    "input_tokens": 4291,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 5484,
+    "output_tokens_details": {
+     "thinking_tokens": 1983
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/jsoncpp/llm/union_ops/try1.cpp",
+   "stage": "fuzz",
+   "called": 10,
+   "total": 10,
+   "missing": [],
+   "lost": [],
+   "not_called_after": 173,
+   "lines": 21.38,
+   "branches": 20.31,
+   "crashes": [
+    {
+     "cls": "RESOURCE",
+     "conf": "강",
+     "reason": "out-of-memory: 시간·메모리·스택 상한에 걸림 (가장 가까운 코드: library)",
+     "evidence": [
+      "오류 지점: `Json::Path::makePath` @ third_party/jsoncpp/src/lib_json/json_value.cpp:1682 (library)",
+      "한 번에 요청한 할당: 2,684,354,560바이트 (2560MB)",
+      "하네스가 부른 API: `Json::Path::Path` @ third_party/jsoncpp/src/lib_json/json_value.cpp:1653, 하네스 위치: `LLVMFuzzerTestOneInput` @ harnesses/jsoncpp/llm/union_ops/try1.cpp:158"
+     ],
+     "kind": "out-of-memory"
+    }
+   ],
+   "regressed": false,
+   "ok": false,
+   "complete": false
+  },
+  {
+   "try": 2,
+   "llm_seconds": 24.9,
+   "usage": {
+    "input_tokens": 8198,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 4389,
+    "output_tokens_details": {
+     "thinking_tokens": 835
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/jsoncpp/llm/union_ops/try2.cpp",
+   "stage": "fuzz",
+   "called": 10,
+   "total": 10,
+   "missing": [],
+   "lost": [],
+   "not_called_after": 174,
+   "lines": 50.89,
+   "branches": 51.01,
+   "crashes": [],
+   "regressed": false,
+   "ok": true,
+   "complete": true
+  }
+ ],
+ "best": 2,
+ "saved": "harnesses/jsoncpp/gapfuzz_ops.cpp"
+}
