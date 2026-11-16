@@ -1,0 +1,249 @@
+// [gapfuzz-ops] 이 파일은 Claude(claude-sonnet-5-5)가 새로 쓴 하네스입니다. OSS-Fuzz 하네스 전체를 합쳐도 불리지 않던 API 10개를 부릅니다.
+// [gapfuzz-ops] gapfuzz가 검사해 통과했습니다 (python3 -m gapfuzz llmops libucl --union, 기록: samples/llm/ops/libucl/_union/).
+// libucl 새 퍼징 하네스 (수정판)
+// 스키마 검증, 객체 병합/정렬/삭제, 배열/예약, 방출, 경로 조회 등을 입력 바이트로 고른 순서대로 호출한다.
+// 변경 이유: 파싱한 원본 객체(objA/objB)를 서로 참조로 섞거나 여러 번 변형한 뒤 해제하면
+// 해시 해제 단계에서 이중 해제가 날 수 있었다. 변형 호출은 매번 깊은 복사본에만 하고,
+// 원본은 읽기 전용으로 둔다.
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "ucl.h"
+
+#define MAX_INPUT (64 * 1024)
+#define MAX_OPS 16
+#define STR_MAX 64
+
+// 파서 플래그: 파일을 읽는 .include 등의 매크로와 파일 변수를 끈다.
+static int make_flags(uint8_t sel)
+{
+	int flags = UCL_PARSER_DISABLE_MACRO | UCL_PARSER_NO_FILEVARS;
+	if (sel & 1) flags |= UCL_PARSER_NO_TIME;
+	if (sel & 2) flags |= UCL_PARSER_NO_IMPLICIT_ARRAYS;
+	if (sel & 4) flags |= UCL_PARSER_KEY_LOWERCASE;
+	if (sel & 8) flags |= UCL_PARSER_SAVE_COMMENTS;
+	return flags;
+}
+
+// 버퍼를 파싱해 최상위 객체를 만든다. 실패하면 NULL. 반환값은 unref 해야 한다.
+static ucl_object_t *parse_buf(const uint8_t *buf, size_t len, int flags)
+{
+	if (len == 0) return NULL;
+	struct ucl_parser *p = ucl_parser_new(flags);
+	if (p == NULL) return NULL;
+	ucl_object_t *obj = NULL;
+	if (ucl_parser_add_chunk(p, buf, len) && ucl_parser_get_error(p) == NULL) {
+		obj = ucl_parser_get_object(p);
+	}
+	ucl_parser_free(p);
+	return obj;
+}
+
+// "$ref"가 있는지 검사한다 (재귀/외부 참조 위험)
+static bool has_ref(const uint8_t *buf, size_t len)
+{
+	for (size_t i = 0; i + 4 <= len; i++) {
+		if (memcmp(buf + i, "$ref", 4) == 0) return true;
+	}
+	return false;
+}
+
+// 페이로드 일부를 NUL로 끝나는 문자열로 복사한다
+static void make_str(char *out, const uint8_t *pl, size_t pl_len, uint8_t a, uint8_t b)
+{
+	size_t start = pl_len ? ((size_t) a * pl_len) / 256 : 0;
+	size_t n = b % STR_MAX;
+	if (start > pl_len) start = pl_len;
+	if (n > pl_len - start) n = pl_len - start;
+	memcpy(out, pl + start, n);
+	out[n] = '\0';
+}
+
+static void unref_safe(ucl_object_t *o)
+{
+	if (o != NULL) ucl_object_unref(o);
+}
+
+// 변형 호출용 깊은 복사본 (원본과 자식 객체를 공유하지 않는다)
+static ucl_object_t *scratch(const ucl_object_t *t)
+{
+	return t ? ucl_object_copy(t) : NULL;
+}
+
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+{
+	if (size < 4) return 0;
+	if (size > MAX_INPUT) size = MAX_INPUT;
+
+	// 헤더: [0]=호출 횟수, [1]=분할 위치, [2]=파서 옵션, 이후 호출마다 3바이트(종류, 인자a, 인자b)
+	size_t n_ops = 1 + (data[0] % MAX_OPS);
+	size_t hdr = 3 + 3 * n_ops;
+	if (size < hdr) return 0;
+
+	int flags = make_flags(data[2]);
+	const uint8_t *pl = data + hdr;
+	size_t pl_len = size - hdr;
+	size_t split = (pl_len * data[1]) / 256;
+	const uint8_t *a_buf = pl;
+	size_t a_len = split;
+	const uint8_t *b_buf = pl + split;
+	size_t b_len = pl_len - split;
+
+	// 원본 두 문서 (읽기 전용으로만 쓴다)
+	ucl_object_t *objA = parse_buf(a_buf, a_len, flags);
+	ucl_object_t *objB = parse_buf(b_buf, b_len, flags);
+
+	for (size_t i = 0; i < n_ops; i++) {
+		uint8_t op = data[3 + 3 * i];
+		uint8_t pa = data[3 + 3 * i + 1];
+		uint8_t pb = data[3 + 3 * i + 2];
+		char str[STR_MAX];
+
+		switch (op % 10) {
+		case 0: {
+			// [gapfuzz-ops] ucl_object_validate_root
+			// A를 스키마, B를 검증 대상으로 쓴다. $ref는 제외한다.
+			if (objA && objB && !has_ref(a_buf, a_len)) {
+				struct ucl_schema_error err;
+				memset(&err, 0, sizeof(err));
+				(void) ucl_object_validate_root(objA, objB, objA, &err);
+			}
+			break;
+		}
+		case 1: {
+			// [gapfuzz-ops] ucl_object_merge
+			// A의 복사본에 B를 복사(copy=true)로 병합한다. 원본 객체를 공유하지 않는다.
+			ucl_object_t *top = scratch(objA);
+			ucl_object_t *elt = scratch(objB);
+			if (top && elt && ucl_object_type(top) == UCL_OBJECT &&
+				ucl_object_type(elt) == UCL_OBJECT) {
+				(void) ucl_object_merge(top, elt, true);
+			}
+			unref_safe(elt);
+			unref_safe(top);
+			break;
+		}
+		case 2: {
+			// [gapfuzz-ops] ucl_object_sort_keys
+			static const enum ucl_object_keys_sort_flags hows[4] = {
+				UCL_SORT_KEYS_DEFAULT,
+				UCL_SORT_KEYS_ICASE,
+				UCL_SORT_KEYS_RECURSIVE,
+				(enum ucl_object_keys_sort_flags) (UCL_SORT_KEYS_ICASE | UCL_SORT_KEYS_RECURSIVE)};
+			ucl_object_t *t = scratch((pb & 1) ? objB : objA);
+			if (t && ucl_object_type(t) == UCL_OBJECT) {
+				ucl_object_sort_keys(t, hows[pa % 4]);
+			}
+			unref_safe(t);
+			break;
+		}
+		case 3: {
+			// [gapfuzz-ops] ucl_comments_add
+			ucl_object_t *comments = ucl_object_typed_new(UCL_OBJECT);
+			if (comments != NULL) {
+				make_str(str, pl, pl_len, pa, pb);
+				if (objA) ucl_comments_add(comments, objA, str);
+				if (objB) ucl_comments_add(comments, objB, str);
+				ucl_object_unref(comments);
+			}
+			break;
+		}
+		case 4: {
+			// [gapfuzz-ops] ucl_object_pop_key
+			// 복사본에서 키를 빼고, 반환된 객체와 복사본을 각각 unref 한다.
+			ucl_object_t *t = scratch((pb & 1) ? objB : objA);
+			if (t && ucl_object_type(t) == UCL_OBJECT) {
+				make_str(str, pl, pl_len, pa, pb >> 1);
+				ucl_object_t *removed = ucl_object_pop_key(t, str);
+				unref_safe(removed);
+			}
+			unref_safe(t);
+			break;
+		}
+		case 5: {
+			// [gapfuzz-ops] ucl_parser_insert_chunk
+			struct ucl_parser *p = ucl_parser_new(flags);
+			if (p != NULL) {
+				if (a_len > 0 && ucl_parser_add_chunk(p, a_buf, a_len) &&
+					ucl_parser_get_error(p) == NULL && b_len > 0) {
+					if (ucl_parser_insert_chunk(p, b_buf, b_len)) {
+						ucl_object_t *top = ucl_parser_get_object(p);
+						unref_safe(top);
+					}
+				}
+				ucl_parser_free(p);
+			}
+			break;
+		}
+		case 6: {
+			// [gapfuzz-ops] ucl_object_reserve
+			// 복사본에서 호출하고 예약 크기는 1024 이하로 제한한다.
+			ucl_object_t *t = scratch((pb & 1) ? objB : objA);
+			if (t) {
+				enum ucl_type ty = ucl_object_type(t);
+				if (ty == UCL_OBJECT || ty == UCL_ARRAY) {
+					size_t want = (((size_t) pa << 8) | pb) % 1025;
+					(void) ucl_object_reserve(t, want);
+				}
+			}
+			unref_safe(t);
+			break;
+		}
+		case 7: {
+			// [gapfuzz-ops] ucl_array_prepend
+			// 새 배열(또는 파싱된 배열의 복사본) 앞쪽에 입력에서 만든 원소를 넣는다.
+			ucl_object_t *arr = ucl_object_typed_new(UCL_ARRAY);
+			ucl_object_t *parsed = (objA && ucl_object_type(objA) == UCL_ARRAY) ? scratch(objA) : NULL;
+			size_t count = 1 + (pa % 8);
+			for (size_t k = 0; k < count; k++) {
+				ucl_object_t *elt;
+				make_str(str, pl, pl_len, (uint8_t) (pa + k * 37), (uint8_t) (pb + k));
+				if ((pb + k) & 1) {
+					elt = ucl_object_fromlstring(str, strlen(str));
+				} else {
+					elt = ucl_object_fromint((int64_t) pa * 1000 + (int64_t) k);
+				}
+				if (elt == NULL) continue;
+				ucl_object_t *dst = (parsed && (k & 1)) ? parsed : arr;
+				if (dst == NULL || !ucl_array_prepend(dst, elt)) {
+					ucl_object_unref(elt); // 삽입 실패 시 소유권은 하네스에 남는다
+				}
+			}
+			unref_safe(parsed);
+			unref_safe(arr);
+			break;
+		}
+		case 8: {
+			// [gapfuzz-ops] ucl_object_emit
+			static const enum ucl_emitter types[5] = {
+				UCL_EMIT_JSON, UCL_EMIT_JSON_COMPACT, UCL_EMIT_CONFIG,
+				UCL_EMIT_YAML, UCL_EMIT_MSGPACK};
+			ucl_object_t *t = (pb & 1) ? objB : objA;
+			if (t) {
+				unsigned char *out = ucl_object_emit(t, types[pa % 5]);
+				if (out != NULL) free(out);
+			}
+			break;
+		}
+		case 9: {
+			// [gapfuzz-ops] ucl_object_lookup_path
+			// 반환된 객체는 소유권이 없으므로 unref 하지 않는다.
+			ucl_object_t *t = (pb & 1) ? objB : objA;
+			if (t) {
+				make_str(str, pl, pl_len, pa, pb >> 1);
+				const ucl_object_t *found = ucl_object_lookup_path(t, str);
+				if (found != NULL) {
+					(void) ucl_object_type(found);
+				}
+			}
+			break;
+		}
+		}
+	}
+
+	unref_safe(objA);
+	unref_safe(objB);
+	return 0;
+}

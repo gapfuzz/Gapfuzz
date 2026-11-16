@@ -1,0 +1,112 @@
+{
+ "target": "libucl",
+ "harness": "_union",
+ "model": "claude-sonnet-5-5",
+ "chosen": [
+  "ucl_object_validate_root(const ucl_object_t *, const ucl_object_t *, const ucl_object_t *, struct ucl_schema_error *)",
+  "ucl_object_merge(ucl_object_t *, ucl_object_t *, bool)",
+  "ucl_object_sort_keys(ucl_object_t *, enum ucl_object_keys_sort_flags)",
+  "ucl_comments_add(ucl_object_t *, const ucl_object_t *, const char *)",
+  "ucl_object_pop_key(ucl_object_t *, const char *)",
+  "ucl_parser_insert_chunk(struct ucl_parser *, const unsigned char *, size_t)",
+  "ucl_object_reserve(ucl_object_t *, size_t)",
+  "ucl_array_prepend(ucl_object_t *, ucl_object_t *)",
+  "ucl_object_emit(const ucl_object_t *, enum ucl_emitter)",
+  "ucl_object_lookup_path(const ucl_object_t *, const char *)"
+ ],
+ "before": {
+  "not_called": 82,
+  "apis": 130,
+  "lines": 32.71,
+  "branches": 30.79
+ },
+ "tries": [
+  {
+   "try": 1,
+   "llm_seconds": 68.1,
+   "usage": {
+    "input_tokens": 4789,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 10127,
+    "output_tokens_details": {
+     "thinking_tokens": 5140
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/libucl/llm/union_ops/try1.c",
+   "stage": "fuzz",
+   "called": 10,
+   "total": 10,
+   "missing": [],
+   "lost": [],
+   "not_called_after": 61,
+   "lines": 35.62,
+   "branches": 35.01,
+   "crashes": [
+    {
+     "cls": "LIBRARY",
+     "conf": "강",
+     "reason": "오류 지점과 메모리 할당·해제가 모두 라이브러리 코드",
+     "evidence": [
+      "오류 지점: `ucl_hash_destroy` @ third_party/libucl/src/ucl_hash.c:274 (library)",
+      "해제 위치: `ucl_object_free_internal` @ third_party/libucl/src/ucl_util.c:344 (library)",
+      "할당 위치: `ucl_object_new_full` @ third_party/libucl/src/ucl_util.c:3446 (library)",
+      "오류 경로의 하네스 위치: `unref_safe` @ harnesses/libucl/llm/union_ops/try1.c:61 → 부른 API: `ucl_object_unref` @ third_party/libucl/src/ucl_util.c:4242",
+      "해제 경로의 하네스 위치: `unref_safe` @ harnesses/libucl/llm/union_ops/try1.c:61 → 부른 API: `ucl_object_unref` @ third_party/libucl/src/ucl_util.c:4242",
+      "할당 경로의 하네스 위치: `parse_buf` @ harnesses/libucl/llm/union_ops/try1.c:32 → 부른 API: `ucl_parser_add_chunk` @ third_party/libucl/src/ucl_parser.c:3774",
+      "해제를 요청한 하네스 호출: `ucl_object_unref` @ third_party/libucl/src/ucl_util.c:4242 ← `unref_safe` @ harnesses/libucl/llm/union_ops/try1.c:61",
+      "오류가 난 하네스 호출: `ucl_object_unref` @ third_party/libucl/src/ucl_util.c:4242 ← `unref_safe` @ harnesses/libucl/llm/union_ops/try1.c:61"
+     ],
+     "kind": "heap-use-after-free"
+    }
+   ],
+   "regressed": false,
+   "ok": false,
+   "complete": false
+  },
+  {
+   "try": 2,
+   "llm_seconds": 38.7,
+   "usage": {
+    "input_tokens": 10770,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 6548,
+    "output_tokens_details": {
+     "thinking_tokens": 1594
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "stop_reason": "end_turn"
+   },
+   "harness": "harnesses/libucl/llm/union_ops/try2.c",
+   "stage": "fuzz",
+   "called": 10,
+   "total": 10,
+   "missing": [],
+   "lost": [],
+   "not_called_after": 61,
+   "lines": 36.13,
+   "branches": 35.76,
+   "crashes": [],
+   "regressed": false,
+   "ok": true,
+   "complete": true
+  }
+ ],
+ "best": 2,
+ "saved": "harnesses/libucl/gapfuzz_ops.c"
+}
