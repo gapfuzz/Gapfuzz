@@ -89,6 +89,7 @@ class Report:
     scope: list[Frame] = field(default_factory=list)    # 스택 변수 오류: 그 변수가 있던 함수
     zero_page: bool = False                             # SEGV 주소가 0번지 근처 (null 포인터 접근)
     uncaught: str = ""                                  # 잡히지 않은 C++ 예외의 타입과 메시지 (std::terminate로 abort)
+    request: int = 0                                    # out-of-memory: 한 번에 요청한 할당 크기(바이트). 누적으로 넘은 경우 0
 
 
 @dataclass
@@ -195,7 +196,15 @@ def parse_report(text: str, owner: Owner) -> Report | None:
 
     i = start + 1
     # 첫 스택 = 오류가 난 지점 (timeout/oom은 libFuzzer가 찍은 스택)
-    rep.access, i = _parse_frames(lines, i, owner, skip=12 if kind.startswith("ub:") and not LEGACY else 0)
+    # libFuzzer의 timeout/out-of-memory는 오류 줄과 스택 사이에 안내 줄("To change the out-of-memory limit use ...")이 끼어 있다.
+    # 이 줄에서 읽기를 멈추면 스택을 통째로 놓쳐 "가장 가까운 코드: ?"가 된다(2026-11-16 jsoncpp 사례).
+    skip = 0
+    if not LEGACY:
+        skip = 12 if kind.startswith("ub:") else (4 if kind in ("timeout", "out-of-memory") else 0)
+        m = re.search(r"out-of-memory \(malloc\((\d+)\)\)", lines[start])
+        if m:
+            rep.request = int(m.group(1))
+    rep.access, i = _parse_frames(lines, i, owner, skip=skip)
     while i < len(lines):
         l = lines[i]
         if "freed by thread" in l:
@@ -232,6 +241,8 @@ def _entry(frames: list[Frame]) -> tuple[Frame | None, Frame | None]:
 
 
 def _short(func: str) -> str:
+    if not LEGACY:
+        func = func.replace("(anonymous namespace)::", "")      # 이름 없는 네임스페이스의 함수 이름이 통째로 지워지지 않게
     return func.split("(")[0].strip()
 
 
@@ -239,7 +250,7 @@ def _loc(f: Frame | None, root: str) -> str:
     if not f:
         return "(우리 코드 프레임 없음)"
     where = f"{os.path.relpath(f.file, root)}:{f.line}" if f.file else "?"
-    return f"`{f.func.split('(')[0]}` @ {where}"
+    return f"`{_short(f.func) if not LEGACY else f.func.split('(')[0]}` @ {where}"
 
 
 def classify(rep: Report, root: str) -> Verdict:
@@ -258,6 +269,14 @@ def classify(rep: Report, root: str) -> Verdict:
     # ⓒ 리소스
     if k in ("timeout", "out-of-memory", "stack-overflow", "allocation-size-too-big", "requested allocation size"):
         owner = acc.owner if acc else "?"
+        if not LEGACY:
+            if rep.request:
+                ev.append(f"한 번에 요청한 할당: {rep.request:,}바이트 ({rep.request / (1 << 20):.0f}MB)")
+            h, api = _entry(rep.access)
+            if h and api:
+                ev.append(f"하네스가 부른 API: {_loc(api, root)}, 하네스 위치: {_loc(h, root)}")
+            elif h:
+                ev.append(f"하네스 위치: {_loc(h, root)}")
         return Verdict("RESOURCE", "강", f"{k}: 시간·메모리·스택 상한에 걸림 (가장 가까운 코드: {owner})", ev)
 
     # ⓑ 잡히지 않은 C++ 예외: 라이브러리는 잘못된 사용을 예외로 알리도록 되어 있는데 하네스가 받지 않음

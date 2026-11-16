@@ -1,0 +1,37 @@
+==809== ERROR: libFuzzer: out-of-memory (malloc(2684354560))
+   To change the out-of-memory limit use -rss_limit_mb=<N>
+
+    #0 0x603ec2969e65 in __sanitizer_print_stack_trace (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0x15ee65) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+    #1 0x603ec28c397c in fuzzer::PrintStackTrace() (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0xb897c) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+    #2 0x603ec28a8815 in fuzzer::Fuzzer::HandleMalloc(unsigned long) (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0x9d815) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+    #3 0x603ec28a871f in fuzzer::MallocHook(void const volatile*, unsigned long) (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0x9d71f) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+    #4 0x603ec2971726 in __sanitizer::RunMallocHooks(void*, unsigned long) (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0x166726) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+    #5 0x603ec28c6f62 in __asan::Allocator::Allocate(unsigned long, unsigned long, __sanitizer::BufferedStackTrace*, __asan::AllocType, bool) (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0xbbf62) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+    #6 0x603ec28c7617 in __asan::asan_memalign(unsigned long, unsigned long, __sanitizer::BufferedStackTrace*, __asan::AllocType) (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0xbc617) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+    #7 0x603ec299d768 in operator new(unsigned long) (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0x192768) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+    #8 0x603ec2a0a98f in std::__new_allocator<Json::PathArgument>::allocate(unsigned long, void const*) /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/new_allocator.h:151:27
+    #9 0x603ec2a0a98f in std::allocator_traits<std::allocator<Json::PathArgument>>::allocate(std::allocator<Json::PathArgument>&, unsigned long) /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/alloc_traits.h:482:20
+    #10 0x603ec2a0a98f in std::_Vector_base<Json::PathArgument, std::allocator<Json::PathArgument>>::_M_allocate(unsigned long) /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_vector.h:381:20
+    #11 0x603ec2a0a98f in void std::vector<Json::PathArgument, std::allocator<Json::PathArgument>>::_M_realloc_insert<Json::PathArgument>(__gnu_cxx::__normal_iterator<Json::PathArgument*, std::vector<Json::PathArgument, std::allocator<Json::PathArgument>>>, Json::PathArgument&&) /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/vector.tcc:459:33
+    #12 0x603ec2a0a45a in Json::PathArgument& std::vector<Json::PathArgument, std::allocator<Json::PathArgument>>::emplace_back<Json::PathArgument>(Json::PathArgument&&) /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/vector.tcc:123:4
+    #13 0x603ec2a006ae in std::vector<Json::PathArgument, std::allocator<Json::PathArgument>>::push_back(Json::PathArgument&&) /usr/bin/../lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_vector.h:1299:9
+    #14 0x603ec2a006ae in Json::Path::makePath(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>> const&, std::vector<Json::PathArgument const*, std::allocator<Json::PathArgument const*>> const&) /work/third_party/jsoncpp/src/lib_json/json_value.cpp:1682:13
+    #15 0x603ec29ff980 in Json::Path::Path(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>> const&, Json::PathArgument const&, Json::PathArgument const&, Json::PathArgument const&, Json::PathArgument const&, Json::PathArgument const&) /work/third_party/jsoncpp/src/lib_json/json_value.cpp:1653:3
+    #16 0x603ec2a2b2cf in (anonymous namespace)::RunOps(unsigned char const*, unsigned int, Json::Value const&, Json::Value const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>> const&) /work/harnesses/jsoncpp/llm/union_ops/try1.cpp:77:20
+    #17 0x603ec2a2b2cf in LLVMFuzzerTestOneInput /work/harnesses/jsoncpp/llm/union_ops/try1.cpp:154:5
+    #18 0x603ec28aafd4 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0x9ffd4) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+    #19 0x603ec28aa6c9 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool, bool*) (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0x9f6c9) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+    #20 0x603ec28abeb5 in fuzzer::Fuzzer::MutateAndTestOne() (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0xa0eb5) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+    #21 0x603ec28aca15 in fuzzer::Fuzzer::Loop(std::vector<fuzzer::SizedFile, std::allocator<fuzzer::SizedFile>>&) (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0xa1a15) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+    #22 0x603ec2899cef in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0x8ecef) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+    #23 0x603ec28c4376 in main (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0xb9376) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+    #24 0x714ea0ec71c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)
+    #25 0x714ea0ec728a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)
+    #26 0x603ec288ecd4 in _start (/work/out/targets/jsoncpp/llm/union_ops/try1/fuzz+0x83cd4) (BuildId: 845da117b45be42b7e133971b3f3c9367699f99c)
+
+MS: 1 ChangeByte-; base unit: 641057ff1d0f8473056576683c3ddb1572d93d58
+0x3a,0x96,0x61,0x5c,0x2d,0x30,0x0,
+:\226a\\-0\000
+artifact_prefix='/work/out/targets/jsoncpp/llm/union_ops/try1/r1/'; Test unit written to /work/out/targets/jsoncpp/llm/union_ops/try1/r1/oom-c52417e7fea9c486f69b094238f663ff707932ed
+Base64: OpZhXC0wAA==
+SUMMARY: libFuzzer: out-of-memory
