@@ -757,7 +757,7 @@ footer { padding-block: 40px 56px; color: var(--faint); font-size: 13px; border-
     render();
   }
 
-  // ---------- 팀 장시간 실험 (results/: OSS-Fuzz 하네스 vs Claude 수정 하네스) ----------
+  // ---------- 팀 장시간 실험 (evaluation/results/: OSS-Fuzz 하네스 vs Claude 수정 하네스) ----------
   function teamBlock(t) {
     const A = t.h1.base, B = t.h1.llm; if (!A || !B) return "";
     const mean = a => a.reduce((p, q) => p + q, 0) / a.length;

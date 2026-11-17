@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """사이트(site/)의 분석기 화면이 읽을 데이터를 만든다: site/data.json
 
-라이브러리마다 하네스별 1회차 갭 분석(gap.json), 5회 반복의 커버리지 중앙값, 제안 검증 결과(samples/verify/*.md)를 모은다.
+라이브러리마다 하네스별 1회차 갭 분석(gap.json), 5회 반복의 커버리지 중앙값, 제안 검증 결과(evaluation/artifacts/verify/*.md)를 모은다.
 사용법: python3 scripts/export_site.py              (전부 다시 만들기, out/ 필요)
-       python3 scripts/export_site.py --team-only  (팀 장시간 실험 results/만 다시 넣기)
+       python3 scripts/export_site.py --team-only  (팀 장시간 실험 evaluation/results/만 다시 넣기)
 """
 import json
 import os
@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-RESULTS = Path(os.environ.get("GAPFUZZ_RESULTS", ROOT / "results"))
+RESULTS = Path(os.environ.get("GAPFUZZ_RESULTS", ROOT / "evaluation" / "results"))
 CATS = ["NOT_CALLED", "BLOCKED", "PARTIAL", "FULL"]
 
 LIBS = [
@@ -126,7 +126,7 @@ TEAM_IDS = {"official": "base", "official_llm": "llm"}
 
 
 def team(lib_id: str, results: Path) -> dict | None:
-    """팀 장시간 실험(results/<라이브러리>/1h, 24h): OSS-Fuzz 하네스 vs Claude 수정 하네스."""
+    """팀 장시간 실험(evaluation/results/<라이브러리>/1h, 24h): OSS-Fuzz 하네스 vs Claude 수정 하네스."""
     d = results / lib_id
     if not (d / "1h" / "official_llm").is_dir():
         return None
@@ -198,7 +198,7 @@ def main():
         for a, b, mds in L["verify"]:
             groups = []
             for md in mds:
-                groups += parse_verify(ROOT / "samples" / "verify" / md)
+                groups += parse_verify(ROOT / "evaluation" / "artifacts" / "verify" / md)
             app = [g for g in groups if g["applied"]]
             ctl = [g for g in groups if not g["applied"]]
             lib["verify"].append({"from": a, "to": b, "groups": groups,

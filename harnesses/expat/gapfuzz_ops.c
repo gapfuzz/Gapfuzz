@@ -1,5 +1,5 @@
 // [gapfuzz-ops] 이 파일은 Claude(claude-sonnet-5-5)가 새로 쓴 하네스입니다. OSS-Fuzz 하네스 전체를 합쳐도 불리지 않던 API 10개를 부릅니다.
-// [gapfuzz-ops] gapfuzz가 검사해 통과했습니다 (python3 -m gapfuzz llmops expat --union, 기록: samples/llm/ops/expat/_union/).
+// [gapfuzz-ops] gapfuzz가 검사해 통과했습니다 (python3 -m gapfuzz llmops expat --union, 기록: evaluation/artifacts/llm/ops/expat/_union/).
 /*
  * gapfuzz 하네스: expat 속성 설정 / 일시중지·재개 / 입력 컨텍스트 / 기본 핸들러 API
  * 입력 구조: [헤더: 플래그, 설정 호출 목록] [나머지: XML 데이터]

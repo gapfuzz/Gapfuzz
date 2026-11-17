@@ -1,10 +1,10 @@
-# 실험 산출물 (크기가 크고 사람마다 다름) — 공유는 results/의 작은 JSON으로만
+# 실험 산출물 (크기가 크고 사람마다 다름) — 공유는 evaluation/results/의 작은 JSON으로만
 out/
 crash-*
 leak-*
 timeout-*
 oom-*
-!samples/**/crash-*
+!evaluation/artifacts/**/crash-*
 !tests/**/crash-*
 *.profraw
 *.profdata
@@ -12,12 +12,12 @@ oom-*
 # 라이브러리 소스는 scripts/exp.py fetch, scripts/setup.sh로 고정 커밋을 받는다
 third_party/
 
-# Claude가 만든 후보 하네스 (근거는 samples/llm/runs/에 diff와 보고서로 남김)
+# Claude가 만든 후보 하네스 (근거는 evaluation/artifacts/llm/runs/에 diff와 보고서로 남김)
 harnesses/llm/
 harnesses/*/llm/
 
 # 발표 스크린샷 등 다시 만들 수 있는 파일
-presentation/shots/
+evaluation/presentation/shots/
 
 # 파이썬·편집기
 __pycache__/

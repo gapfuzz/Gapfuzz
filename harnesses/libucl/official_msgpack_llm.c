@@ -1,5 +1,5 @@
 // [gapfuzz-llm] 이 파일은 Claude(claude-sonnet-5-5)가 gapfuzz 제안 1,3,10를 OSS-Fuzz 하네스 official_msgpack에 적용하고
-// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: samples/llm/combined/libucl/official_msgpack/).
+// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: evaluation/artifacts/llm/combined/libucl/official_msgpack/).
 // OSS-Fuzz 하네스: libucl 저장소 tests/fuzzers/ucl_msgpack_fuzzer.c (0.10.0, 커밋 d6659c1) 그대로.
 #include <stdio.h>
 #include <errno.h>

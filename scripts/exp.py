@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""팀 실험 실행기: 라이브러리를 골라 장시간 반복 실험을 돌리고, 작은 결과 파일만 results/에 남긴다.
+"""팀 실험 실행기: 라이브러리를 골라 장시간 반복 실험을 돌리고, 작은 결과 파일만 evaluation/results/에 남긴다.
 
     python3 scripts/exp.py doctor                 # 환경 점검 (모두 같은 환경인지 확인)
     python3 scripts/exp.py libs                   # 라이브러리 목록, 진행 상황, 담당
@@ -8,14 +8,15 @@
     python3 scripts/exp.py run expat              # 1시간 × 10회 (OSS-Fuzz vs gapfuzz 제안을 Claude가 고친 하네스)
     python3 scripts/exp.py run expat --trials 1-5 # 회차 일부만 (나머지는 나중에)
     python3 scripts/exp.py run expat --plan 24h   # 24시간 × 1회, 시간에 따른 커버리지 기록
-    python3 scripts/exp.py report expat           # results/expat/REPORT.md 만들기
-    python3 scripts/exp.py submit expat           # results/expat/만 커밋하고 push
+    python3 scripts/exp.py report expat           # evaluation/results/expat/REPORT.md 만들기
+    python3 scripts/exp.py submit expat           # evaluation/results/expat/만 커밋하고 push
 
 설계
   - 한 라이브러리는 한 사람이 한 컴퓨터에서 돌린다. 같은 회차의 두 하네스를 동시에(CPU 2개) 돌려
     컴퓨터 속도 차이가 비교에 섞이지 않게 한다.
   - 큰 파일(코퍼스, 커버리지, 바이너리)은 out/에 남고 git에 올라가지 않는다(.gitignore).
-    git에 올리는 것은 작은 JSON뿐이라(results/<라이브러리>/1h/<하네스>/rNN.json, results/<라이브러리>/24h/<하네스>.json), 서로 다른 라이브러리를
+    git에 올리는 것은 작은 JSON뿐이라(evaluation/results/<라이브러리>/1h/<하네스>/rNN.json,
+    evaluation/results/<라이브러리>/24h/<하네스>.json), 서로 다른 라이브러리를
     맡은 사람끼리는 같은 파일을 건드리지 않아 충돌이 나지 않는다.
   - 이미 결과 파일이 있는 회차는 건너뛰므로, 중간에 끊겨도 같은 명령을 다시 실행하면 이어서 돈다.
     24시간 실험은 구간(10분, 20분, 30분, 그 뒤 1시간씩)이 끝날 때마다 커버리지를 재서 저장하므로,
@@ -37,7 +38,8 @@ from math import comb
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-RESULTS = Path(os.environ.get("GAPFUZZ_RESULTS", ROOT / "results"))   # 시험용으로 바꿀 수 있음
+EVALUATION = ROOT / "evaluation"
+RESULTS = Path(os.environ.get("GAPFUZZ_RESULTS", EVALUATION / "results"))   # 시험용으로 바꿀 수 있음
 EXPECTED_CLANG_MAJOR = 18
 LIBS = ["tinyxml2", "pugixml", "cjson", "jsoncpp", "zlib", "expat", "json-c"]   # OSS-Fuzz vs Claude 수정 비교 대상
 BASE = os.environ.get("GAPFUZZ_BASE", "official")          # 비교 기준 하네스 (추가 실험 때만 바꿈)
@@ -211,7 +213,7 @@ def summarize_run(lib: str, h: str, r: int, secs: int, started: float, env: dict
     log = (d / "fuzz.log").read_text(errors="replace")
     execs = re.findall(r"stat::number_of_executed_units:\s*(\d+)", log)
     crashes = sorted(p.name for p in d.iterdir() if p.name.split("-")[0] in ("crash", "leak", "timeout", "oom"))
-    tg_path = ROOT / "experiments" / "targets" / f"{lib}.json"
+    tg_path = EVALUATION / "experiments" / "targets" / f"{lib}.json"
     targets = []
     if tg_path.exists():
         for b in json.load(open(tg_path))["branches"]:
@@ -332,7 +334,7 @@ def measure_corpus(lib: str, h: str, d: Path) -> dict:
                        stdout=f, check=True)
     cov, br = coverage_map(d / "coverage.json")
     targets = []
-    tp = ROOT / "experiments" / "targets" / f"{lib}.json"
+    tp = EVALUATION / "experiments" / "targets" / f"{lib}.json"
     if tp.exists():
         for x in json.load(open(tp))["branches"]:
             seen = br.get((x["line"], x["col"]))
@@ -408,7 +410,7 @@ def run_day(a, t: dict, env: dict) -> int:
         print(f"[24h] {a.lib}: 이미 끝났습니다 → python3 scripts/exp.py report {a.lib}")
         return 0
     print(f"[24h] {a.lib}: OSS-Fuzz와 Claude 수정본을 동시에 {sum(schedule) / 60:.1f}시간 (남은 시간 약 {max(left.values()) / 3600:.1f}시간). "
-          "구간이 끝날 때마다 커버리지를 재서 results/에 저장합니다.")
+          "구간이 끝날 때마다 커버리지를 재서 evaluation/results/에 저장합니다.")
     for h in HARNESSES:
         tg.build(t, h)
     with cf.ThreadPoolExecutor(max_workers=len(HARNESSES)) as ex:
@@ -542,7 +544,7 @@ def run_union(a, t: dict, env: dict) -> int:
             print(f"[run] r{r:02d} {'기준' if side == 'base' else '적용 후'} 합침: 분기 {x['coverage']['branches']['pct']:.2f}% "
                   f"라인 {x['coverage']['lines']['pct']:.2f}% 어느 하네스도 안 부르는 API {x['not_called']}/{x['apis']}", flush=True)
     union_report(a.lib, a.secs)
-    print(f"[run] 끝. 결과: results/{a.lib}/UNION.md  올리기: python3 scripts/exp.py submit {a.lib}")
+    print(f"[run] 끝. 결과: evaluation/results/{a.lib}/UNION.md  올리기: python3 scripts/exp.py submit {a.lib}")
     return 0
 
 
@@ -714,7 +716,7 @@ def report(a) -> int:
         if not (load(lib, BASE) or load(lib, FIXED) or day_state(lib, BASE) or day_state(lib, FIXED)):
             continue
         st = report_lib(lib)
-        print(f"[report] results/{lib}/REPORT.md")
+        print(f"[report] evaluation/results/{lib}/REPORT.md")
         if st:
             b = st["branches"]
             rows.append(f"| {lib} | {len(b[BASE])} | {_fmt(b[BASE])} | {_fmt(b[FIXED])} | {b['a12']:.2f} | {b['p']:.4g} |")
@@ -728,7 +730,7 @@ def report(a) -> int:
                 L.append(f"| {lib} | {min(A['done_secs'], B['done_secs']) / 3600:.1f}시간 | "
                          f"{A['points'][-1]['coverage']['branches']['pct']:.2f}% | {B['points'][-1]['coverage']['branches']['pct']:.2f}% |")
         (RESULTS / "SUMMARY.md").write_text("\n".join(L) + "\n", encoding="utf-8")
-        print("[report] results/SUMMARY.md")
+        print("[report] evaluation/results/SUMMARY.md")
     return 0
 
 
@@ -740,13 +742,13 @@ def submit(a) -> int:
         print(f"[submit] {lib}: {BASE}/{FIXED} 비교 결과가 없어 REPORT.md는 만들지 않습니다")
     else:
         report_lib(lib)
-    path = f"results/{lib}"
+    path = f"evaluation/results/{lib}"
     g = lambda *c: sh(["git", "-C", str(ROOT), *c])
     if g("rev-parse", "--is-inside-work-tree").returncode:
         raise SystemExit("git 저장소가 아닙니다")
     staged_other = [f for f in g("diff", "--cached", "--name-only").stdout.split() if not f.startswith(path + "/")]
     if staged_other:
-        raise SystemExit("results/ 밖의 파일이 이미 staged 상태입니다. 실험 결과만 따로 올리도록 먼저 정리하세요:\n  " + "\n  ".join(staged_other))
+        raise SystemExit("evaluation/results/ 밖의 파일이 이미 staged 상태입니다. 실험 결과만 따로 올리도록 먼저 정리하세요:\n  " + "\n  ".join(staged_other))
     g("add", path)
     if not g("diff", "--cached", "--name-only", "--", path).stdout.strip():
         print("[submit] 올릴 새 결과가 없습니다")
@@ -764,7 +766,7 @@ def submit(a) -> int:
         return 0
     r = g("pull", "--rebase", "--autostash")
     if r.returncode:
-        raise SystemExit("[submit] pull --rebase 실패. 다른 사람이 같은 results/ 폴더를 고쳤는지 확인하세요\n" + r.stderr)
+        raise SystemExit("[submit] pull --rebase 실패. 다른 사람이 같은 evaluation/results/ 폴더를 고쳤는지 확인하세요\n" + r.stderr)
     r = g("push")
     if r.returncode:
         raise SystemExit("[submit] push 실패\n" + r.stderr)
@@ -777,7 +779,7 @@ def main() -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("doctor", help="환경 점검")
     sub.add_parser("libs", help="라이브러리 목록, 진행 상황, 담당")
-    c = sub.add_parser("claim", help="라이브러리를 맡기 (results/<lib>/OWNER.txt를 올려 다른 사람과 겹치지 않게)")
+    c = sub.add_parser("claim", help="라이브러리를 맡기 (evaluation/results/<lib>/OWNER.txt를 올려 다른 사람과 겹치지 않게)")
     c.add_argument("lib")
     c.add_argument("--no-push", action="store_true")
     f = sub.add_parser("fetch", help="라이브러리 소스를 고정 커밋으로 받기")
@@ -791,10 +793,10 @@ def main() -> int:
     r.add_argument("--plan", choices=["1h", "24h", "union"], default="1h",
                    help="1h: 1시간 × 10회 (기본), 24h: 24시간 × 1회, union: OSS-Fuzz 하네스 전체를 각각 돌려 합친 커버리지로 비교")
     r.add_argument("--schedule", help=argparse.SUPPRESS)          # 시험용: 24h 구간 길이(분), 예: 1,1
-    p = sub.add_parser("report", help="results/<lib>/REPORT.md 만들기")
+    p = sub.add_parser("report", help="evaluation/results/<lib>/REPORT.md 만들기")
     p.add_argument("lib", nargs="?")
-    p.add_argument("--all", action="store_true", help="모든 라이브러리 + results/SUMMARY.md")
-    s = sub.add_parser("submit", help="results/<lib>/만 커밋하고 push")
+    p.add_argument("--all", action="store_true", help="모든 라이브러리 + evaluation/results/SUMMARY.md")
+    s = sub.add_parser("submit", help="evaluation/results/<lib>/만 커밋하고 push")
     s.add_argument("lib")
     s.add_argument("--no-push", action="store_true")
     a = ap.parse_args()

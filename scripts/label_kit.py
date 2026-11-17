@@ -3,18 +3,18 @@
 
 1) 시트 만들기 (도구 판정·원인·제안은 시트에 넣지 않는다)
    python3 scripts/label_kit.py make out/targets/zlib/official/r1/gap/gap.json out/targets/expat/official/r1/gap/gap.json \
-       --out labeling/ --seed 7
-   → labeling/sheet.csv     : 번호, 키, 위치, 조건식, 안 간 방향, 정답(H/I/D), 이유  ← 이 두 칸만 채운다
-     labeling/items.md      : 번호마다 함수 이름과 코드 앞뒤 8줄 (읽기용)
-     labeling/GUIDE.md      : 정답 기준과 예시
+       --out evaluation/labeling/ --seed 7
+   → evaluation/labeling/sheet.csv     : 번호, 키, 위치, 조건식, 안 간 방향, 정답(H/I/D), 이유  ← 이 두 칸만 채운다
+     evaluation/labeling/items.md      : 번호마다 함수 이름과 코드 앞뒤 8줄 (읽기용)
+     evaluation/labeling/GUIDE.md      : 정답 기준과 예시
 
 2) 일치도 (두 사람의 시트 또는 기존 정답 파일)
-   python3 scripts/label_kit.py agree labeling/sheet_kim.csv labeling/sheet_lee.csv
+   python3 scripts/label_kit.py agree evaluation/labeling/sheet_kim.csv evaluation/labeling/sheet_lee.csv
    → Cohen's kappa, 일치표, 서로 다른 항목 목록
 
 3) 합치기: 두 사람이 같은 답을 단 항목만 정답 파일(audit_labels.json 형식)로 만든다. 다른 항목은 토론 목록으로.
-   python3 scripts/label_kit.py merge labeling/sheet_kim.csv labeling/sheet_lee.csv --out labeling/consensus.json
-   → 그 뒤 scripts/audit.py <gap.json> labeling/consensus.json 로 도구 정확도를 다시 잰다
+   python3 scripts/label_kit.py merge evaluation/labeling/sheet_kim.csv evaluation/labeling/sheet_lee.csv --out evaluation/labeling/consensus.json
+   → 그 뒤 scripts/audit.py <gap.json> evaluation/labeling/consensus.json 로 도구 정확도를 다시 잰다
 """
 import argparse
 import csv

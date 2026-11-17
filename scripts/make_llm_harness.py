@@ -6,12 +6,12 @@ harnesses/<라이브러리>/official_llm.* 로 저장한다.
   ANTHROPIC_API_KEY=... python3 scripts/make_llm_harness.py --all
   ANTHROPIC_API_KEY=... python3 scripts/make_llm_harness.py zlib expat
 
-- 맡기는 제안: experiments/targets/<라이브러리>.json에서 applied=true인 것(사람 수정본 official_v2와 같은 집합).
+- 맡기는 제안: evaluation/experiments/targets/<라이브러리>.json에서 applied=true인 것(사람 수정본 official_v2와 같은 집합).
   applied=false인 제안은 대조군이라 맡기지 않는다. 그래서 대조군 분기가 열리지 않는지도 함께 볼 수 있다.
-- 제안별로 따로 검증을 통과했던 Claude 수정(samples/llm/runs/.../best.diff)을 참고로 함께 보낸다(--no-hints로 끔).
+- 제안별로 따로 검증을 통과했던 Claude 수정(evaluation/artifacts/llm/runs/.../best.diff)을 참고로 함께 보낸다(--no-hints로 끔).
 - 수정 전 분석(out/targets/<라이브러리>/official/r1/gap/gap.json)이 있어야 한다. 없으면
   python3 scripts/tgt.py repeat <라이브러리> official --trials 1 --secs 120 으로 만든다(2분 실험과 같은 조건).
-- 기록: samples/llm/combined/<라이브러리>/{report.md, best.diff, log.json, request.md}, 요약 samples/llm/combined/SUMMARY.md
+- 기록: evaluation/artifacts/llm/combined/<라이브러리>/{report.md, best.diff, log.json, request.md}, 요약 evaluation/artifacts/llm/combined/SUMMARY.md
 - API 키는 환경 변수로만 받는다. 파일이나 로그에 남기지 않는다.
 """
 import argparse
@@ -26,11 +26,11 @@ from gapfuzz.llmfix import DEFAULT_MODEL, run  # noqa: E402
 
 LIBS = ["tinyxml2", "pugixml", "cjson", "jsoncpp", "zlib", "expat", "json-c"]
 TAG = "official_combined"
-OUT = ROOT / "samples" / "llm" / "combined"
+OUT = ROOT / "evaluation" / "artifacts" / "llm" / "combined"
 
 
 def applied_fixes(lib: str) -> tuple[list[int], list[int]]:
-    d = json.load(open(ROOT / "experiments" / "targets" / f"{lib}.json"))
+    d = json.load(open(ROOT / "evaluation" / "experiments" / "targets" / f"{lib}.json"))
     on = sorted({b["fix"] for b in d["branches"] if b["applied"]})
     off = sorted({b["fix"] for b in d["branches"] if not b["applied"]})
     return on, off
@@ -57,7 +57,7 @@ def make(lib: str, a) -> dict:
         out = ROOT / "harnesses" / lib / f"official_llm{src.suffix}"
         model = "mock" if a.mock else a.model
         head = (f"// [gapfuzz-llm] 이 파일은 Claude({model})가 gapfuzz 제안 {','.join(map(str, on))}를 OSS-Fuzz 하네스에 적용하고\n"
-                f"// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness.py, 기록: samples/llm/combined/{lib}/).\n")
+                f"// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness.py, 기록: evaluation/artifacts/llm/combined/{lib}/).\n")
         out.write_text(head + src.read_text(encoding="utf-8"), encoding="utf-8")
         row.update({"opened": best["opened"], "total": best["total"], "per_fix": best.get("per_fix", {}),
                     "crashes": [c["cls"] for c in best.get("crashes", [])], "harness": str(out.relative_to(ROOT))})

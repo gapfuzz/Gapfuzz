@@ -25,7 +25,7 @@ OSS-Fuzz에 등록된 C/C++ 라이브러리 8개에 적용한 중간 결과입�
 | **Claude가 고칠 수 있나** | 제안 하나씩 맡기면 **32개 중 31개** 통과. 라이브러리마다 한꺼번에 맡기면 6개 모두 통과, 겨냥 분기 **71개 중 65개** 열림 |
 | **오래 돌리면 되지 않나** | zlib에서 24시간 동안 막힌 분기 15개가 저절로 열렸지만, 도구가 하네스 탓으로 짚은 12개는 하나도 열리지 않음. 2분·1시간·24시간 진단의 고칠 곳 목록이 같음 (zlib, jsoncpp) |
 
-장시간 실험(OSS-Fuzz 하네스 vs Claude 수정, 1시간 × 10회와 24시간)은 팀원이 나눠 진행합니다. TinyXML2도 같은 기준으로 다시 실험합니다. 방법은 [EXPERIMENTS.md](EXPERIMENTS.md)에 있습니다.
+장시간 실험(OSS-Fuzz 하네스 vs Claude 수정, 1시간 × 10회와 24시간)은 팀원이 나눠 진행합니다. TinyXML2도 같은 기준으로 다시 실험합니다. 방법은 [평가·재현 문서](evaluation/README.md)에 있습니다.
 
 라이브러리별 분석 결과는 분석기 사이트(`site/index.html`, 내려받아 브라우저로 열기)에서 볼 수 있습니다.
 
@@ -100,20 +100,20 @@ OSS-Fuzz에 등록된 C/C++ 라이브러리 8개에 적용한 중간 결과입�
 | 라이브러리마다 한꺼번에 맡김 → 팀 실험용 `official_llm` | 6개 라이브러리 모두 통과, 겨냥 분기 **71개 중 65개** 열림 (같은 제안을 사람이 고쳤을 때 59/71) |
 
 실패한 1개(json-c `json_object_array_shrink`)는 열리면 라이브러리가 프로그램을 종료하는 분기라 하네스로 열 수 없는 곳이었습니다.
-Claude가 고친 코드와 검사 기록은 `samples/llm/`에 있습니다. 바꾼 줄마다 `// [gapfuzz-llm] 이유` 주석이 붙어 있습니다.
+Claude가 고친 코드와 검사 기록은 `evaluation/artifacts/llm/`에 있습니다. 바꾼 줄마다 `// [gapfuzz-llm] 이유` 주석이 붙어 있습니다.
 
 ### 장시간 실험
 
 | 라이브러리 | 비교 | 1시간 × 10회, 분기 (중앙값) | 24시간 × 1회, 분기 |
 |---|---|---:|---:|
-| pugixml, expat, cJSON, jsoncpp, json-c, zlib | OSS-Fuzz → Claude 수정 | `results/` 참고 | `results/` 참고 |
+| pugixml, expat, cJSON, jsoncpp, json-c, zlib | OSS-Fuzz → Claude 수정 | `evaluation/results/` 참고 | `evaluation/results/` 참고 |
 | TinyXML2 | OSS-Fuzz → Claude 수정 | 다시 실험 예정 | 다시 실험 예정 |
 
 판정 정확도, 크래시 귀속 사례 등 자세한 수치는 [docs/DETAILS.md](docs/DETAILS.md)에 있습니다.
 
 ## 빠른 시작
 
-실험 수치는 **Ubuntu 24.04 + clang 18.1.3**에서 냈습니다. 같은 숫자를 보려면 Docker를 쓰세요(Windows는 WSL + Docker, 자세한 순서는 [EXPERIMENTS.md](EXPERIMENTS.md)).
+실험 수치는 **Ubuntu 24.04 + clang 18.1.3**에서 냈습니다. 같은 숫자를 보려면 Docker를 쓰세요(Windows는 WSL + Docker, 자세한 순서는 [평가·재현 문서](evaluation/README.md)).
 
 ```bash
 git clone https://github.com/gapfuzz/Gapfuzz.git gapfuzz
@@ -159,24 +159,25 @@ python3 -m gapfuzz llmops zlib --top 10                   # 상위 10개의 호�
 
 ## 팀 실험
 
-라이브러리 6개를 **OSS-Fuzz 하네스 vs Claude가 고친 하네스**로 1시간 × 10회, 24시간 × 1회씩 나눠 돌립니다. 방법은 **[EXPERIMENTS.md](EXPERIMENTS.md)**에 있습니다.
+라이브러리 6개를 **OSS-Fuzz 하네스 vs Claude가 고친 하네스**로 1시간 × 10회, 24시간 × 1회씩 나눠 돌립니다. 방법은 **[평가·재현 문서](evaluation/README.md)**에 있습니다.
 Claude 하네스는 이미 저장소에 있어서 팀원은 API 키가 필요 없습니다. 라이브러리를 맡고(`claim`), 돌리고(`run`), 작은 결과 파일만 올리는(`submit`) 흐름이라 팀원끼리 git 충돌이 나지 않습니다.
 
 ## 프로젝트 구조
 
 ```
-gapfuzz/        도구 본체 (analyze, causes, verify, triage, llmfix, llmops, stats …)
-harnesses/      harnesses/<라이브러리>/ 아래에 OSS-Fuzz 하네스(official), 사람이 고친 하네스(official_v2),
-                Claude가 고친 하네스(official_llm). 8개 라이브러리 모두 같은 구조
-targets/        라이브러리 설정 (소스 저장소와 고정 커밋, 빌드 옵션)
-scripts/        실험 실행기 (tgt.py 빌드·퍼징·분석, exp.py 팀 실험, make_llm_harness.py Claude 하네스 생성 …)
-experiments/    장시간 실험에서 확인할 "고칠 곳" 분기 목록 (대조군 표시 포함)
-results/        팀 실험 결과 (1시간 회차마다, 24시간 구간마다 작은 JSON)
-samples/        지금까지의 실험 결과 (검증, 통계, Claude 수정 기록, 24시간 실험)
-tests/          테스트 (가짜 라이브러리, 실제 크래시 9건)
-site/           분석기 사이트
-presentation/   중간발표 자료
-docs/           상세 문서
+gapfuzz/          핵심 분석·수정·검증 코드
+harnesses/        라이브러리별 기준·수정 하네스
+targets/          라이브러리 소스와 빌드 설정
+scripts/          빌드·퍼징·분석 및 평가 실행기
+tests/            핵심 기능과 실제 크래시 테스트
+docs/             상세 사용법과 설계 문서
+site/             분석 결과 웹 뷰어
+evaluation/       연구 평가와 재현 자료
+  experiments/    장시간 실험의 제안·대조군 설정
+  results/        1시간·24시간 실험의 정규화된 결과
+  artifacts/      검증·통계·LLM 수정 기록
+  labeling/       독립 라벨링 자료
+  presentation/   발표 자료
 ```
 
 라이브러리 소스(`third_party/`)와 퍼징 산출물(`out/`)은 저장소에 없습니다. `scripts/exp.py fetch`가 고정 커밋으로 받습니다.
@@ -186,7 +187,7 @@ docs/           상세 문서
 - 호출 순서·상태에 달린 분기(예: 노드를 트리에 붙이지 않은 채 문서를 비워야 열리는 분기)는 아직 원인을 짚지 못합니다.
 - 원인을 잘못 묶는 경우가 있습니다. 새 라이브러리를 붙일 때마다 오판이 드러났고, 규칙을 더해 고쳐 왔습니다 ([사례](docs/DETAILS.md#expat-json-c-libyaml-2026-11-01-추가)).
 - "열면 프로그램이 종료되는 분기"를 제안 단계에서 거르지 못합니다 (json-c `empty_slots < 0`).
-- Claude는 제안 범위를 넘어 코드를 더 바꾸기도 합니다(예: zlib에서 `inflate`를 매 입력 직접 호출). 그래서 장시간 실험의 차이에는 이런 추가 수정의 효과도 섞일 수 있습니다. 바꾼 코드는 모두 `samples/llm/combined/`에 diff로 남겼습니다.
+- Claude는 제안 범위를 넘어 코드를 더 바꾸기도 합니다(예: zlib에서 `inflate`를 매 입력 직접 호출). 그래서 장시간 실험의 차이에는 이런 추가 수정의 효과도 섞일 수 있습니다. 바꾼 코드는 모두 `evaluation/artifacts/llm/combined/`에 diff로 남겼습니다.
 - 판정 정확도의 정답은 도구를 만든 저희가 달았습니다. 팀원 독립 라벨링으로 다시 잴 예정입니다.
 - 새 취약점은 아직 찾지 못했습니다.
 

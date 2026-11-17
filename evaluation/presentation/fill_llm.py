@@ -1,4 +1,4 @@
-"""LLM 하네스 수정 슬라이드(llm_slide.tpl.html)의 숫자를 samples/llm/summary.json으로 채워 midterm.src.html에 넣는다.
+"""LLM 하네스 수정 슬라이드(llm_slide.tpl.html)의 숫자를 evaluation/artifacts/llm/summary.json으로 채워 midterm.src.html에 넣는다.
 
 사용법: python3 fill_llm.py   (그 뒤 build_deck.py로 다시 빌드)
 """
@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-rows = json.load(open(HERE.parent / "samples" / "llm" / "summary.json"))
+rows = json.load(open(HERE.parent / "artifacts" / "llm" / "summary.json"))
 n = len(rows)
 ok = sum(r["llm_ok"] for r in rows)
 first = sum(r["first_try_ok"] for r in rows)

@@ -231,7 +231,8 @@ def run(target: str, harness: str, fix_no, before_path: str | None, secs: int, t
     hint = {}
     if hints:
         for n in nos:
-            for d in (ROOT / "out" / "llm" / target / f"{harness}_fix{n}", ROOT / "samples" / "llm" / "runs" / target / f"{harness}_fix{n}"):
+            for d in (ROOT / "out" / "llm" / target / f"{harness}_fix{n}",
+                      ROOT / "evaluation" / "artifacts" / "llm" / "runs" / target / f"{harness}_fix{n}"):
                 if (d / "best.diff").exists():
                     hint[n] = (d / "best.diff").read_text(encoding="utf-8")
                     break

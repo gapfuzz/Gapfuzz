@@ -1,5 +1,5 @@
 // [gapfuzz-llm] 이 파일은 Claude(claude-sonnet-5-5)가 gapfuzz 제안 1,2,3,4,5,9를 OSS-Fuzz 하네스 official에 적용하고
-// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: samples/llm/combined/yyjson/official/).
+// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: evaluation/artifacts/llm/combined/yyjson/official/).
 // OSS-Fuzz 하네스: yyjson 저장소 fuzz/fuzzer.c (0.13.0, 커밋 6447536) 그대로.
 #include <stdlib.h>
 #include <string.h>

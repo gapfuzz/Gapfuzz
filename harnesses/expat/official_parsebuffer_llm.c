@@ -1,5 +1,5 @@
 // [gapfuzz-llm] 이 파일은 Claude(claude-sonnet-5-5)가 gapfuzz 제안 3를 OSS-Fuzz 하네스 official_parsebuffer에 적용하고
-// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: samples/llm/combined/expat/official_parsebuffer/).
+// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: evaluation/artifacts/llm/combined/expat/official_parsebuffer/).
 // OSS-Fuzz 하네스: libexpat 저장소 expat/fuzz/xml_parsebuffer_fuzzer.c (커밋 f136824) 그대로.
 /*
  * Copyright (C) 2016 The Android Open Source Project

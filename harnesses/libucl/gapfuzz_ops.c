@@ -1,5 +1,5 @@
 // [gapfuzz-ops] 이 파일은 Claude(claude-sonnet-5-5)가 새로 쓴 하네스입니다. OSS-Fuzz 하네스 전체를 합쳐도 불리지 않던 API 10개를 부릅니다.
-// [gapfuzz-ops] gapfuzz가 검사해 통과했습니다 (python3 -m gapfuzz llmops libucl --union, 기록: samples/llm/ops/libucl/_union/).
+// [gapfuzz-ops] gapfuzz가 검사해 통과했습니다 (python3 -m gapfuzz llmops libucl --union, 기록: evaluation/artifacts/llm/ops/libucl/_union/).
 // libucl 새 퍼징 하네스 (수정판)
 // 스키마 검증, 객체 병합/정렬/삭제, 배열/예약, 방출, 경로 조회 등을 입력 바이트로 고른 순서대로 호출한다.
 // 변경 이유: 파싱한 원본 객체(objA/objB)를 서로 참조로 섞거나 여러 번 변형한 뒤 해제하면

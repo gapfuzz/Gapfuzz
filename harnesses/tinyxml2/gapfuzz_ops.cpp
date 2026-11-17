@@ -1,5 +1,5 @@
 // [gapfuzz-ops] 이 파일은 Claude(claude-sonnet-5-5)가 새로 쓴 하네스입니다. OSS-Fuzz 하네스 전체를 합쳐도 불리지 않던 API 10개를 부릅니다.
-// [gapfuzz-ops] gapfuzz가 검사해 통과했습니다 (python3 -m gapfuzz llmops tinyxml2 --union, 기록: samples/llm/ops/tinyxml2/_union/).
+// [gapfuzz-ops] gapfuzz가 검사해 통과했습니다 (python3 -m gapfuzz llmops tinyxml2 --union, 기록: evaluation/artifacts/llm/ops/tinyxml2/_union/).
 // tinyxml2 갭 커버리지용 새 퍼징 하네스.
 // 입력 앞쪽 바이트로 옵션과 호출 순서를 고르고, 나머지를 XML 데이터로 사용한다.
 #include "tinyxml2.h"

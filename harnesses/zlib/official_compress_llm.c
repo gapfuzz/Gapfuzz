@@ -1,5 +1,5 @@
 // [gapfuzz-llm] 이 파일은 Claude(claude-sonnet-5-5)가 gapfuzz 제안 1,2,3,4,8,9,10,11를 OSS-Fuzz 하네스 official_compress에 적용하고
-// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: samples/llm/combined/zlib/official_compress/).
+// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: evaluation/artifacts/llm/combined/zlib/official_compress/).
 // OSS-Fuzz 하네스: oss-fuzz/projects/zlib/compress_fuzzer.c 그대로.
 /* Copyright 2022 Google LLC
 Licensed under the Apache License, Version 2.0 (the "License");
