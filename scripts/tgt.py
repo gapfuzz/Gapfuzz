@@ -164,19 +164,11 @@ def union(t: dict, harnesses: list[str] | None = None, secs: int = 120, r: int =
     return d
 
 
-def run_one(t: dict, h: str, r: int, secs: int, seed_base: int, nice: int, dict_path: str | None, sub: str = "") -> str:
-    """sub: 결과 하위 폴더 (예: "long3600"). 비우면 out/targets/<이름>/<하네스>/r<k>."""
+def measure_dir(t: dict, h: str, d: Path) -> list[str]:
+    """d/corpus 를 커버리지 바이너리로 다시 실행해 d 에 cov.profdata, coverage.json, 요약, 갭 분석을 만든다."""
     b = ROOT / "out" / "targets" / t["name"] / h
-    d = (b / sub if sub else b) / f"r{r}"
-    subprocess.run(["rm", "-rf", str(d)], check=True)
-    (d / "corpus").mkdir(parents=True)
-    dct = dict_path or (str(ROOT / t["dict"]) if t.get("dict") else None)
-    args = ["nice", "-n", str(nice), str(b / "fuzz"), f"-max_total_time={secs}", f"-seed={seed_base + r}",
-            "-rss_limit_mb=2048", "-timeout=10", "-print_final_stats=1", f"-artifact_prefix={d}/", str(d / "corpus")]
-    if dct:
-        args.insert(-1, f"-dict={dct}")
-    with open(d / "fuzz.log", "w") as log:
-        subprocess.run(args, stdout=log, stderr=subprocess.STDOUT)
+    for f in d.glob("cov-*.profraw"):
+        f.unlink()
     env = dict(os.environ, LLVM_PROFILE_FILE=str(d / "cov-%p.profraw"))
     subprocess.run([str(b / "cov"), "-runs=0", str(d / "corpus")], env=env,
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -190,7 +182,80 @@ def run_one(t: dict, h: str, r: int, secs: int, seed_base: int, nice: int, dict_
                          capture_output=True, text=True, check=True).stdout
     (d / "coverage_summary.txt").write_text(rep)
     analyze(t, h, d)
-    tot = rep.strip().splitlines()[-1].split()
+    return rep.strip().splitlines()[-1].split()
+
+
+def snap_dir(t: dict, h: str, r: int, sub: str, at: int) -> Path:
+    """실행 중 at초 시점의 코퍼스로 잰 결과가 놓이는 곳: out/targets/<이름>/<하네스>/<sub>/snap<at>/r<k>."""
+    b = ROOT / "out" / "targets" / t["name"] / h
+    return (b / sub if sub else b) / f"snap{at}" / f"r{r}"
+
+
+def _copy_corpus(src: Path, dst: Path, keep=None) -> int:
+    """코퍼스 파일을 하드 링크로 옮겨 담는다(용량을 더 쓰지 않음). 링크가 안 되는 파일 시스템이면 복사한다."""
+    import shutil
+    subprocess.run(["rm", "-rf", str(dst.parent)], check=True)
+    dst.mkdir(parents=True)
+    n = 0
+    for f in list(os.scandir(src)):
+        try:
+            if keep is not None and not keep(f):
+                continue
+            try:
+                os.link(f.path, dst / f.name)
+            except OSError:
+                shutil.copy2(f.path, dst / f.name)
+            n += 1
+        except FileNotFoundError:           # 퍼저가 방금 더 작은 입력으로 바꾸면서 지운 파일
+            pass
+    return n
+
+
+def prefix_from_mtime(t: dict, h: str, r: int, sub: str, at: int, started: float) -> Path | None:
+    """실행 중 스냅샷이 없는 예전 기록용 근사: 끝난 코퍼스에서 파일 시각이 시작 후 at초 이내인 입력만 골라 잰다.
+    퍼저가 나중에 더 작은 입력으로 바꾼 것은 빠지므로 실제 at초 시점보다 낮게 나올 수 있다(method: "mtime")."""
+    b = ROOT / "out" / "targets" / t["name"] / h
+    d = (b / sub if sub else b) / f"r{r}"
+    if not (d / "corpus").is_dir():
+        return None
+    sd = snap_dir(t, h, r, sub, at)
+    n = _copy_corpus(d / "corpus", sd / "corpus", keep=lambda f: f.stat().st_mtime <= started + at)
+    measure_dir(t, h, sd)
+    json.dump({"secs": at, "method": "mtime", "files": n}, open(sd / "snap.json", "w"))
+    return sd
+
+
+def run_one(t: dict, h: str, r: int, secs: int, seed_base: int, nice: int, dict_path: str | None, sub: str = "",
+            snaps: list[int] | None = None) -> str:
+    """sub: 결과 하위 폴더 (예: "long3600"). 비우면 out/targets/<이름>/<하네스>/r<k>.
+    snaps: 퍼징 시작 후 이 시각(초)들에 코퍼스를 그대로 찍어 두고, 끝난 뒤 그 시점의 커버리지를 따로 잰다
+           (동일 계산량 비교용). 끝난 뒤 파일 시각으로 자르면 퍼저가 바꿔치기한 입력이 빠지므로 실행 중에 찍는다."""
+    b = ROOT / "out" / "targets" / t["name"] / h
+    d = (b / sub if sub else b) / f"r{r}"
+    subprocess.run(["rm", "-rf", str(d)], check=True)
+    (d / "corpus").mkdir(parents=True)
+    dct = dict_path or (str(ROOT / t["dict"]) if t.get("dict") else None)
+    args = ["nice", "-n", str(nice), str(b / "fuzz"), f"-max_total_time={secs}", f"-seed={seed_base + r}",
+            "-rss_limit_mb=2048", "-timeout=10", "-print_final_stats=1", f"-artifact_prefix={d}/", str(d / "corpus")]
+    if dct:
+        args.insert(-1, f"-dict={dct}")
+    taken = []
+    with open(d / "fuzz.log", "w") as log:
+        p = subprocess.Popen(args, stdout=log, stderr=subprocess.STDOUT)
+        t0 = time.time()
+        for at in sorted(set(snaps or [])):
+            while p.poll() is None and time.time() - t0 < at:
+                time.sleep(max(0.05, min(1.0, at - (time.time() - t0))))
+            early = p.poll() is not None                     # 크래시 등으로 그 전에 끝났으면 마지막 코퍼스가 곧 그 시점의 코퍼스
+            sd = snap_dir(t, h, r, sub, at)
+            n = _copy_corpus(d / "corpus", sd / "corpus")
+            taken.append((at, sd, {"secs": at, "method": "snapshot", "files": n, "ended_early": early,
+                                   "taken_after_secs": round(time.time() - t0, 1)}))
+        p.wait()
+    tot = measure_dir(t, h, d)
+    for at, sd, info in taken:
+        measure_dir(t, h, sd)
+        json.dump(info, open(sd / "snap.json", "w"))
     crashes = sum(1 for f in os.listdir(d) if f.split("-")[0] in ("crash", "leak", "timeout", "oom"))
     line = f"[tgt] {time.strftime('%H:%M')} {t['name']}/{h} r{r}: lines {tot[9]} branches {tot[12]} crashes={crashes}"
     print(line, flush=True)

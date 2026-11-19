@@ -185,8 +185,8 @@ def libs(_a) -> int:
         have = (ROOT / t["clone_dir"]).exists()
         one = min(len(done_trials(lib, h)) for h in HARNESSES)
         day = min((day_state(lib, h).get("done_secs", 0) for h in HARNESSES)) / 3600
-        ud = union_dir(lib, 3600) / "fixed"
-        nu = len(list(ud.glob("r*.json"))) if ud.exists() else 0
+        ud = union_dir(lib, 3600)
+        nu = min((len(list((ud / s).glob("r*.json"))) for s, _ in SIDES if (ud / s).exists()), default=0)
         print(f"{lib:12} {t['commit'][:10]}  {len(tg.ossfuzz_harnesses(t)):>6}  {one:>11}/10  {nu:>8}/10  {day:>7.1f}/24  "
               f"{'받음' if have else 'fetch 필요':10} {owner_of(lib) or '-'}")
     return 0
@@ -290,11 +290,13 @@ def claim(a) -> int:
     return 0
 
 
-def run_trial(lib: str, h: str, r: int, secs: int, env: dict) -> str:
+def run_trial(lib: str, h: str, r: int, secs: int, env: dict, snaps: list[int] | None = None) -> str:
     started = time.time()
     t = target(lib)
-    tg.run_one(t, h, r, secs, SEED_BASE, 0, None, sub=f"long{secs}")
+    tg.run_one(t, h, r, secs, SEED_BASE, 0, None, sub=f"long{secs}", snaps=snaps)
     res = summarize_run(lib, h, r, secs, started, env)
+    if snaps:
+        res["snapshots"] = sorted(snaps)
     out = RESULTS / lib / plan_dir(secs) / h / f"r{r:02d}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
@@ -475,101 +477,201 @@ def _has_harness(t: dict, h: str) -> bool:
         return False
 
 
-def union_sets(t: dict) -> tuple[list[str], list[str]]:
-    """(기준 묶음, 적용 후 묶음).
-    기준: 설정의 "ossfuzz" 목록(OSS-Fuzz 하네스 전부).
-    적용 후: 각 하네스의 고친 버전이 있으면 그것(official → official_llm, 그 밖은 <이름>_llm), 없으면 원래 하네스 그대로,
-             그리고 gapfuzz_ops(어느 하네스도 안 부르는 API를 부르는 새 하네스)가 있으면 추가.
-    고치지 않은 하네스는 두 묶음이 같은 실행 기록을 같이 쓴다(다시 돌리지 않음)."""
+SIDES = [("base", "A 기준"), ("fixed", "B 수정"), ("fixed_ops", "C 수정 + gapfuzz_ops"), ("fixed_ops_equal", "C 동일 계산량")]
+
+
+def union_sets(t: dict) -> tuple[list[str], list[str], list[str]]:
+    """(A 기준, B 수정, C 수정 + gapfuzz_ops).
+    A: 설정의 "ossfuzz" 목록(OSS-Fuzz 하네스 전부).
+    B: 각 하네스의 고친 버전이 있으면 그것(official → official_llm, 그 밖은 <이름>_llm), 없으면 원래 하네스 그대로. 하네스 수는 A와 같다.
+    C: B에 gapfuzz_ops(어느 하네스도 안 부르는 API를 부르는 새 하네스)를 더한 것. gapfuzz_ops가 없으면 B와 같다.
+    같은 하네스는 묶음들이 같은 실행 기록을 같이 쓴다(다시 돌리지 않음)."""
     base = tg.ossfuzz_harnesses(t)
     fixed = []
     for h in base:
         cand = FIXED if h == BASE else f"{h}_llm"
         fixed.append(cand if _has_harness(t, cand) else h)
-    if _has_harness(t, "gapfuzz_ops"):
-        fixed.append("gapfuzz_ops")
-    return base, fixed
+    ops = fixed + ["gapfuzz_ops"] if _has_harness(t, "gapfuzz_ops") else list(fixed)
+    return base, fixed, ops
+
+
+def equal_cutoff(secs: int, n_fixed: int) -> int:
+    """C(하네스 n+1개)의 총 퍼징 시간이 B(하네스 n개 × secs초)와 같아지는 하네스당 시간(초)."""
+    return secs * n_fixed // (n_fixed + 1)
 
 
 def union_dir(lib: str, secs: int) -> Path:
     return RESULTS / lib / f"union_{plan_dir(secs)}"
 
 
-def union_one(lib: str, t: dict, side: str, hs: list[str], r: int, secs: int, env: dict) -> dict:
-    """한 회차의 한 묶음: 하네스들의 실행 기록을 합쳐 커버리지와 '어느 하네스도 안 부르는 API' 수를 잰다."""
-    d = tg.union(t, hs, secs=secs, r=r, name=f"_union_{side}", sub=f"long{secs}")
+def union_one(lib: str, t: dict, side: str, hs: list[str], r: int, secs: int, env: dict, at: int | None = None) -> dict:
+    """한 회차의 한 묶음: 하네스들의 실행 기록을 합쳐 커버리지와 '어느 하네스도 안 부르는 API' 수를 잰다.
+    at: 주면 하네스마다 실행 중 at초 시점에 찍어 둔 코퍼스로 잰 기록을 합친다(동일 계산량)."""
+    sub = f"long{secs}/snap{at}" if at else f"long{secs}"
+    d = tg.union(t, hs, secs=secs, r=r, name=f"_union_{side}", sub=sub)
     cov, _ = coverage_map(d / "coverage.json")
-    res_apis = json.load(open(d / "gap" / "gap.json"))["results"]
-    res = {"lib": lib, "side": side, "trial": r, "secs_per_harness": secs, "harnesses": hs,
-           "total_cpu_hours": round(len(hs) * secs / 3600, 2), "coverage": cov, "apis": len(res_apis),
+    gap = json.load(open(d / "gap" / "gap.json"))
+    res_apis = gap["results"]
+    per = at or secs
+    res = {"lib": lib, "side": side, "trial": r, "secs_per_harness": per, "harnesses": hs,
+           "total_cpu_hours": round(len(hs) * per / 3600, 2), "coverage": cov, "apis": len(res_apis),
            "not_called": sum(1 for x in res_apis if x["category"] == "NOT_CALLED"),
-           "fixes": len(json.load(open(d / "gap" / "gap.json"))["harness_fixes"]),
+           "fixes": len(gap["harness_fixes"]),
            "by": who_am_i(), "clang": env["clang"], "cpu": env["cpu"], "tool_commit": env["tool_commit"],
            "finished": time.strftime("%Y-%m-%d %H:%M")}
+    if at:
+        meth = {h: json.load(open(tg.snap_dir(t, h, r, f"long{secs}", at) / "snap.json")) for h in hs}
+        res["cut_from_secs"] = secs
+        res["snapshot_method"] = {h: m["method"] for h, m in meth.items()}
+        res["approximate"] = any(m["method"] != "snapshot" for m in meth.values())
     out = union_dir(lib, secs) / side / f"r{r:02d}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     return res
 
 
+def _ensure_snap(lib: str, t: dict, h: str, r: int, secs: int, at: int) -> bool:
+    """h의 r회차에 at초 시점 기록이 있게 한다. 실행 중 스냅샷이 없는 예전 기록은 파일 시각으로 근사한다."""
+    if (tg.snap_dir(t, h, r, f"long{secs}", at) / "cov.profdata").exists():
+        return True
+    rec = RESULTS / lib / plan_dir(secs) / h / f"r{r:02d}.json"
+    d = ROOT / "out" / "targets" / lib / h / f"long{secs}" / f"r{r}"
+    started = None
+    if rec.exists():
+        try:
+            started = time.mktime(time.strptime(json.load(open(rec))["started"][:19], "%Y-%m-%dT%H:%M:%S"))
+        except Exception:
+            started = None
+    if started is None and (d / "fuzz.log").exists():
+        started = (d / "fuzz.log").stat().st_mtime - secs
+    if started is None or not (d / "corpus").is_dir() or not os.listdir(d / "corpus"):
+        return False
+    print(f"[run] {lib}/{h} r{r:02d}: 실행 중 스냅샷이 없는 예전 기록이라 {at}초 시점을 파일 시각으로 근사합니다", flush=True)
+    return tg.prefix_from_mtime(t, h, r, f"long{secs}", at, started) is not None
+
+
 def run_union(a, t: dict, env: dict) -> int:
-    base, fixed = union_sets(t)
-    if len(base) == 1 and fixed == base:
+    base, fixed, ops = union_sets(t)
+    has_ops = ops != fixed
+    at = equal_cutoff(a.secs, len(fixed)) if has_ops else None
+    if len(base) == 1 and fixed == base and not has_ops:
         print(f"[run] {a.lib}: OSS-Fuzz 하네스가 하나뿐이고 고친 하네스도 없습니다. 기준만 잽니다.")
-    allh = list(dict.fromkeys(base + fixed))
+    allh = list(dict.fromkeys(base + ops))
     trials = parse_range(a.trials)
     raw = lambda h, r: ROOT / "out" / "targets" / a.lib / h / f"long{a.secs}" / f"r{r}" / "cov.profdata"
     todo = [(h, r) for r in trials for h in allh if not raw(h, r).exists()]
     hours = len(todo) * a.secs / 3600 / max(a.jobs, 1)
-    print(f"[run] {a.lib} (하네스 전체 기준): 기준 {len(base)}개 {base}")
-    print(f"[run]   적용 후 {len(fixed)}개 {fixed}")
+    print(f"[run] {a.lib} (하네스 전체 기준): A 기준 {len(base)}개 {base}")
+    print(f"[run]   B 수정 {len(fixed)}개 {fixed}")
+    if has_ops:
+        print(f"[run]   C 수정 + gapfuzz_ops {len(ops)}개. 동일 계산량 비교용으로 C의 하네스는 {at}초 시점도 함께 잽니다 "
+              f"({len(ops)}개 × {at}초 ≈ B의 {len(fixed)}개 × {a.secs}초)")
     print(f"[run]   새로 돌릴 것 {len(todo)}개 (하네스 {len(allh)}개 × 회차 {a.trials} 중 원본이 없는 것, 회당 {a.secs}초, 동시에 {a.jobs}개) → 약 {hours:.1f}시간")
     for h in allh:
         tg.build(t, h)
     with cf.ThreadPoolExecutor(max_workers=a.jobs) as ex:
-        futs = [ex.submit(run_trial, a.lib, h, r, a.secs, env) for h, r in todo]
+        futs = [ex.submit(run_trial, a.lib, h, r, a.secs, env, [at] if at and h in ops else None) for h, r in todo]
         for f in cf.as_completed(futs):
             try:
                 print(f.result(), flush=True)
             except Exception as e:
                 print(f"[run] 실패: {e!r}", flush=True)
+    sets = {"base": base, "fixed": fixed, "fixed_ops": ops, "fixed_ops_equal": ops}
+    names = dict(SIDES)
     for r in trials:
-        for side, hs in (("base", base), ("fixed", fixed)):
-            if side == "fixed" and fixed == base:
-                continue
+        for side, hs in sets.items():
+            if (side == "fixed" and fixed == base) or (side.startswith("fixed_ops") and not has_ops):
+                continue                                   # 같은 묶음은 한 번만 (보고서가 앞 묶음 값을 그대로 씀)
             if not all(raw(h, r).exists() for h in hs):
-                print(f"[run] r{r:02d} {side}: 아직 끝나지 않은 하네스가 있어 합치지 않습니다")
+                print(f"[run] r{r:02d} {names[side]}: 아직 끝나지 않은 하네스가 있어 합치지 않습니다")
                 continue
-            x = union_one(a.lib, t, side, hs, r, a.secs, env)
-            print(f"[run] r{r:02d} {'기준' if side == 'base' else '적용 후'} 합침: 분기 {x['coverage']['branches']['pct']:.2f}% "
-                  f"라인 {x['coverage']['lines']['pct']:.2f}% 어느 하네스도 안 부르는 API {x['not_called']}/{x['apis']}", flush=True)
+            eq = side == "fixed_ops_equal"
+            if eq and not all(_ensure_snap(a.lib, t, h, r, a.secs, at) for h in hs):
+                print(f"[run] r{r:02d} {names[side]}: {at}초 시점 기록을 만들 수 없는 하네스가 있어 건너뜁니다 (코퍼스가 지워짐)")
+                continue
+            x = union_one(a.lib, t, side, hs, r, a.secs, env, at=at if eq else None)
+            print(f"[run] r{r:02d} {names[side]} 합침: 분기 {x['coverage']['branches']['pct']:.2f}% "
+                  f"라인 {x['coverage']['lines']['pct']:.2f}% 어느 하네스도 안 부르는 API {x['not_called']}/{x['apis']}"
+                  + (" (근사)" if x.get("approximate") else ""), flush=True)
     union_report(a.lib, a.secs)
     print(f"[run] 끝. 결과: evaluation/results/{a.lib}/UNION.md  올리기: python3 scripts/exp.py submit {a.lib}")
     return 0
 
 
+def ops_status(lib: str) -> str:
+    """이미 만든 gapfuzz_ops의 상태를 만들 때의 기록에서 읽는다 (다시 만들지 않음)."""
+    p = EVALUATION / "artifacts" / "llm" / "ops" / lib / "_union" / "log.json"
+    if not p.exists():
+        return ""
+    log = json.load(open(p))
+    best = next((x for x in log.get("tries", []) if x.get("try") == log.get("best")), None)
+    if not best:
+        return "REJECTED (채택된 시도 없음)"
+    c, n = best.get("called", 0), best.get("total", 0)
+    miss = ", ".join(f"`{m.split('(')[0]}`" for m in best.get("missing", []))
+    return (f"{'COMPLETE' if n and c == n else 'PARTIAL'} · API {c}/{n} · 검사 퍼징 크래시 {len(best.get('crashes', []))}"
+            + (f" · 실행되지 않은 API: {miss}" if miss else ""))
+
+
 def union_report(lib: str, secs: int = 3600) -> None:
     d = union_dir(lib, secs)
-    A = [json.load(open(p)) for p in sorted((d / "base").glob("r*.json"))] if (d / "base").exists() else []
-    B = [json.load(open(p)) for p in sorted((d / "fixed").glob("r*.json"))] if (d / "fixed").exists() else []
-    if not A:
+    G = {s: {x["trial"]: x for x in (json.load(open(p)) for p in sorted((d / s).glob("r*.json")))} if (d / s).exists() else {}
+         for s, _ in SIDES}
+    if not G["base"]:
         return
-    br = lambda runs: [r["coverage"]["branches"]["pct"] for r in runs]
-    ln = lambda runs: [r["coverage"]["lines"]["pct"] for r in runs]
-    nc = lambda runs: sorted(r["not_called"] for r in runs)
+    if not G["fixed"]:                       # 고친 하네스가 없는 라이브러리: B는 A와 같은 묶음
+        G["fixed"] = G["base"]
+    names = dict(SIDES)
+    br = lambda x: x["coverage"]["branches"]["pct"]
+    ln = lambda x: x["coverage"]["lines"]["pct"]
+    med = lambda v: (sorted(v)[len(v) // 2] if len(v) % 2 else (sorted(v)[len(v) // 2 - 1] + sorted(v)[len(v) // 2]) / 2)
     L = [f"# 하네스 전체 기준 실험 — {lib}", "",
-         "라이브러리의 OSS-Fuzz 하네스를 모두 따로 돌린 뒤 커버리지를 합쳐서 비교합니다.",
-         f"하네스마다 {secs}초씩, 같은 회차는 같은 시드. 값은 중앙값 [최솟값–최댓값].", "",
-         f"- 기준: OSS-Fuzz 하네스 {len(A[0]['harnesses'])}개 ({', '.join(A[0]['harnesses'])}), 회차당 CPU {A[0]['total_cpu_hours']}시간"]
-    if B:
-        L.append(f"- 적용 후: 하네스 {len(B[0]['harnesses'])}개 ({', '.join(B[0]['harnesses'])}), 회차당 CPU {B[0]['total_cpu_hours']}시간")
-    L += ["", "| | 회차 | 라인 | 분기 | 어느 하네스도 안 부르는 API |", "|---|---:|---|---|---|",
-          f"| 기준 (OSS-Fuzz 전체) | {len(A)} | {_fmt(ln(A))} | {_fmt(br(A))} | {nc(A)[len(A) // 2]} / {A[0]['apis']} |"]
-    if B:
-        L.append(f"| 적용 후 (gapfuzz) | {len(B)} | {_fmt(ln(B))} | {_fmt(br(B))} | {nc(B)[len(B) // 2]} / {B[0]['apis']} |")
-        L += ["", f"분기 커버리지: A12 = {a12(br(A), br(B)):.2f}, p = {mwu_p(br(A), br(B)):.2g} (Mann-Whitney U, 양측)"]
-        if len(B[0]["harnesses"]) != len(A[0]["harnesses"]):
-            L += ["", f"주의: 적용 후 쪽은 하네스가 {len(B[0]['harnesses']) - len(A[0]['harnesses'])}개 더 많아 회차당 총 퍼징 시간도 그만큼 깁니다."]
+         "라이브러리의 하네스를 모두 따로 돌린 뒤 묶음별로 커버리지를 합쳐서 비교합니다.",
+         f"하네스마다 {secs}초씩, 같은 회차는 같은 시드. 값은 중앙값 [최솟값–최댓값].", ""]
+    desc = {"base": "OSS-Fuzz 하네스 전체", "fixed": "고친 버전이 있는 하네스는 고친 것으로 바꿈 (하네스 수는 A와 같음)",
+            "fixed_ops": "B + gapfuzz_ops", "fixed_ops_equal": "C와 같은 하네스, 총 퍼징 시간을 B와 맞춤"}
+    for s, _ in SIDES:
+        if G[s]:
+            x = next(iter(G[s].values()))
+            L.append(f"- **{names[s]}**: {desc[s]}. 하네스 {len(x['harnesses'])}개 × {x['secs_per_harness']}초 = 회차당 CPU {x['total_cpu_hours']}시간"
+                     + (f" ({', '.join(x['harnesses'])})" if s != "fixed_ops_equal" else ""))
+    st = ops_status(lib)
+    if st:
+        L += ["", f"gapfuzz_ops 생성 상태: {st}"]
+    L += ["", "| 묶음 | 회차 | 회차당 CPU 시간 | 라인 | 분기 | 어느 하네스도 안 부르는 API |", "|---|---:|---:|---|---|---:|"]
+    for s, _ in SIDES:
+        if G[s]:
+            v = list(G[s].values())
+            L.append(f"| {names[s]} | {len(v)} | {v[0]['total_cpu_hours']} | {_fmt([ln(x) for x in v])} | {_fmt([br(x) for x in v])} | "
+                     f"{med([x['not_called'] for x in v]):g} / {v[0]['apis']} |")
+    pairs = [("base", "fixed", "A → B", "기존 하네스를 고친 효과 (하네스 수와 총 시간이 같음)"),
+             ("fixed", "fixed_ops", "B → C", "gapfuzz_ops를 하나 더 돌린 효과 (C가 하네스 1개만큼 시간을 더 씀)"),
+             ("fixed", "fixed_ops_equal", "B → C 동일 계산량", "같은 총 시간에서 gapfuzz_ops를 넣은 효과"),
+             ("base", "fixed_ops", "A → C", "전체 효과")]
+    rows = []
+    for x, y, label, meaning in pairs:
+        if G[x] is G[y] or not G[y]:
+            continue
+        rs = sorted(set(G[x]) & set(G[y]))
+        if not rs:
+            continue
+        dv = [br(G[y][r]) - br(G[x][r]) for r in rs]
+        dn = [G[y][r]["not_called"] - G[x][r]["not_called"] for r in rs]
+        rows.append(f"| {label} | {len(rs)} | {med(dv):+.2f}%p [{min(dv):+.2f} – {max(dv):+.2f}] | {sum(1 for v in dv if v > 0)}/{len(rs)} | "
+                    f"{wilcoxon_p(dv):.2g} | {med(dn):+g} | {meaning} |".replace("| +0 |", "| 0 |"))
+    if rows:
+        L += ["", "## 회차별 차이", "",
+              "같은 회차끼리(같은 시드, 같은 컴퓨터) 뒤 묶음에서 앞 묶음을 뺀 값입니다. p는 Wilcoxon 부호순위 검정(양측, 정확).",
+              "고치지 않은 하네스는 묶음들이 같은 실행 기록을 같이 쓰므로, 독립 표본 검정이 아니라 회차별 대응 비교를 씁니다.", "",
+              "| 비교 | 회차 | 분기 커버리지 차이 | 오른 회차 | p | 안 부르는 API 수 차이 | 뜻 |", "|---|---:|---|---:|---:|---:|---|"] + rows
+    eq = list(G["fixed_ops_equal"].values())
+    if eq:
+        n = len(eq[0]["harnesses"])
+        L += ["", f"동일 계산량: C의 하네스 {n}개를 각각 {eq[0]['secs_per_harness']}초 시점에서 끊어 합쳤습니다 "
+                  f"({n} × {eq[0]['secs_per_harness']}초 ≈ B의 {n - 1} × {secs}초). 퍼징을 다시 돌리지 않고, 실행 중 그 시각에 찍어 둔 코퍼스로 쟀습니다."]
+        ap = sorted(x["trial"] for x in eq if x.get("approximate"))
+        if ap:
+            L += [f"주의: 회차 {ap}는 실행 중 스냅샷이 없는 예전 기록이 섞여 파일 시각으로 근사했습니다. 실제보다 낮게 나올 수 있습니다."]
     (RESULTS / lib / "UNION.md").write_text("\n".join(L) + "\n", encoding="utf-8")
 
 
@@ -615,6 +717,34 @@ def mwu_p(x: list[float], y: list[float]) -> float:
     dev = abs(obs - mean)
     extreme = sum(w for (c, s), w in dist.items() if c == n and abs(s / 2 - mean) >= dev - 1e-9)
     return min(1.0, extreme / total)
+
+
+def wilcoxon_p(d: list[float]) -> float:
+    """Wilcoxon 부호순위 양측 정확검정. 차이가 0인 쌍은 빼고, 크기가 같은 차이는 평균 순위를 준다."""
+    d = [x for x in d if abs(x) > 1e-12]
+    n = len(d)
+    if not n:
+        return 1.0
+    order = sorted(abs(x) for x in d)
+    rank, i = {}, 0
+    while i < n:
+        j = i
+        while j + 1 < n and abs(order[j + 1] - order[i]) < 1e-12:
+            j += 1
+        rank[order[i]] = (i + j) / 2 + 1
+        i = j + 1
+    rk = [next(v for k, v in rank.items() if abs(k - abs(x)) < 1e-12) for x in d]
+    obs = sum(r for r, x in zip(rk, d) if x > 0)
+    dist = {0: 1}                                       # 양의 순위합 × 2 -> 부호 조합 수
+    for r in rk:
+        r2 = int(round(r * 2))
+        nd = dict(dist)
+        for s_, w in dist.items():
+            nd[s_ + r2] = nd.get(s_ + r2, 0) + w
+        dist = nd
+    mean = sum(rk) / 2
+    dev = abs(obs - mean)
+    return min(1.0, sum(w for s_, w in dist.items() if abs(s_ / 2 - mean) >= dev - 1e-9) / 2 ** n)
 
 
 def _fmt(v: list[float]) -> str:

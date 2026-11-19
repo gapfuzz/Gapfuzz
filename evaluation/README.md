@@ -2,11 +2,26 @@
 
 이 디렉터리는 Gapfuzz의 효과를 평가하고 결과를 재현하기 위한 자료입니다. 일반적인 도구 사용법은 루트 [README](../README.md)와 [상세 문서](../docs/DETAILS.md)를 보세요.
 
-이 디렉터리는 Gapfuzz의 효과를 평가하고 결과를 재현하기 위한 자료입니다. 일반적인 도구 사용법은 루트 [README](../README.md)와 [상세 문서](../docs/DETAILS.md)를 보세요.
-
 ## 무엇을 실험하나
 
-라이브러리마다 **하네스 묶음 두 개**를 같은 컴퓨터에서, 같은 시간 동안, 같은 시드로 돌려 비교합니다.
+라이브러리마다 **하네스 묶음 세 개**를 같은 컴퓨터에서, 같은 시드로 돌려 비교합니다. 하네스는 하나씩 따로 1시간 퍼징하고, 묶음별로 커버리지를 합칩니다.
+
+| 묶음 | 들어가는 하네스 | 회차당 총 퍼징 시간 |
+| --- | --- | --- |
+| A 기준 | OSS-Fuzz 하네스 전체 | 하네스 수 × 1시간 |
+| B 수정 | 고친 버전(`_llm`)이 있는 하네스는 고친 것으로 바꿈. 하네스 수는 A와 같음 | A와 같음 |
+| C 수정 + `gapfuzz_ops` | B에 `gapfuzz_ops`를 더함 | B보다 1시간 많음 |
+
+| 비교 | 답하려는 질문 |
+| --- | --- |
+| A → B | 기존 하네스를 고친 효과가 있는가 (하네스 수와 시간이 같음) |
+| B → C | `gapfuzz_ops`를 하나 더 돌리면 얼마나 늘어나는가 (C가 1시간을 더 씀) |
+| B → C 동일 계산량 | 총 퍼징 시간을 B와 맞춰도 `gapfuzz_ops`를 넣는 쪽이 나은가 |
+| A → C | 전체 효과 |
+
+**동일 계산량 비교는 퍼징을 따로 돌리지 않습니다.** C의 하네스가 N+1개라면, 1시간 퍼징 도중 `60 × N/(N+1)`분 시점(하네스 9개인 zlib는 54분)에 코퍼스를 그대로 찍어 두고, 끝난 뒤 그 코퍼스로 커버리지를 한 번 더 잽니다. 끝난 뒤에 파일 시각으로 자르지 않는 이유는, 퍼저가 더 작은 입력을 찾으면 옛 파일을 지우기 때문입니다.
+
+같은 하네스는 묶음들이 같은 실행 기록을 같이 씁니다. 그래서 묶음을 세 개로 나눠도 퍼징 시간은 늘지 않습니다.
 
 ### 하네스 이름
 
@@ -192,11 +207,12 @@ python3 scripts/exp.py fetch <라이브러리 이름>   # 라이브러리 소스
 python3 scripts/exp.py run <라이브러리 이름> --plan union --secs 60 --trials 1-2    # 짧게: 끝까지 도는지 확인 (15분쯤)
 ```
 
-처음에 두 묶음의 하네스 목록이 나옵니다. **"적용 후" 목록에 `gapfuzz_ops`가 있는지 확인합니다.** 없으면 멈추고 4번의 `git pull`부터 다시 봅니다.
+처음에 묶음별 하네스 목록이 나옵니다. **"C 수정 + gapfuzz_ops" 줄이 있는지 확인합니다.** 없으면 멈추고 4번의 `git pull`부터 다시 봅니다.
 
 ```
-[run] <라이브러리 이름> (하네스 전체 기준): 기준 N개 ['official', ...]
-[run]   적용 후 M개 ['official_llm', ..., 'gapfuzz_ops']
+[run] <라이브러리 이름> (하네스 전체 기준): A 기준 N개 ['official', ...]
+[run]   B 수정 N개 ['official_llm', ...]
+[run]   C 수정 + gapfuzz_ops N+1개. 동일 계산량 비교용으로 C의 하네스는 ...초 시점도 함께 잽니다 (...)
 [run]   새로 돌릴 것 K개 (...) → 약 X시간
 ```
 
@@ -251,8 +267,10 @@ free -g | grep Mem                     # 첫 번째 숫자가 메모리(GB)
 
 ```
 [run] 11-20 15:57 <라이브러리 이름>/official_compress r01: 분기 ...% 라인 ...% 겨냥 분기 ../.. 크래시 0
-[run] r01 기준 합침: 분기 ...% 라인 ...% 어느 하네스도 안 부르는 API ../..
-[run] r01 적용 후 합침: 분기 ...% 라인 ...% 어느 하네스도 안 부르는 API ../..
+[run] r01 A 기준 합침: 분기 ...% 라인 ...% 어느 하네스도 안 부르는 API ../..
+[run] r01 B 수정 합침: 분기 ...% 라인 ...% 어느 하네스도 안 부르는 API ../..
+[run] r01 C 수정 + gapfuzz_ops 합침: 분기 ...% 라인 ...% 어느 하네스도 안 부르는 API ../..
+[run] r01 C 동일 계산량 합침: 분기 ...% 라인 ...% 어느 하네스도 안 부르는 API ../..
 ```
 
 ### tmux에서 빠져나오기 / 다시 붙기
@@ -290,17 +308,22 @@ cat evaluation/results/<라이브러리 이름>/REPORT.md      # official 대 of
 
 | 항목 | 뜻 | 효과가 있다고 말할 수 있는 기준 |
 | --- | --- | --- |
-| 분기 커버리지 중앙값 [최소–최대] | 10회 결과의 가운데 값과 범위 | 적용 후가 더 높음 |
-| 어느 하네스도 안 부르는 API | 묶음 전체가 한 번도 실행하지 않은 공개 API 수 | 적용 후가 더 적음 |
-| A12 | 적용 후 한 회가 기준 한 회보다 높을 확률 | 0.5면 차이 없음, **0.71 이상이면 큰 차이** |
-| p (Mann-Whitney U) | 차이가 우연일 가능성 | **0.05 미만** |
+| 분기 커버리지 중앙값 [최소–최대] | 묶음별 10회 결과의 가운데 값과 범위 | 뒤 묶음이 더 높음 |
+| 어느 하네스도 안 부르는 API | 묶음 전체가 한 번도 실행하지 않은 공개 API 수 | 뒤 묶음이 더 적음 |
+| 분기 커버리지 차이 (`UNION.md`) | 같은 회차끼리 뒤 묶음 − 앞 묶음. 중앙값 [최소–최대] | 중앙값이 0보다 큼 |
+| 오른 회차 (`UNION.md`) | 10회 중 뒤 묶음이 더 높았던 회차 수 | 대부분의 회차 |
+| p (`UNION.md`, Wilcoxon 부호순위) | 회차별 차이가 우연일 가능성 | **0.05 미만** |
+| A12, p (`REPORT.md`, Mann-Whitney U) | `official` 대 `official_llm` 비교 | A12 **0.71 이상**, p **0.05 미만** |
 | 겨냥 분기 (`REPORT.md`) | 도구가 짚은 분기가 회차마다 열렸는지 | `official_llm`에서 열리고, `official`과 대조군에서는 안 열림 |
 
 읽을 때 주의할 점:
 
-- 적용 후 묶음은 `gapfuzz_ops`만큼 하네스가 하나 더 많아 회차당 총 퍼징 시간이 1시간 깁니다. `UNION.md`에 이 문장이 자동으로 들어갑니다.
+- `UNION.md`는 회차별 대응 비교를 씁니다. 고치지 않은 하네스는 묶음들이 같은 실행 기록을 같이 써서 묶음끼리 독립이 아니기 때문입니다.
+- C는 `gapfuzz_ops`만큼 하네스가 하나 더 많아 회차당 총 퍼징 시간이 1시간 깁니다. `gapfuzz_ops`만의 효과를 말할 때는 "B → C 동일 계산량" 줄을 함께 봅니다.
+- `gapfuzz_ops`가 의미 있다고 말하는 기준(결과를 보기 전에 정함): B → C에서 안 부르는 API 수가 줄고, 분기 커버리지가 대부분의 회차에서 같거나 오르고, 동일 계산량에서도 오르는 경향이 있고, 실험 중 크래시가 없을 것.
+- `UNION.md`에 `gapfuzz_ops` 생성 상태(`COMPLETE`/`PARTIAL`, 요청한 API 중 실행된 수)가 함께 나옵니다. 전체 표는 `python3 scripts/ops_status.py`.
 - 크래시가 난 실행은 거기서 퍼징이 멈춰 커버리지가 낮게 나옵니다. 회차 결과의 `crashes`, `triage`를 함께 봅니다.
-- 라이브러리끼리 % 숫자를 직접 비교하지 않습니다. 같은 라이브러리 안에서 기준과 적용 후를 비교합니다.
+- 라이브러리끼리 % 숫자를 직접 비교하지 않습니다. 같은 라이브러리 안에서 묶음끼리 비교합니다.
 
 하네스별 숫자를 한 표로 보려면: `python3 scripts/cov_table.py <라이브러리 이름> official official_llm gapfuzz_ops --sub long3600`
 
@@ -322,7 +345,7 @@ docker run --rm -it --cap-add SYS_PTRACE --user "$(id -u):$(id -g)" -e HOME=/tmp
 # [컨테이너]
 python3 scripts/exp.py doctor
 python3 scripts/exp.py fetch <라이브러리 이름>
-python3 scripts/exp.py run <라이브러리 이름> --plan union --secs 60 --trials 1-2    # 짧게 확인, 적용 후 목록에 gapfuzz_ops가 있는지
+python3 scripts/exp.py run <라이브러리 이름> --plan union --secs 60 --trials 1-2    # 짧게 확인, C 묶음에 gapfuzz_ops가 있는지
 rm -rf evaluation/results/<라이브러리 이름>/60s evaluation/results/<라이브러리 이름>/union_60s evaluation/results/<라이브러리 이름>/UNION.md
 python3 scripts/exp.py run <라이브러리 이름> --plan union --jobs 3                 # 본 실험
 # Ctrl+B, D 로 빠져나오기 / tmux attach -t exp 로 다시 붙기
@@ -367,9 +390,11 @@ python3 scripts/exp.py run <라이브러리 이름> --plan union --jobs 3
 | 코퍼스, 커버리지, 바이너리, 크래시 입력 (수 GB) | `out/` | 올리지 않음 (`.gitignore`) |
 | 라이브러리 소스 | `third_party/` | 올리지 않음, `fetch`가 고정 커밋으로 받음 |
 | 하네스별 회차 결과 (약 4KB) | `evaluation/results/<라이브러리>/1h/<하네스>/rNN.json` | 올림 |
-| 회차별 기준 묶음을 합친 결과 | `evaluation/results/<라이브러리>/union_1h/base/rNN.json` | 올림 |
-| 회차별 적용 후 묶음을 합친 결과 | `evaluation/results/<라이브러리>/union_1h/fixed/rNN.json` | 올림 |
-| 묶음 비교 요약 (중앙값, A12, p) | `evaluation/results/<라이브러리>/UNION.md` | 올림 |
+| 회차별 A 묶음을 합친 결과 | `evaluation/results/<라이브러리>/union_1h/base/rNN.json` | 올림 |
+| 회차별 B 묶음을 합친 결과 | `evaluation/results/<라이브러리>/union_1h/fixed/rNN.json` | 올림 |
+| 회차별 C 묶음을 합친 결과 | `evaluation/results/<라이브러리>/union_1h/fixed_ops/rNN.json` | 올림 |
+| 회차별 C 동일 계산량 결과 | `evaluation/results/<라이브러리>/union_1h/fixed_ops_equal/rNN.json` | 올림 |
+| 묶음 비교 요약 (중앙값, 회차별 차이, p) | `evaluation/results/<라이브러리>/UNION.md` | 올림 |
 | `official` 대 `official_llm` 보고서 | `evaluation/results/<라이브러리>/REPORT.md` | 올림 |
 | 24시간 실험의 구간별 측정값 | `evaluation/results/<라이브러리>/24h/<하네스>.json` | 올림 |
 | 담당자 표시 | `evaluation/results/<라이브러리>/OWNER.txt` | 올림 |
@@ -388,7 +413,7 @@ python3 scripts/exp.py run <라이브러리 이름> --plan union --jobs 3
  "by": "이름", "env": {"clang": "Ubuntu clang version 18.1.3 ...", "cpu": "...", "tool_commit": "abc1234"}}
 ```
 
-`targets`는 도구가 대표 하네스에서 "고칠 곳"으로 짚은 분기(`evaluation/experiments/targets/<라이브러리>.json`)가 이 회차에 열렸는지입니다. `applied: false`는 Claude에게 맡기지 않은 대조군입니다. 묶음 결과(`union_1h/{base,fixed}/rNN.json`)에는 그 회차에 합친 하네스 목록, 합친 커버리지, 어느 하네스도 안 부르는 API 수, 회차당 총 퍼징 시간이 들어갑니다.
+`targets`는 도구가 대표 하네스에서 "고칠 곳"으로 짚은 분기(`evaluation/experiments/targets/<라이브러리>.json`)가 이 회차에 열렸는지입니다. `applied: false`는 Claude에게 맡기지 않은 대조군입니다. 묶음 결과(`union_1h/{base,fixed,fixed_ops,fixed_ops_equal}/rNN.json`)에는 그 회차에 합친 하네스 목록, 합친 커버리지, 어느 하네스도 안 부르는 API 수, 회차당 총 퍼징 시간이 들어갑니다.
 
 ## 참고: `official_llm`은 어떻게 만들었나
 
@@ -410,7 +435,7 @@ gapfuzz는 OSS-Fuzz 대표 하네스를 분석해 "하네스의 이 부분 때�
 
 | 증상 | 해결 |
 | --- | --- |
-| "적용 후" 목록에 `gapfuzz_ops`가 없음 | `git pull`로 최신 저장소를 받으세요. 그래도 없으면 하네스가 아직 push되지 않은 것입니다 |
+| "C 수정 + gapfuzz_ops" 줄이 안 나옴 | `git pull`로 최신 저장소를 받으세요. 그래도 없으면 하네스가 아직 push되지 않은 것입니다 |
 | `run`이 `<라이브러리 이름>는 ... 님 담당입니다` | 다른 사람이 맡은 라이브러리입니다. 본인이 맞다면 5번의 `GAPFUZZ_BY`를 확인하세요 |
 | `doctor`에서 clang 버전이 18이 아님 | Docker를 쓰거나 Ubuntu 24.04에서 실행 |
 | `libFuzzer/ASan으로 빌드 실패` | `sudo apt install libclang-rt-18-dev` (Docker면 이미지 다시 빌드) |
