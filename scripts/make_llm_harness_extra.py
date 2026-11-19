@@ -14,15 +14,15 @@ gapfuzz가 검사(컴파일 → 퍼징 → 겨냥 분기가 열렸나 → 크래
          (python3 scripts/tgt.py union <라이브러리>)에서도 여전히 막혀 있는 것만 맡긴다.
          다른 하네스가 이미 여는 분기는 고칠 이유가 없다.
   규칙 2 (한 번만). 같은 분기를 여러 하네스가 겨냥하면 목록에서 앞선 하네스 하나에만 맡긴다.
-         대표 하네스가 먼저다: official_llm이 이미 맡은 분기(experiments/targets/<라이브러리>.json의 applied=true)는 빼고 시작한다.
+         대표 하네스가 먼저다: official_llm이 이미 맡은 분기(evaluation/experiments/targets/<라이브러리>.json의 applied=true)는 빼고 시작한다.
          같은 분기를 여러 하네스에서 고쳐도 합친 커버리지는 늘지 않고, 고친 하네스마다 실험 시간(1시간 × 10회)만 늘기 때문이다.
          (--no-dedup 으로 끄면 규칙 1만 쓴다.)
 
 맡길 제안이 없는 하네스는 고친 버전을 만들지 않는다. 팀 실험(exp.py run --plan union)은 그 하네스를 원본 그대로 쓴다.
 이미 <하네스 이름>_llm 이 있으면 건너뛴다(--force 로 다시 만듦. 실험을 시작한 뒤에는 쓰지 말 것).
 
-기록: samples/llm/combined/<라이브러리>/<하네스>/{report.md, best.diff, log.json, request.md, summary.json}
-요약: samples/llm/combined/EXTRA.md
+기록: evaluation/artifacts/llm/combined/<라이브러리>/<하네스>/{report.md, best.diff, log.json, request.md, summary.json}
+요약: evaluation/artifacts/llm/combined/EXTRA.md
 API 키는 환경 변수로만 받는다. 파일이나 로그에 남기지 않는다.
 """
 import argparse
@@ -37,7 +37,7 @@ from gapfuzz.llmfix import DEFAULT_MODEL, _tgt, run  # noqa: E402
 from gapfuzz.verify import verify  # noqa: E402
 
 LIBS = ["cjson", "jsoncpp", "http-parser", "expat", "pugixml", "tinyxml2", "libucl", "yyjson", "json-c", "zlib", "libyaml"]
-OUT = ROOT / "samples" / "llm" / "combined"
+OUT = ROOT / "evaluation" / "artifacts" / "llm" / "combined"
 EXTS = (".c", ".cc", ".cpp")
 
 
@@ -58,8 +58,8 @@ def key_of(r: dict) -> tuple:
 
 
 def primary_claims(lib: str, checked: list[dict]) -> set:
-    """official_llm이 이미 맡은 분기. 사람이 고른 목록(experiments/targets)이 있으면 applied=true인 제안만, 없으면 전부."""
-    p = ROOT / "experiments" / "targets" / f"{lib}.json"
+    """official_llm이 이미 맡은 분기. 사람이 고른 목록(evaluation/experiments/targets)이 있으면 applied=true인 제안만, 없으면 전부."""
+    p = ROOT / "evaluation" / "experiments" / "targets" / f"{lib}.json"
     on = None
     if p.exists():
         on = {b["fix"] for b in json.load(open(p))["branches"] if b["applied"]}
@@ -128,7 +128,7 @@ def make(lib: str, h: str, fixes: list[int], t: dict, a) -> dict:
         src = ROOT / best["harness"]
         out = ROOT / t.get("harness_dir", f"harnesses/{t['name']}") / f"{fixed_name(h)}{src.suffix}"
         head = (f"// [gapfuzz-llm] 이 파일은 Claude({row['model']})가 gapfuzz 제안 {','.join(map(str, fixes))}를 OSS-Fuzz 하네스 {h}에 적용하고\n"
-                f"// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: samples/llm/combined/{lib}/{h}/).\n")
+                f"// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: evaluation/artifacts/llm/combined/{lib}/{h}/).\n")
         out.write_text(head + src.read_text(encoding="utf-8"), encoding="utf-8")
         row.update({"opened": best["opened"], "total": best["total"], "per_fix": best.get("per_fix", {}),
                     "crashes": [c["cls"] for c in best.get("crashes", [])], "saved": str(out.relative_to(ROOT))})

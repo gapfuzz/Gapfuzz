@@ -1,5 +1,5 @@
 // [gapfuzz-llm] 이 파일은 Claude(claude-sonnet-5-5)가 gapfuzz 제안 1,2를 OSS-Fuzz 하네스 official에 적용하고
-// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: samples/llm/combined/http-parser/official/).
+// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: evaluation/artifacts/llm/combined/http-parser/official/).
 // OSS-Fuzz 하네스: http-parser 저장소 fuzzers/fuzz_parser.c (보관된 저장소의 마지막 커밋, 커밋 ec8b5ee) 그대로.
 #include <stdint.h>
 #include <stdlib.h>

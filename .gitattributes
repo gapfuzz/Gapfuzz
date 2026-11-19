@@ -1,0 +1,2 @@
+# Keep shell scripts executable in Bash on every checkout, including Windows.
+*.sh text eol=lf

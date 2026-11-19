@@ -1,5 +1,9 @@
 # 실험: OSS-Fuzz 하네스 전체 vs gapfuzz를 적용한 하네스
 
+이 디렉터리는 Gapfuzz의 효과를 평가하고 결과를 재현하기 위한 자료입니다. 일반적인 도구 사용법은 루트 [README](../README.md)와 [상세 문서](../docs/DETAILS.md)를 보세요.
+
+이 디렉터리는 Gapfuzz의 효과를 평가하고 결과를 재현하기 위한 자료입니다. 일반적인 도구 사용법은 루트 [README](../README.md)와 [상세 문서](../docs/DETAILS.md)를 보세요.
+
 ## 무엇을 실험하나
 
 라이브러리마다 **하네스 묶음 두 개**를 같은 컴퓨터에서, 같은 시간 동안, 같은 시드로 돌려 비교합니다.
@@ -53,7 +57,7 @@ B. 실험               각자 맡은 라이브러리
 
 1. **실험 전에 `claim`으로 라이브러리를 맡습니다.** 한 라이브러리는 한 사람이 한 컴퓨터에서 끝까지 돌립니다(커버리지를 합치려면 실행 기록이 한 컴퓨터에 있어야 함). 전에 `official`/`official_llm`을 돌린 라이브러리는 그 사람이 그 컴퓨터에서 이어서 하는 것이 가장 빠릅니다.
 2. **결과는 `python3 scripts/exp.py submit <라이브러리 이름>`으로만 올립니다.** `git add -A`는 쓰지 마세요.
-3. **실험 기간에는 공용 파일을 고치지 않습니다.** `gapfuzz/`, `scripts/`, `harnesses/`, `targets/`, `EXPERIMENTS.md`, `README.md`가 공용 파일입니다. 특히 **한 번 push된 `gapfuzz_ops`와 `*_llm` 하네스는 다시 만들지 않습니다.** Claude는 돌릴 때마다 다른 코드를 내므로, 다시 만들면 앞 회차와 다른 하네스가 됩니다.
+3. **실험 기간에는 공용 파일을 고치지 않습니다.** `gapfuzz/`, `scripts/`, `harnesses/`, `targets/`, `evaluation/README.md`, `README.md`가 공용 파일입니다. 특히 **한 번 push된 `gapfuzz_ops`와 `*_llm` 하네스는 다시 만들지 않습니다.** Claude는 돌릴 때마다 다른 코드를 내므로, 다시 만들면 앞 회차와 다른 하네스가 됩니다.
 4. 한 컴퓨터에서 `run`을 동시에 두 개 띄우지 않습니다. 같은 실행 파일을 다시 빌드해서 실험이 깨질 수 있습니다.
 5. 한 라이브러리는 처음부터 끝까지 **같은 `--jobs` 값**으로 돌리고, 그 값을 팀 채팅에 적어 둡니다(결과 파일에는 기록되지 않음).
 
@@ -146,7 +150,7 @@ python3 scripts/exp.py libs                           # 진행 상황과 담당�
 python3 scripts/exp.py claim <라이브러리 이름>        # 하나를 맡음 (GitHub에 자동 push)
 ```
 
-`claim`은 **git 이름**으로 `results/<라이브러리 이름>/OWNER.txt`에 담당자를 적어 올립니다. 다른 사람이 먼저 맡았으면 거부되니 다른 라이브러리를 고르세요. 전에 이미 맡았던 라이브러리는 다시 `claim`하지 않아도 됩니다.
+`claim`은 **git 이름**으로 `evaluation/results/<라이브러리 이름>/OWNER.txt`에 담당자를 적어 올립니다. 다른 사람이 먼저 맡았으면 거부되니 다른 라이브러리를 고르세요. 전에 이미 맡았던 라이브러리는 다시 `claim`하지 않아도 됩니다.
 
 > WSL에서 `python3 scripts/exp.py run ...`을 실행하면 `FileNotFoundError: ... 'llvm-cov'` 에러가 납니다. WSL에는 clang 도구가 없어서 그런 것이니, `run`은 꼭 **컨테이너 안에서** 하세요.
 
@@ -196,10 +200,10 @@ python3 scripts/exp.py run <라이브러리 이름> --plan union --secs 60 --tri
 [run]   새로 돌릴 것 K개 (...) → 약 X시간
 ```
 
-마지막에 `[run] 끝. 결과: results/<라이브러리 이름>/UNION.md`가 나오면 정상입니다. 짧게 돌린 결과는 지웁니다(올리지 않음).
+마지막에 `[run] 끝. 결과: evaluation/results/<라이브러리 이름>/UNION.md`가 나오면 정상입니다. 짧게 돌린 결과는 지웁니다(올리지 않음).
 
 ```bash
-rm -rf results/<라이브러리 이름>/60s results/<라이브러리 이름>/union_60s results/<라이브러리 이름>/UNION.md
+rm -rf evaluation/results/<라이브러리 이름>/60s evaluation/results/<라이브러리 이름>/union_60s evaluation/results/<라이브러리 이름>/UNION.md
 ```
 
 ## 7. 실험: 하네스마다 1시간 × 10회 (컨테이너 안)
@@ -268,20 +272,20 @@ free -g | grep Mem                     # 첫 번째 숫자가 메모리(GB)
 
 ## 8. 결과 올리기 (WSL에서)
 
-`[run] 끝. 결과: results/<라이브러리 이름>/UNION.md  올리기: python3 scripts/exp.py submit <라이브러리 이름>`가 나오면 끝난 것입니다. 컨테이너 안에는 GitHub 로그인이 없으니, **WSL 창에 새 탭**을 열어서 올립니다.
+`[run] 끝. 결과: evaluation/results/<라이브러리 이름>/UNION.md  올리기: python3 scripts/exp.py submit <라이브러리 이름>`가 나오면 끝난 것입니다. 컨테이너 안에는 GitHub 로그인이 없으니, **WSL 창에 새 탭**을 열어서 올립니다.
 
 ```bash
 cd ~/gapfuzz
 python3 scripts/exp.py submit <라이브러리 이름>
 ```
 
-올린 뒤 GitHub에서 `results/<라이브러리 이름>/union_1h/`와 `UNION.md`가 보이는지 확인합니다.
+올린 뒤 GitHub에서 `evaluation/results/<라이브러리 이름>/union_1h/`와 `UNION.md`가 보이는지 확인합니다.
 
 ## 9. 결과 보기
 
 ```bash
-cat results/<라이브러리 이름>/UNION.md       # 묶음 대 묶음 (run과 submit이 자동으로 만듦)
-cat results/<라이브러리 이름>/REPORT.md      # official 대 official_llm (submit이 만듦. official_llm이 있는 라이브러리만)
+cat evaluation/results/<라이브러리 이름>/UNION.md       # 묶음 대 묶음 (run과 submit이 자동으로 만듦)
+cat evaluation/results/<라이브러리 이름>/REPORT.md      # official 대 official_llm (submit이 만듦. official_llm이 있는 라이브러리만)
 ```
 
 | 항목 | 뜻 | 효과가 있다고 말할 수 있는 기준 |
@@ -319,7 +323,7 @@ docker run --rm -it --cap-add SYS_PTRACE --user "$(id -u):$(id -g)" -e HOME=/tmp
 python3 scripts/exp.py doctor
 python3 scripts/exp.py fetch <라이브러리 이름>
 python3 scripts/exp.py run <라이브러리 이름> --plan union --secs 60 --trials 1-2    # 짧게 확인, 적용 후 목록에 gapfuzz_ops가 있는지
-rm -rf results/<라이브러리 이름>/60s results/<라이브러리 이름>/union_60s results/<라이브러리 이름>/UNION.md
+rm -rf evaluation/results/<라이브러리 이름>/60s evaluation/results/<라이브러리 이름>/union_60s evaluation/results/<라이브러리 이름>/UNION.md
 python3 scripts/exp.py run <라이브러리 이름> --plan union --jobs 3                 # 본 실험
 # Ctrl+B, D 로 빠져나오기 / tmux attach -t exp 로 다시 붙기
 
@@ -362,13 +366,13 @@ python3 scripts/exp.py run <라이브러리 이름> --plan union --jobs 3
 | --- | --- | --- |
 | 코퍼스, 커버리지, 바이너리, 크래시 입력 (수 GB) | `out/` | 올리지 않음 (`.gitignore`) |
 | 라이브러리 소스 | `third_party/` | 올리지 않음, `fetch`가 고정 커밋으로 받음 |
-| 하네스별 회차 결과 (약 4KB) | `results/<라이브러리>/1h/<하네스>/rNN.json` | 올림 |
-| 회차별 기준 묶음을 합친 결과 | `results/<라이브러리>/union_1h/base/rNN.json` | 올림 |
-| 회차별 적용 후 묶음을 합친 결과 | `results/<라이브러리>/union_1h/fixed/rNN.json` | 올림 |
-| 묶음 비교 요약 (중앙값, A12, p) | `results/<라이브러리>/UNION.md` | 올림 |
-| `official` 대 `official_llm` 보고서 | `results/<라이브러리>/REPORT.md` | 올림 |
-| 24시간 실험의 구간별 측정값 | `results/<라이브러리>/24h/<하네스>.json` | 올림 |
-| 담당자 표시 | `results/<라이브러리>/OWNER.txt` | 올림 |
+| 하네스별 회차 결과 (약 4KB) | `evaluation/results/<라이브러리>/1h/<하네스>/rNN.json` | 올림 |
+| 회차별 기준 묶음을 합친 결과 | `evaluation/results/<라이브러리>/union_1h/base/rNN.json` | 올림 |
+| 회차별 적용 후 묶음을 합친 결과 | `evaluation/results/<라이브러리>/union_1h/fixed/rNN.json` | 올림 |
+| 묶음 비교 요약 (중앙값, A12, p) | `evaluation/results/<라이브러리>/UNION.md` | 올림 |
+| `official` 대 `official_llm` 보고서 | `evaluation/results/<라이브러리>/REPORT.md` | 올림 |
+| 24시간 실험의 구간별 측정값 | `evaluation/results/<라이브러리>/24h/<하네스>.json` | 올림 |
+| 담당자 표시 | `evaluation/results/<라이브러리>/OWNER.txt` | 올림 |
 
 각자 **자기 라이브러리 폴더만** 바꾸므로 서로 같은 파일을 건드리지 않습니다. 그래서 `submit`의 `pull --rebase`가 항상 깔끔하게 됩니다. `run`은 도구 코드에 커밋하지 않은 변경이 있으면 경고합니다.
 
@@ -384,7 +388,7 @@ python3 scripts/exp.py run <라이브러리 이름> --plan union --jobs 3
  "by": "이름", "env": {"clang": "Ubuntu clang version 18.1.3 ...", "cpu": "...", "tool_commit": "abc1234"}}
 ```
 
-`targets`는 도구가 대표 하네스에서 "고칠 곳"으로 짚은 분기(`experiments/targets/<라이브러리>.json`)가 이 회차에 열렸는지입니다. `applied: false`는 Claude에게 맡기지 않은 대조군입니다. 묶음 결과(`union_1h/{base,fixed}/rNN.json`)에는 그 회차에 합친 하네스 목록, 합친 커버리지, 어느 하네스도 안 부르는 API 수, 회차당 총 퍼징 시간이 들어갑니다.
+`targets`는 도구가 대표 하네스에서 "고칠 곳"으로 짚은 분기(`evaluation/experiments/targets/<라이브러리>.json`)가 이 회차에 열렸는지입니다. `applied: false`는 Claude에게 맡기지 않은 대조군입니다. 묶음 결과(`union_1h/{base,fixed}/rNN.json`)에는 그 회차에 합친 하네스 목록, 합친 커버리지, 어느 하네스도 안 부르는 API 수, 회차당 총 퍼징 시간이 들어갑니다.
 
 ## 참고: `official_llm`은 어떻게 만들었나
 
@@ -398,9 +402,9 @@ gapfuzz는 OSS-Fuzz 대표 하네스를 분석해 "하네스의 이 부분 때�
 | zlib | 3개 | 1개 | 11/11 |
 | expat | 3개 | 1개 | 6/7 |
 | json-c | 4개 | 1개 | 4/5 |
-| tinyxml2 | 6개 | 1개 | `samples/llm/combined/tinyxml2/report.md` 참고 |
+| tinyxml2 | 6개 | 1개 | `evaluation/artifacts/llm/combined/tinyxml2/report.md` 참고 |
 
-제안 내용과 Claude가 바꾼 코드는 `samples/llm/combined/<라이브러리 이름>/report.md`, 만든 방법은 `scripts/make_llm_harness.py`에 있습니다. 나머지 하네스를 고친 `official_<이름>_llm`은 대조군 없이 규칙으로 제안을 골랐습니다. 고르는 방식이 다르다는 점을 결과에 적습니다.
+제안 내용과 Claude가 바꾼 코드는 `evaluation/artifacts/llm/combined/<라이브러리 이름>/report.md`, 만든 방법은 `scripts/make_llm_harness.py`에 있습니다. 나머지 하네스를 고친 `official_<이름>_llm`은 대조군 없이 규칙으로 제안을 골랐습니다. 고르는 방식이 다르다는 점을 결과에 적습니다.
 
 ## 그 밖의 문제
 
@@ -413,5 +417,5 @@ gapfuzz는 OSS-Fuzz 대표 하네스를 분석해 "하네스의 이 부분 때�
 | 컨테이너 안에서 `LeakSanitizer has encountered a fatal error` | `docker run`에 `--cap-add SYS_PTRACE`를 넣었는지 확인 |
 | 크래시가 남 | 그대로 두세요. 자동으로 원인 귀속(triage)을 돌려 결과 파일에 판정을 남깁니다. 팀 채팅에 알려 주세요 |
 | 디스크가 부족함 | 끝난 회차의 `out/targets/<라이브러리>/*/long3600/r*/corpus`는 지워도 됩니다(`cov.profdata`는 남겨야 합칠 수 있음). `*/day/`는 24시간이 끝난 뒤에만 지우세요 |
-| 24시간을 다시 실행했더니 "이어서 돌릴 코퍼스가 없습니다" | `day/` 폴더가 지워졌거나 다른 컴퓨터입니다. 처음부터 다시 하려면 `results/<라이브러리>/24h/`를 지우고 실행하세요 |
+| 24시간을 다시 실행했더니 "이어서 돌릴 코퍼스가 없습니다" | `day/` 폴더가 지워졌거나 다른 컴퓨터입니다. 처음부터 다시 하려면 `evaluation/results/<라이브러리>/24h/`를 지우고 실행하세요 |
 | `submit`에서 rebase 실패 | 다른 사람이 같은 폴더나 공용 파일을 건드린 것입니다. 팀 채팅에서 확인하세요 |

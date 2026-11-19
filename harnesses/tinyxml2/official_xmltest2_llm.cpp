@@ -1,5 +1,5 @@
 // [gapfuzz-llm] 이 파일은 Claude(claude-sonnet-5-5)가 gapfuzz 제안 2,3를 OSS-Fuzz 하네스 official_xmltest2에 적용하고
-// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: samples/llm/combined/tinyxml2/official_xmltest2/).
+// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: evaluation/artifacts/llm/combined/tinyxml2/official_xmltest2/).
 // OSS-Fuzz 하네스: oss-fuzz/projects/tinyxml2/xmltest2.cpp. include 경로만 이 저장소에 맞게 바꿨다(tinyxml2/tinyxml2.h → tinyxml2.h).
 /* Copyright 2024 Google LLC
 Licensed under the Apache License, Version 2.0 (the "License");

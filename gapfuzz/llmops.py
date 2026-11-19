@@ -10,7 +10,7 @@ llmfix가 "이미 부르는 함수의 인자"를 고친다면, llmops는 "아예
   3. gapfuzz가 검사: 컴파일 → 짧은 퍼징(기본 60초 × 2회) → 고른 API가 실제로 실행됐나 → 원래 실행되던 API가 그대로 실행되나
      → 크래시가 나면 귀속(하네스 탓이면 탈락).
   4. 실패하면 이유를 같은 대화에 돌려주고 다시 받는다(기본 최대 3번).
-  5. 통과하면 harnesses/<라이브러리>/<하네스>_ops.* 로 저장. 기록은 out/llm/<라이브러리>/<하네스>_ops/ 와 samples/llm/ops/.
+  5. 통과하면 harnesses/<라이브러리>/<하네스>_ops.* 로 저장. 기록은 out/llm/<라이브러리>/<하네스>_ops/ 와 evaluation/artifacts/llm/ops/.
 
 API 키는 환경 변수 ANTHROPIC_API_KEY에서만 읽는다(파일·로그에 남기지 않음). --mock 응답파일로 키 없이 흐름을 시험할 수 있다.
 """
@@ -401,10 +401,10 @@ def run(target: str, harness: str, top: int, before_path: str | None, secs: int,
         saved = base / f"{save}{hp.suffix}"
         if union:
             head = (f"// [gapfuzz-ops] 이 파일은 Claude({mdl})가 새로 쓴 하네스입니다. OSS-Fuzz 하네스 전체를 합쳐도 불리지 않던 API {best['called']}개를 부릅니다.\n"
-                    f"// [gapfuzz-ops] gapfuzz가 검사해 통과했습니다 (python3 -m gapfuzz llmops {target} --union, 기록: samples/llm/ops/{target}/_union/).\n")
+                    f"// [gapfuzz-ops] gapfuzz가 검사해 통과했습니다 (python3 -m gapfuzz llmops {target} --union, 기록: evaluation/artifacts/llm/ops/{target}/_union/).\n")
         else:
             head = (f"// [gapfuzz-ops] 이 파일은 Claude({mdl})가 {hp.name}에 '호출 안 함' API {best['called']}개의 호출을 추가하고\n"
-                    f"// [gapfuzz-ops] gapfuzz가 검사해 통과한 하네스입니다 (python3 -m gapfuzz llmops, 기록: samples/llm/ops/{target}/{harness}/).\n")
+                    f"// [gapfuzz-ops] gapfuzz가 검사해 통과한 하네스입니다 (python3 -m gapfuzz llmops, 기록: evaluation/artifacts/llm/ops/{target}/{harness}/).\n")
         saved.write_text(head + new, encoding="utf-8")
     report = write_report(work, target, harness, chosen, counts, base_cov, "" if union else orig, log, best, mdl, saved)
     json.dump({"target": target, "harness": harness, "model": mdl, "chosen": [x["api"] for x in chosen],
@@ -412,7 +412,7 @@ def run(target: str, harness: str, top: int, before_path: str | None, secs: int,
                           "lines": base_cov and round(base_cov[0], 2), "branches": base_cov and round(base_cov[1], 2)},
                "tries": log, "best": best and best["try"], "saved": saved and str(saved.relative_to(ROOT))},
               open(work / "log.json", "w"), ensure_ascii=False, indent=1)
-    keep = ROOT / "samples" / "llm" / "ops" / target / harness
+    keep = ROOT / "evaluation" / "artifacts" / "llm" / "ops" / target / harness
     keep.mkdir(parents=True, exist_ok=True)
     for f in ("report.md", "ranking.md", "request.md", "best.diff", "log.json"):
         if (work / f).exists():

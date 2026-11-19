@@ -1,5 +1,5 @@
 // [gapfuzz-llm] 이 파일은 Claude(claude-sonnet-5-5)가 gapfuzz 제안 1,2,3,4,5,8,9를 OSS-Fuzz 하네스 official_json_pointer에 적용하고
-// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: samples/llm/combined/json-c/official_json_pointer/).
+// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: evaluation/artifacts/llm/combined/json-c/official_json_pointer/).
 // OSS-Fuzz 하네스: json-c 저장소 fuzz/json_pointer_fuzzer.cc (커밋 d9b375f) 그대로.
 #include <fuzzer/FuzzedDataProvider.h>
 

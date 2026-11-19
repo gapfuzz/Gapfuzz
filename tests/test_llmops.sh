@@ -17,4 +17,4 @@ assert t2["ok"] and t2["called"] == 8 and t2["total"] == 8 and not t2["crashes"]
 print("[test_llmops] 통과: 시도 1 컴파일 실패 → 시도 2에서 8/8 실행, 크래시 0")
 PY
 rm -f harnesses/zlib/_test_ops.cc
-rm -rf samples/llm/ops/zlib/official harnesses/zlib/llm/official_ops
+rm -rf evaluation/artifacts/llm/ops/zlib/official harnesses/zlib/llm/official_ops

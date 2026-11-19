@@ -1,12 +1,12 @@
 """site/index.src.html에 Pretendard·Outfit을 필요한 글자만 잘라 넣어 site/index.html을 만든다.
 
 사용법: python3 site/build_site.py <PretendardVariable.ttf> <Outfit[wght].ttf>
-발표자료(presentation/build_deck.py)와 같은 방식이다. 결과 파일 하나로 GitHub Pages에 그대로 올릴 수 있다.
+발표자료(evaluation/presentation/build_deck.py)와 같은 방식이다. 결과 파일 하나로 GitHub Pages에 그대로 올릴 수 있다.
 """
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "presentation"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "evaluation" / "presentation"))
 from build_deck import embed  # noqa: E402
 
 HERE = Path(__file__).resolve().parent

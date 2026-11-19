@@ -1,5 +1,5 @@
 // [gapfuzz-ops] 이 파일은 Claude(claude-sonnet-5-5)가 새로 쓴 하네스입니다. OSS-Fuzz 하네스 전체를 합쳐도 불리지 않던 API 10개를 부릅니다.
-// [gapfuzz-ops] gapfuzz가 검사해 통과했습니다 (python3 -m gapfuzz llmops zlib --union, 기록: samples/llm/ops/zlib/_union/).
+// [gapfuzz-ops] gapfuzz가 검사해 통과했습니다 (python3 -m gapfuzz llmops zlib --union, 기록: evaluation/artifacts/llm/ops/zlib/_union/).
 // zlib 새 하네스: 기존 하네스가 부르지 않는 API를 입력 바이트로 고른 순서대로 호출한다.
 #include <stddef.h>
 #include <stdint.h>

@@ -1,5 +1,5 @@
 // [gapfuzz-llm] 이 파일은 Claude(claude-sonnet-5-5)가 gapfuzz 제안 3,5,6,9를 OSS-Fuzz 하네스 official_xpath에 적용하고
-// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: samples/llm/combined/pugixml/official_xpath/).
+// [gapfuzz-llm] gapfuzz가 검사해 통과한 하네스입니다 (scripts/make_llm_harness_extra.py, 기록: evaluation/artifacts/llm/combined/pugixml/official_xpath/).
 // OSS-Fuzz 하네스: pugixml 저장소 tests/fuzz_xpath.cpp (커밋 f0a3faa) 그대로.
 #include "../src/pugixml.hpp"
 #include "fuzzer/FuzzedDataProvider.h"

@@ -3,7 +3,7 @@ from playwright.sync_api import sync_playwright
 only=[int(x) for x in sys.argv[1:]] or list(range(1,18))
 with sync_playwright() as p:
     b=p.chromium.launch(); pg=b.new_page(viewport={'width':1280,'height':720})
-    pg.goto('file:///home/claude/gapfuzz/presentation/midterm.html#1'); pg.wait_for_timeout(400)
+    pg.goto('file:///home/claude/gapfuzz/evaluation/presentation/midterm.html#1'); pg.wait_for_timeout(400)
     pg.evaluate("document.getElementById('help').style.display='none'")
     for k in range(1,18):
         pg.keyboard.press('Home')

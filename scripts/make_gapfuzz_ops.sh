@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 라이브러리마다 새 하네스 gapfuzz_ops를 만든다 (EXPERIMENTS.md 2부 A2).
+# 라이브러리마다 새 하네스 gapfuzz_ops를 만든다 (evaluation/README.md 2부 A2).
 #
 #   bash scripts/make_gapfuzz_ops.sh                 # 11개 전부, 하네스가 적은 것부터
 #   bash scripts/make_gapfuzz_ops.sh cjson zlib      # 고른 것만
@@ -11,7 +11,7 @@ set -u
 cd "$(dirname "$0")/.."
 
 if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-    echo "ANTHROPIC_API_KEY가 없습니다. EXPERIMENTS.md 2부의 A1을 보세요." >&2
+    echo "ANTHROPIC_API_KEY가 없습니다. evaluation/README.md 2부의 A1을 보세요." >&2
     exit 1
 fi
 

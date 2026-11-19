@@ -13,7 +13,7 @@
 
 TinyXML2로 시작해 pugixml, expat, cJSON, jsoncpp, json-c, zlib, libyaml까지 8개 라이브러리에 적용했습니다. 다른 라이브러리는 `targets/<이름>.json` 설정 파일 하나로 빌드·퍼징·분석을 돌릴 수 있습니다(`scripts/tgt.py`).
 
-> **팀 실험(라이브러리 6개 × 1시간 × 10회)은 [EXPERIMENTS.md](../EXPERIMENTS.md)를 보세요.** 환경 맞추기(Docker), 라이브러리 고르기, 실행, 결과 올리기까지 명령어 순서대로 있습니다.
+> **팀 실험(라이브러리 6개 × 1시간 × 10회)은 [평가·재현 문서](../evaluation/README.md)를 보세요.** 환경 맞추기(Docker), 라이브러리 고르기, 실행, 결과 올리기까지 명령어 순서대로 있습니다.
 
 ## 기능
 
@@ -146,7 +146,7 @@ python3 -m gapfuzz dict out/targets/zlib/official/r*/gap/gap.json --source third
 python3 -m gapfuzz llmfix zlib official --list
 python3 -m gapfuzz llmops zlib --top 10
 
-# 8) 팀 실험: 1시간 × 10회, 24시간 (EXPERIMENTS.md)
+# 8) 팀 실험: 1시간 × 10회, 24시간 (evaluation/README.md)
 python3 scripts/exp.py run zlib
 
 # 9) 확장 분석: 실행 중 인자 값 기록, 입력 탓 확인, 진단 시간 비교 (아래 '확장 분석' 절)
@@ -155,8 +155,8 @@ python3 scripts/diag_compare.py zlib
 
 # 10) 독립 라벨링: 판정을 가린 시트 → 두 사람 일치도 → 합의 정답
 python3 scripts/label_kit.py make out/targets/zlib/official/r1/gap/gap.json --out labeling
-python3 scripts/label_kit.py agree labeling/sheet_A.csv labeling/sheet_B.csv
-python3 scripts/label_kit.py merge labeling/sheet_A.csv labeling/sheet_B.csv --out labeling/consensus.json
+python3 scripts/label_kit.py agree evaluation/labeling/sheet_A.csv evaluation/labeling/sheet_B.csv
+python3 scripts/label_kit.py merge evaluation/labeling/sheet_A.csv evaluation/labeling/sheet_B.csv --out evaluation/labeling/consensus.json
 ```
 
 테스트: `tests/run_all.sh`
@@ -188,10 +188,12 @@ targets/      <라이브러리>.json   라이브러리 설정 (소스 위치, �
 scripts/      tgt.py(빌드·퍼징·분석, 모든 라이브러리 공용)  exp.py(팀 실험)  setup.sh  make_llm_harness.py(Claude 하네스 생성)
               export_site.py(사이트 데이터)  audit.py(판정 정확도)  label_kit.py(독립 라벨링)  diag_compare.py(진단 시간 비교)
 tests/        run_all.sh 외 테스트, fixtures/fakelib (테스트용 가짜 라이브러리), triage_real (실제 크래시 9건)
-samples/      실험 결과 예시 (verify, repeat, llm/runs: Claude 수정 diff·보고서, day: 24시간 실험)
-experiments/  targets/<라이브러리>.json  1시간 실험에서 확인할 "고칠 곳" 분기 목록
-results/      팀 실험 결과 (회차마다 작은 JSON, scripts/exp.py가 만듦)
-presentation/ 중간발표 (midterm.src.html → build_deck.py → midterm.html, midterm_backup.pdf)
+evaluation/   연구 평가와 재현에만 필요한 자료
+              experiments/  장시간 실험의 "고칠 곳" 분기와 대조군 설정
+              results/      회차별 JSON과 종합 보고서
+              artifacts/    검증·통계·Claude 수정 diff와 실행 기록
+              labeling/     독립 라벨링 자료
+              presentation/ 발표 원본과 생성물
 site/         분석기 사이트 (index.src.html → build_site.py → index.html)
 Dockerfile    실험 환경 (Ubuntu 24.04, clang 18.1.3)
 ```
@@ -239,7 +241,7 @@ bash tests/test_llmops.sh                             # 키 없이 흐름 시험
 ```
 
 수정 전 분석(`out/targets/<이름>/<하네스>/r1/gap/gap.json`)이 없으면 120초 퍼징으로 진단부터 합니다.
-기록은 `samples/llm/ops/<이름>/<하네스>/`(우선순위 표, 요청문, 보고서, diff, log)에 남습니다.
+기록은 `evaluation/artifacts/llm/ops/<이름>/<하네스>/`(우선순위 표, 요청문, 보고서, diff, log)에 남습니다.
 
 지금 상태: 우선순위는 8개 라이브러리 모두에서 동작을 확인했습니다(`--list`). 검사 흐름은 zlib에서 준비한 응답으로 확인했습니다
 (컴파일 오류가 있는 응답 → 오류를 돌려줌 → 고친 응답에서 요청한 API 8/8 실행, 크래시 0, 원래 API 유지). 이 응답은 사람이 쓴 시험용이라
@@ -256,7 +258,7 @@ python3 scripts/tgt.py union zlib                 # 설정의 "ossfuzz" 목록 �
 python3 -m gapfuzz llmops zlib --union --list     # 어느 하네스도 안 부르는 API의 우선순위 (API 키 필요 없음)
 python3 -m gapfuzz llmops zlib --union --top 10   # 그 API를 부르는 '새 하네스' 생성 → harnesses/zlib/gapfuzz_ops.*
 python3 scripts/tgt.py union zlib --add gapfuzz_ops --name _union_after   # 새 하네스까지 합친 '적용 후'
-python3 scripts/exp.py run zlib --plan union      # 팀 실험: 하네스마다 1시간 × 10회, 회차별로 합쳐서 비교 (EXPERIMENTS.md)
+python3 scripts/exp.py run zlib --plan union      # 팀 실험: 하네스마다 1시간 × 10회, 회차별로 합쳐서 비교 (evaluation/README.md)
 ```
 
 | | 하네스 하나에 끼워 넣기 (`llmops`) | 전체 기준 새 하네스 (`llmops --union`) |
@@ -299,7 +301,7 @@ zlib으로 확인한 것 (하네스마다 30~120초, 합친 값):
 python3 -m gapfuzz argtrace zlib official          # r1 코퍼스 재실행 → r1/args.json
 python3 scripts/tgt.py analyze zlib official out/targets/zlib/official/r1   # args.json이 있으면 자동 반영
 python3 -m gapfuzz inputcheck expat official                               # 기본 10분 × 3회, 결과: out/targets/expat/official/inputcheck/report.md
-python3 scripts/audit.py <gap.json> samples/audit/audit_labels.json --with-candidates
+python3 scripts/audit.py <gap.json> evaluation/artifacts/audit/audit_labels.json --with-candidates
 tests/test_ext.sh                                   # 가짜 C 라이브러리로 네 판정을 확인 (퍼징 없음)
 ```
 
@@ -328,7 +330,7 @@ tests/test_ext.sh                                   # 가짜 C 라이브러리�
 
 ### 딕셔너리 후보 (`dict`)
 
-공식 하네스의 "라이브러리 내부" 판정 분기에서 토큰 22개를 뽑아 OSS-Fuzz `xml.dict`에 더하고, 다른 시드(2000+회차)로 120초 × 5회 비교했습니다(`samples/repeat/stats_dict.md`).
+공식 하네스의 "라이브러리 내부" 판정 분기에서 토큰 22개를 뽑아 OSS-Fuzz `xml.dict`에 더하고, 다른 시드(2000+회차)로 120초 × 5회 비교했습니다(`evaluation/artifacts/repeat/stats_dict.md`).
 
 - 겨냥한 분기 중 BOM 검사(400·401행)는 기존 딕셔너리로 5회 중 2~3회 막혔지만 새 딕셔너리로는 5회 모두 열렸고, 425행은 1회 열렸습니다.
 - 470행은 열리지 않았고, 539행은 앞 검사 때문에 도달 불가능한 방어 코드라 열리지 않는 것이 맞습니다.
@@ -336,7 +338,7 @@ tests/test_ext.sh                                   # 가짜 C 라이브러리�
 
 ### 다른 라이브러리: pugixml, cJSON
 
-OSS-Fuzz 공식 하네스(pugixml `tests/fuzz_parse.cpp`, cJSON `fuzzing/cjson_read_fuzzer.c`)를 분석하고, "고칠 곳" 제안을 적용한 `official_v2`로 120초 × 5회 비교했습니다(`samples/verify/`, `samples/repeat/stats_pugixml.md`, `stats_cjson.md`).
+OSS-Fuzz 공식 하네스(pugixml `tests/fuzz_parse.cpp`, cJSON `fuzzing/cjson_read_fuzzer.c`)를 분석하고, "고칠 곳" 제안을 적용한 `official_v2`로 120초 × 5회 비교했습니다(`evaluation/artifacts/verify/`, `evaluation/artifacts/repeat/stats_pugixml.md`, `stats_cjson.md`).
 
 | 라이브러리 | 공개 API | 고칠 곳 | 적용 | 막혀 있던 분기 열림 | 대조군 | 분기 커버리지 |
 |---|---:|---:|---:|---:|---:|---|
@@ -360,8 +362,8 @@ OSS-Fuzz 공식 하네스(pugixml `tests/fuzz_parse.cpp`, cJSON `fuzzing/cjson_r
 - 새 판정 DIRECT_CALL이 TinyXML2를 보고 만든 뒤 처음 보는 두 라이브러리에서도 나왔고 맞았습니다(zlib `inflate`의 `flush`: 7/7 열림, jsoncpp `Value(Int)`).
 - zlib에서 안 열린 2개는 도구의 오판입니다. `uncompress`가 내부에서 만드는 지역 변수(`sourceLen`)를 하네스 인자 탓으로 묶었고, `destLen == NULL`은 값이 아니라 null을 넘겨야 열립니다.
 - jsoncpp에 제안을 처음 적용했을 때 매 실행이 즉시 죽었습니다. 음수 `stackLimit`에 `newCharReader`가 `Json::LogicError`를 던졌는데 하네스가 받지 않은 것입니다.
-  크래시 귀속에 **잡히지 않은 C++ 예외** 규칙을 추가해 "하네스 버그(확신 강)"로 판정하게 했고(예전에는 "의도된 assert"), 하네스를 고쳐 다시 돌렸습니다(`samples/triage_jsoncpp/`).
-- 결과: `samples/verify/{jsoncpp,zlib}_official_to_v2.md`, `samples/repeat/stats_{jsoncpp,zlib}.md`.
+  크래시 귀속에 **잡히지 않은 C++ 예외** 규칙을 추가해 "하네스 버그(확신 강)"로 판정하게 했고(예전에는 "의도된 assert"), 하네스를 고쳐 다시 돌렸습니다(`evaluation/artifacts/triage_jsoncpp/`).
+- 결과: `evaluation/artifacts/verify/{jsoncpp,zlib}_official_to_v2.md`, `evaluation/artifacts/repeat/stats_{jsoncpp,zlib}.md`.
 
 **라이브러리 5개 합계: 적용한 제안 28개가 겨냥한 분기 85개 중 75개가 열림, 적용하지 않은 제안의 분기는 7개 중 0개.**
 
@@ -386,8 +388,8 @@ expat·json-c는 cmake가 만드는 설정 헤더가 필요해 `harnesses/<이�
 - **libyaml은 고칠 곳이 0개**입니다. 공식 하네스가 파싱 이벤트만 읽고 끝나서, 빠진 것은 하네스 줄의 인자가 아니라 로더·에미터·문서 API를 아예 부르지 않는 것입니다(호출 안 함 44/50).
 - **json-c 크래시 귀속 사례 2번째**: 제안 5(`json_object_array_shrink`에 음수)를 그대로 넣자 매 실행이 `json_abort`로 죽었습니다.
   크래시 귀속에 "하네스가 직접 부른 공개 API가 입구의 인자 검사에서 명시적으로 abort" 규칙을 더해 **하네스 버그(확신 중)**로 판정하게 했고(예전에는 "의도된 assert"),
-  하네스가 0 이상만 넘기도록 고쳤습니다. 그래서 이 제안이 겨냥한 `empty_slots < 0` 분기는 열 수 없습니다. 도구가 "열면 라이브러리가 종료하는 분기"를 아직 가려내지 못하는 한계입니다(`samples/triage_json-c/`).
-- 결과: `samples/verify/{expat,json-c}_official_to_v2.md`, `samples/repeat/stats_{expat,json-c}.md`.
+  하네스가 0 이상만 넘기도록 고쳤습니다. 그래서 이 제안이 겨냥한 `empty_slots < 0` 분기는 열 수 없습니다. 도구가 "열면 라이브러리가 종료하는 분기"를 아직 가려내지 못하는 한계입니다(`evaluation/artifacts/triage_json-c/`).
+- 결과: `evaluation/artifacts/verify/{expat,json-c}_official_to_v2.md`, `evaluation/artifacts/repeat/stats_{expat,json-c}.md`.
 
 **제안을 적용한 라이브러리 7개 합계: 적용한 제안 35개가 겨냥한 분기 97개 중 85개가 열림, 적용하지 않은 제안의 분기는 10개 중 0개.**
 
@@ -405,14 +407,14 @@ export ANTHROPIC_API_KEY=...                       # 키는 환경 변수로만 
 python3 -m gapfuzz llmfix zlib official --list      # 고칠 곳 목록
 python3 -m gapfuzz llmfix zlib official --fix 4     # 제안 4를 Claude에게 맡기고 검사
 python3 -m gapfuzz llmfix zlib official --fix 4 --mock a.cpp,b.cpp   # 키 없이 흐름 시험
-python3 scripts/llm_eval.py                         # 라이브러리 5개의 고칠 곳 전체 평가 → samples/llm/
+python3 scripts/llm_eval.py                         # 라이브러리 5개의 고칠 곳 전체 평가 → evaluation/artifacts/llm/
 ```
 
 흐름: 하네스 코드·제안·막힌 라이브러리 분기 코드·규칙을 보냄 → 고친 하네스 전체를 받음 → 컴파일 → 60초 × 2회 퍼징 →
 겨냥한 분기가 열렸나(verify) → 크래시 귀속(triage). 실패하면 컴파일 오류, 아직 막힌 분기, "하네스 버그" 판정 근거를 같은 대화로 돌려주고
 최대 3번까지 다시 받습니다. 통과한 수정안은 `out/llm/<라이브러리>/<하네스>_fix<번호>/`에 diff와 보고서로 남고, 사람이 읽고 넣습니다.
 
-**평가 (claude-sonnet-5-5, 라이브러리 7개, `samples/llm/summary.md`)**
+**평가 (claude-sonnet-5-5, 라이브러리 7개, `evaluation/artifacts/llm/summary.md`)**
 
 | 지표 | 값 |
 |---|---|
@@ -462,8 +464,8 @@ python3 site/build_site.py <PretendardVariable.ttf> <Outfit[wght].ttf>   # site/
 | (대조군) 적용 안 한 제안: `Parse`에 null 넘기기 | 1 | 0 |
 
 라인 38.2% → 40.1%, 분기 43.1% → 45.4% (5회 모두, p = 0.0079). pugixml·cJSON에서는 이 판정이 한 번도 나오지 않아 오탐도 없었습니다.
-상세: `samples/verify/official_v2_to_v3.md`, `samples/repeat/stats_official_v2_vs_v3.md`, `samples/audit/audit_*_direct_call.md`.
-- 정답 라벨은 도구 개발자(이 저장소 작성자)가 달았습니다. `scripts/label_kit.py`로 도구 판정을 가린 시트(`labeling/`)를 만들어 두었고,
+상세: `evaluation/artifacts/verify/official_v2_to_v3.md`, `evaluation/artifacts/repeat/stats_official_v2_vs_v3.md`, `evaluation/artifacts/audit/audit_*_direct_call.md`.
+- 정답 라벨은 도구 개발자(이 저장소 작성자)가 달았습니다. `scripts/label_kit.py`로 도구 판정을 가린 시트(`evaluation/labeling/`)를 만들어 두었고,
   팀원 두 명이 독립적으로 단 정답의 일치도(Cohen's kappa)와 합의 정답으로 다시 잴 예정입니다.
 - 표본이 작습니다. "고칠 곳 정밀도 100%"는 23개(4 + 19) 중 틀린 것이 없었다는 뜻으로 읽어야 합니다.
 
@@ -513,7 +515,7 @@ TinyXML2는 노드를 자체 메모리 풀로 관리해 ASan이 해제를 못 �
 - **되묻기**: 크래시가 나면 귀속과 상관없이 근거를 Claude에게 돌려준다. 근거에 "오류·해제·할당 경로가 하네스의 어느 줄에서 시작됐는지"와 실패한 assert 문장을 더했다.
 
 이 기준으로 다시 봐도 나머지 23개(새 하네스 9개, 추가 하네스 14개)와 기존 `official_llm`은 채택본이 모두 크래시 없는 시도였으므로 결과가 같습니다.
-위 6개는 1차 기록을 보존하고(`_union_run1`, `samples/llm/combined_run1/`), 바꾼 도구로 같은 조건에서 다시 만들었습니다.
+위 6개는 1차 기록을 보존하고(`_union_run1`, `evaluation/artifacts/llm/combined_run1/`), 바꾼 도구로 같은 조건에서 다시 만들었습니다.
 
 ## 관련 도구와의 차이
 
@@ -532,7 +534,7 @@ OSS-Fuzz의 **Fuzz Introspector**는 하네스별 정적 도달성과 실행 커
 
 참고로 Fuzz Introspector의 fuzz blocker 결과 위에서 원인을 분류하려는 연구(FuzzGauge, Purdue 석사논문, 2025)가 있습니다.
 gapfuzz의 원인 추적은 하네스 호출 지점의 인자까지 내려간다는 점이 다릅니다.
-같은 하네스·같은 커버리지에 Fuzz Introspector를 직접 돌려 봤습니다(결과 `samples/compare_fuzz_introspector.md`).
+같은 하네스·같은 커버리지에 Fuzz Introspector를 직접 돌려 봤습니다(결과 `evaluation/artifacts/compare_fuzz_introspector.md`).
 이 환경에서는 LLVM 방식(OSS-Fuzz 기본)은 빌드할 수 없어 **소스 분석 방식**만 돌렸고, 그 방식은 TinyXML2에서 하네스가 닿는 함수 3개, 막힌 분기 0개를 보고했습니다.
 FI 공식 사례 문서(jsonnet)에도 "콜 트리를 보면 인자가 항상 상수로 고정돼 있다"는 원인을 사람이 찾는 과정이 나오며, 이 단계를 gapfuzz가 자동화합니다.
 LLVM 방식과의 정량 비교는 Docker 환경에서 다시 해야 합니다(`python3 infra/helper.py introspector tinyxml2 --seconds=120`).

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """LLM 하네스 수정 평가: 라이브러리의 '하네스에서 고칠 곳'을 Claude에게 하나씩 맡기고(gapfuzz llmfix),
-사람이 같은 제안을 적용했을 때(samples/verify/*.md)와 비교한다.
+사람이 같은 제안을 적용했을 때(evaluation/artifacts/verify/*.md)와 비교한다.
 
 사용법: ANTHROPIC_API_KEY=... python3 scripts/llm_eval.py [--secs 60] [--trials 2] [--tries 3] [--only zlib]
   - 이미 끝난 제안(out/llm/<라이브러리>/<하네스>_fix<번호>/log.json)은 건너뛴다 (끊겨도 다시 실행하면 이어서)
-  - 결과: samples/llm/summary.md, samples/llm/summary.json
+  - 결과: evaluation/artifacts/llm/summary.md, evaluation/artifacts/llm/summary.json
 """
 import argparse
 import json
@@ -32,7 +32,7 @@ ROW_RE = re.compile(r"^\| (\d+) \| (.+?) \| (적용|미적용) \| (\d+) \| (\d+)
 def human_rows(mds):
     rows = {}
     for md in mds:
-        for line in (ROOT / "samples" / "verify" / md).read_text(encoding="utf-8").splitlines():
+        for line in (ROOT / "evaluation" / "artifacts" / "verify" / md).read_text(encoding="utf-8").splitlines():
             m = ROW_RE.match(line)
             if m and m.group(3) == "적용":
                 rows[m.group(2).strip()] = (int(m.group(5)), int(m.group(4)))
@@ -84,13 +84,13 @@ def main():
 
 
 def write(rows, model):
-    out = ROOT / "samples" / "llm"
+    out = ROOT / "evaluation" / "artifacts" / "llm"
     out.mkdir(parents=True, exist_ok=True)
     json.dump(rows, open(out / "summary.json", "w"), ensure_ascii=False, indent=1)
     both = [r for r in rows if r["human"]]
     L = ["# LLM(Claude) 하네스 수정 평가", "",
          f"모델 `{model}`. 제안 하나마다 Claude가 하네스를 고치고, gapfuzz가 컴파일 → 60초 × 2회 퍼징 → 겨냥한 분기가 열렸는지 → 크래시 귀속으로 검사.",
-         "실패하면 이유를 같은 대화로 돌려주고 최대 3번까지 다시 받음. 사람 결과는 samples/verify/*.md(같은 제안을 사람이 적용, 120초 × 5회).", "",
+         "실패하면 이유를 같은 대화로 돌려주고 최대 3번까지 다시 받음. 사람 결과는 evaluation/artifacts/verify/*.md(같은 제안을 사람이 적용, 120초 × 5회).", "",
          f"- 제안 {len(rows)}개 중 통과 {sum(r['llm_ok'] for r in rows)}개 (첫 시도에 통과 {sum(r['first_try_ok'] for r in rows)}개)",
          f"- 겨냥한 분기 {sum(r['targets'] for r in rows)}개 중 열림 {sum(r['llm_opened'] for r in rows)}개",
          f"- 사람도 적용한 제안 {len(both)}개: 사람 {sum(r['human'][0] for r in both)}/{sum(r['human'][1] for r in both)}, "

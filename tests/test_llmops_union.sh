@@ -21,4 +21,4 @@ print(f"[test_llmops_union] 통과: 하네스 하나 기준 {u['not_called_each'
       f"새 하네스가 {t['called']}/{t['total']} 실행, 크래시 0")
 PY
 rm -f harnesses/zlib/_test_union_ops.cc
-rm -rf samples/llm/ops/zlib/_union harnesses/zlib/llm/union_ops
+rm -rf evaluation/artifacts/llm/ops/zlib/_union harnesses/zlib/llm/union_ops
