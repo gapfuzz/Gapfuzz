@@ -1,0 +1,93 @@
+{
+ "lib": "json-c",
+ "harness": "official_json_pointer_llm",
+ "trial": 8,
+ "secs": 3600,
+ "seed": 1008,
+ "coverage": {
+  "lines": {
+   "pct": 46.483,
+   "covered": 1910,
+   "count": 4109
+  },
+  "branches": {
+   "pct": 46.357,
+   "covered": 1018,
+   "count": 2196
+  },
+  "functions": {
+   "pct": 43.981,
+   "covered": 95,
+   "count": 216
+  },
+  "regions": {
+   "pct": 51.338,
+   "covered": 1726,
+   "count": 3362
+  }
+ },
+ "execs": 18946095,
+ "corpus": 1110,
+ "crashes": [],
+ "triage": [],
+ "targets": [
+  {
+   "fix": 1,
+   "applied": false,
+   "line": 188,
+   "opened": false
+  },
+  {
+   "fix": 1,
+   "applied": false,
+   "line": 210,
+   "opened": false
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "line": 755,
+   "opened": false
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "line": 768,
+   "opened": false
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "line": 157,
+   "opened": false
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "line": 612,
+   "opened": false
+  },
+  {
+   "fix": 5,
+   "applied": true,
+   "line": 1849,
+   "opened": false
+  }
+ ],
+ "started": "2026-11-19T19:44:55+0000",
+ "wall_secs": 3638,
+ "by": "ttzero25",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz",
+  "cores": 8,
+  "tool_commit": "907e87f"
+ },
+ "snapshots": [
+  2880
+ ]
+}
