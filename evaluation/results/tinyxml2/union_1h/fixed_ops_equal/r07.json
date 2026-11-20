@@ -1,0 +1,49 @@
+{
+ "lib": "tinyxml2",
+ "side": "fixed_ops_equal",
+ "trial": 7,
+ "secs_per_harness": 2400,
+ "harnesses": [
+  "official_llm",
+  "official_xmltest2_llm",
+  "gapfuzz_ops"
+ ],
+ "total_cpu_hours": 2.0,
+ "coverage": {
+  "lines": {
+   "pct": 65.05,
+   "covered": 1770,
+   "count": 2721
+  },
+  "branches": {
+   "pct": 71.685,
+   "covered": 519,
+   "count": 724
+  },
+  "functions": {
+   "pct": 50,
+   "covered": 192,
+   "count": 384
+  },
+  "regions": {
+   "pct": 73.516,
+   "covered": 1288,
+   "count": 1752
+  }
+ },
+ "apis": 303,
+ "not_called": 184,
+ "fixes": 13,
+ "by": "xxn9k",
+ "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+ "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+ "tool_commit": "eee3d40",
+ "finished": "2026-11-19 22:24",
+ "cut_from_secs": 3600,
+ "snapshot_method": {
+  "official_llm": "snapshot",
+  "official_xmltest2_llm": "snapshot",
+  "gapfuzz_ops": "snapshot"
+ },
+ "approximate": false
+}

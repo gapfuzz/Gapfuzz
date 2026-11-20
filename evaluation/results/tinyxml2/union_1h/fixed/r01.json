@@ -1,0 +1,41 @@
+{
+ "lib": "tinyxml2",
+ "side": "fixed",
+ "trial": 1,
+ "secs_per_harness": 3600,
+ "harnesses": [
+  "official_llm",
+  "official_xmltest2_llm"
+ ],
+ "total_cpu_hours": 2.0,
+ "coverage": {
+  "lines": {
+   "pct": 42.448,
+   "covered": 1155,
+   "count": 2721
+  },
+  "branches": {
+   "pct": 47.652,
+   "covered": 345,
+   "count": 724
+  },
+  "functions": {
+   "pct": 29.688,
+   "covered": 114,
+   "count": 384
+  },
+  "regions": {
+   "pct": 50.228,
+   "covered": 880,
+   "count": 1752
+  }
+ },
+ "apis": 303,
+ "not_called": 249,
+ "fixes": 1,
+ "by": "xxn9k",
+ "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+ "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+ "tool_commit": "eee3d40",
+ "finished": "2026-11-19 22:24"
+}

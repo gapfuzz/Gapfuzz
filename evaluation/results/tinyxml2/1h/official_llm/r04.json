@@ -1,0 +1,105 @@
+{
+ "lib": "tinyxml2",
+ "harness": "official_llm",
+ "trial": 4,
+ "secs": 3600,
+ "seed": 1004,
+ "coverage": {
+  "lines": {
+   "pct": 40.61,
+   "covered": 1105,
+   "count": 2721
+  },
+  "branches": {
+   "pct": 45.58,
+   "covered": 330,
+   "count": 724
+  },
+  "functions": {
+   "pct": 28.906,
+   "covered": 111,
+   "count": 384
+  },
+  "regions": {
+   "pct": 47.774,
+   "covered": 837,
+   "count": 1752
+  }
+ },
+ "execs": 13517952,
+ "corpus": 689,
+ "crashes": [],
+ "triage": [],
+ "targets": [
+  {
+   "fix": 1,
+   "applied": true,
+   "line": 2459,
+   "opened": true
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "line": 2463,
+   "opened": true
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "line": 752,
+   "opened": true
+  },
+  {
+   "fix": 3,
+   "applied": false,
+   "line": 2459,
+   "opened": false
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "line": 2333,
+   "opened": true
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "line": 2337,
+   "opened": true
+  },
+  {
+   "fix": 5,
+   "applied": true,
+   "line": 1639,
+   "opened": true
+  },
+  {
+   "fix": 6,
+   "applied": true,
+   "line": 856,
+   "opened": true
+  },
+  {
+   "fix": 7,
+   "applied": true,
+   "line": 934,
+   "opened": true
+  }
+ ],
+ "started": "2026-11-19T13:23:16+0000",
+ "wall_secs": 3605,
+ "by": "xxn9k",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+  "cores": 12,
+  "tool_commit": "eee3d40"
+ },
+ "snapshots": [
+  2400
+ ]
+}
