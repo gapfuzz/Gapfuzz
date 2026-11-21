@@ -99,11 +99,11 @@
      "opened": false
     }
    ],
-   "corpus": 1091,
+   "corpus": 1095,
    "crashes": [],
    "hours": 0.167,
    "restarts": 0,
-   "at": "2026-11-06T13:30:43+0000"
+   "at": "2026-11-20T02:12:40+0000"
   },
   {
    "coverage": {
@@ -172,11 +172,11 @@
      "opened": false
     }
    ],
-   "corpus": 4828,
+   "corpus": 3536,
    "crashes": [],
    "hours": 0.5,
    "restarts": 0,
-   "at": "2026-11-06T13:50:46+0000"
+   "at": "2026-11-20T02:32:55+0000"
   },
   {
    "coverage": {
@@ -186,8 +186,8 @@
      "count": 4109
     },
     "branches": {
-     "pct": 42.259,
-     "covered": 928,
+     "pct": 42.213,
+     "covered": 927,
      "count": 2196
     },
     "functions": {
@@ -245,11 +245,11 @@
      "opened": false
     }
    ],
-   "corpus": 9248,
+   "corpus": 5415,
    "crashes": [],
    "hours": 1.0,
    "restarts": 0,
-   "at": "2026-11-06T14:20:48+0000"
+   "at": "2026-11-20T03:03:20+0000"
   },
   {
    "coverage": {
@@ -318,11 +318,11 @@
      "opened": false
     }
    ],
-   "corpus": 14305,
+   "corpus": 7603,
    "crashes": [],
    "hours": 2.0,
    "restarts": 0,
-   "at": "2026-11-06T15:20:51+0000"
+   "at": "2026-11-20T04:03:47+0000"
   },
   {
    "coverage": {
@@ -391,11 +391,11 @@
      "opened": false
     }
    ],
-   "corpus": 17873,
+   "corpus": 8942,
    "crashes": [],
    "hours": 3.0,
    "restarts": 0,
-   "at": "2026-11-06T16:20:54+0000"
+   "at": "2026-11-20T05:04:20+0000"
   },
   {
    "coverage": {
@@ -464,11 +464,11 @@
      "opened": false
     }
    ],
-   "corpus": 20579,
+   "corpus": 10001,
    "crashes": [],
    "hours": 4.0,
    "restarts": 0,
-   "at": "2026-11-06T17:20:58+0000"
+   "at": "2026-11-20T06:04:56+0000"
   },
   {
    "coverage": {
@@ -537,11 +537,11 @@
      "opened": false
     }
    ],
-   "corpus": 22772,
+   "corpus": 10901,
    "crashes": [],
    "hours": 5.0,
    "restarts": 0,
-   "at": "2026-11-06T18:21:01+0000"
+   "at": "2026-11-20T07:06:38+0000"
   },
   {
    "coverage": {
@@ -610,11 +610,11 @@
      "opened": false
     }
    ],
-   "corpus": 24704,
+   "corpus": 11646,
    "crashes": [],
    "hours": 6.0,
    "restarts": 0,
-   "at": "2026-11-06T19:21:05+0000"
+   "at": "2026-11-20T08:07:21+0000"
   },
   {
    "coverage": {
@@ -683,11 +683,11 @@
      "opened": false
     }
    ],
-   "corpus": 26067,
+   "corpus": 12288,
    "crashes": [],
    "hours": 7.0,
    "restarts": 0,
-   "at": "2026-11-06T20:21:09+0000"
+   "at": "2026-11-20T09:08:10+0000"
   },
   {
    "coverage": {
@@ -756,11 +756,11 @@
      "opened": false
     }
    ],
-   "corpus": 27487,
+   "corpus": 12935,
    "crashes": [],
    "hours": 8.0,
    "restarts": 0,
-   "at": "2026-11-06T21:21:13+0000"
+   "at": "2026-11-20T10:08:58+0000"
   },
   {
    "coverage": {
@@ -829,11 +829,11 @@
      "opened": false
     }
    ],
-   "corpus": 28719,
+   "corpus": 13464,
    "crashes": [],
    "hours": 9.0,
    "restarts": 0,
-   "at": "2026-11-06T22:21:18+0000"
+   "at": "2026-11-20T11:09:44+0000"
   },
   {
    "coverage": {
@@ -902,11 +902,11 @@
      "opened": false
     }
    ],
-   "corpus": 29983,
+   "corpus": 13960,
    "crashes": [],
    "hours": 10.0,
    "restarts": 0,
-   "at": "2026-11-06T23:21:22+0000"
+   "at": "2026-11-20T12:10:39+0000"
   },
   {
    "coverage": {
@@ -975,11 +975,11 @@
      "opened": false
     }
    ],
-   "corpus": 31090,
+   "corpus": 14452,
    "crashes": [],
    "hours": 11.0,
    "restarts": 0,
-   "at": "2026-11-07T00:21:27+0000"
+   "at": "2026-11-20T13:11:40+0000"
   },
   {
    "coverage": {
@@ -1048,11 +1048,11 @@
      "opened": false
     }
    ],
-   "corpus": 32073,
+   "corpus": 14955,
    "crashes": [],
    "hours": 12.0,
    "restarts": 0,
-   "at": "2026-11-07T01:21:31+0000"
+   "at": "2026-11-20T14:12:34+0000"
   },
   {
    "coverage": {
@@ -1121,11 +1121,11 @@
      "opened": false
     }
    ],
-   "corpus": 33053,
+   "corpus": 15438,
    "crashes": [],
    "hours": 13.0,
    "restarts": 0,
-   "at": "2026-11-07T02:21:37+0000"
+   "at": "2026-11-20T15:13:25+0000"
   },
   {
    "coverage": {
@@ -1194,11 +1194,11 @@
      "opened": false
     }
    ],
-   "corpus": 33902,
+   "corpus": 15932,
    "crashes": [],
    "hours": 14.0,
    "restarts": 0,
-   "at": "2026-11-07T03:21:42+0000"
+   "at": "2026-11-20T16:14:15+0000"
   },
   {
    "coverage": {
@@ -1267,11 +1267,11 @@
      "opened": false
     }
    ],
-   "corpus": 34680,
+   "corpus": 16411,
    "crashes": [],
    "hours": 15.0,
    "restarts": 0,
-   "at": "2026-11-07T04:21:47+0000"
+   "at": "2026-11-20T17:15:13+0000"
   },
   {
    "coverage": {
@@ -1340,11 +1340,11 @@
      "opened": false
     }
    ],
-   "corpus": 35546,
+   "corpus": 16882,
    "crashes": [],
    "hours": 16.0,
    "restarts": 0,
-   "at": "2026-11-07T05:21:52+0000"
+   "at": "2026-11-20T18:16:02+0000"
   },
   {
    "coverage": {
@@ -1413,11 +1413,11 @@
      "opened": false
     }
    ],
-   "corpus": 36333,
+   "corpus": 17284,
    "crashes": [],
    "hours": 17.0,
    "restarts": 0,
-   "at": "2026-11-07T06:21:57+0000"
+   "at": "2026-11-20T19:17:00+0000"
   },
   {
    "coverage": {
@@ -1486,11 +1486,11 @@
      "opened": false
     }
    ],
-   "corpus": 37093,
+   "corpus": 17605,
    "crashes": [],
    "hours": 18.0,
    "restarts": 0,
-   "at": "2026-11-07T07:22:03+0000"
+   "at": "2026-11-20T20:18:09+0000"
   },
   {
    "coverage": {
@@ -1559,11 +1559,11 @@
      "opened": false
     }
    ],
-   "corpus": 37885,
+   "corpus": 17854,
    "crashes": [],
    "hours": 19.0,
    "restarts": 0,
-   "at": "2026-11-07T08:22:08+0000"
+   "at": "2026-11-20T21:19:45+0000"
   },
   {
    "coverage": {
@@ -1632,11 +1632,11 @@
      "opened": false
     }
    ],
-   "corpus": 38657,
+   "corpus": 18160,
    "crashes": [],
    "hours": 20.0,
    "restarts": 0,
-   "at": "2026-11-07T09:22:13+0000"
+   "at": "2026-11-20T22:21:02+0000"
   },
   {
    "coverage": {
@@ -1705,11 +1705,11 @@
      "opened": false
     }
    ],
-   "corpus": 39395,
+   "corpus": 18477,
    "crashes": [],
    "hours": 21.0,
    "restarts": 0,
-   "at": "2026-11-07T10:22:19+0000"
+   "at": "2026-11-20T23:22:16+0000"
   },
   {
    "coverage": {
@@ -1778,11 +1778,11 @@
      "opened": false
     }
    ],
-   "corpus": 40033,
+   "corpus": 18772,
    "crashes": [],
    "hours": 22.0,
    "restarts": 0,
-   "at": "2026-11-07T11:22:24+0000"
+   "at": "2026-11-21T00:25:33+0000"
   },
   {
    "coverage": {
@@ -1851,11 +1851,11 @@
      "opened": false
     }
    ],
-   "corpus": 40634,
+   "corpus": 19069,
    "crashes": [],
    "hours": 23.0,
    "restarts": 0,
-   "at": "2026-11-07T12:22:30+0000"
+   "at": "2026-11-21T01:26:49+0000"
   },
   {
    "coverage": {
@@ -1924,11 +1924,11 @@
      "opened": false
     }
    ],
-   "corpus": 41308,
+   "corpus": 19347,
    "crashes": [],
    "hours": 24.0,
    "restarts": 0,
-   "at": "2026-11-07T13:22:35+0000"
+   "at": "2026-11-21T02:27:59+0000"
   }
  ],
  "by": "ttzero25",
@@ -1940,6 +1940,6 @@
   "docker": true,
   "cpu": "Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz",
   "cores": 8,
-  "tool_commit": "8309b2d"
+  "tool_commit": "9c71faa"
  }
 }
