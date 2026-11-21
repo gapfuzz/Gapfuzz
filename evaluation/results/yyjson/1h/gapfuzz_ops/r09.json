@@ -1,0 +1,50 @@
+{
+ "lib": "yyjson",
+ "harness": "gapfuzz_ops",
+ "trial": 9,
+ "secs": 3600,
+ "seed": 1009,
+ "coverage": {
+  "lines": {
+   "pct": 45.639,
+   "covered": 4092,
+   "count": 8966
+  },
+  "branches": {
+   "pct": 45.642,
+   "covered": 2608,
+   "count": 5714
+  },
+  "functions": {
+   "pct": 33.679,
+   "covered": 195,
+   "count": 579
+  },
+  "regions": {
+   "pct": 50.397,
+   "covered": 6033,
+   "count": 11971
+  }
+ },
+ "execs": 74438411,
+ "corpus": 17841,
+ "crashes": [],
+ "triage": [],
+ "targets": [],
+ "started": "2026-11-20T20:59:40+0000",
+ "wall_secs": 3621,
+ "by": "xxn9k",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+  "cores": 12,
+  "tool_commit": "af7845c"
+ },
+ "snapshots": [
+  2700
+ ]
+}

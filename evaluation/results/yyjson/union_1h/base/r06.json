@@ -1,0 +1,42 @@
+{
+ "lib": "yyjson",
+ "side": "base",
+ "trial": 6,
+ "secs_per_harness": 3600,
+ "harnesses": [
+  "official",
+  "official_patch",
+  "official_merge_patch"
+ ],
+ "total_cpu_hours": 3.0,
+ "coverage": {
+  "lines": {
+   "pct": 47.621,
+   "covered": 4273,
+   "count": 8973
+  },
+  "branches": {
+   "pct": 51.948,
+   "covered": 2747,
+   "count": 5288
+  },
+  "functions": {
+   "pct": 30.225,
+   "covered": 175,
+   "count": 579
+  },
+  "regions": {
+   "pct": 61.891,
+   "covered": 7050,
+   "count": 11391
+  }
+ },
+ "apis": 405,
+ "not_called": 327,
+ "fixes": 11,
+ "by": "xxn9k",
+ "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+ "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+ "tool_commit": "af7845c",
+ "finished": "2026-11-20 23:02"
+}

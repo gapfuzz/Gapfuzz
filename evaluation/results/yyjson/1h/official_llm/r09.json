@@ -1,0 +1,50 @@
+{
+ "lib": "yyjson",
+ "harness": "official_llm",
+ "trial": 9,
+ "secs": 3600,
+ "seed": 1009,
+ "coverage": {
+  "lines": {
+   "pct": 43.887,
+   "covered": 3938,
+   "count": 8973
+  },
+  "branches": {
+   "pct": 48.468,
+   "covered": 2562,
+   "count": 5286
+  },
+  "functions": {
+   "pct": 24.87,
+   "covered": 144,
+   "count": 579
+  },
+  "regions": {
+   "pct": 59.057,
+   "covered": 6726,
+   "count": 11389
+  }
+ },
+ "execs": 185264794,
+ "corpus": 11879,
+ "crashes": [],
+ "triage": [],
+ "targets": [],
+ "started": "2026-11-20T19:59:40+0000",
+ "wall_secs": 3617,
+ "by": "xxn9k",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+  "cores": 12,
+  "tool_commit": "af7845c"
+ },
+ "snapshots": [
+  2700
+ ]
+}

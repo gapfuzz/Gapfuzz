@@ -1,0 +1,50 @@
+{
+ "lib": "yyjson",
+ "harness": "official_patch_llm",
+ "trial": 2,
+ "secs": 3600,
+ "seed": 1002,
+ "coverage": {
+  "lines": {
+   "pct": 36.966,
+   "covered": 3317,
+   "count": 8973
+  },
+  "branches": {
+   "pct": 37.387,
+   "covered": 1977,
+   "count": 5288
+  },
+  "functions": {
+   "pct": 23.834,
+   "covered": 138,
+   "count": 579
+  },
+  "regions": {
+   "pct": 44.79,
+   "covered": 5102,
+   "count": 11391
+  }
+ },
+ "execs": 191486680,
+ "corpus": 10398,
+ "crashes": [],
+ "triage": [],
+ "targets": [],
+ "started": "2026-11-20T09:56:50+0000",
+ "wall_secs": 3617,
+ "by": "xxn9k",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+  "cores": 12,
+  "tool_commit": "af7845c"
+ },
+ "snapshots": [
+  2700
+ ]
+}
