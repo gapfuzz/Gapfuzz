@@ -1,0 +1,123 @@
+{
+ "lib": "zlib",
+ "harness": "official_uncompress2",
+ "trial": 8,
+ "secs": 3600,
+ "seed": 1008,
+ "coverage": {
+  "lines": {
+   "pct": 25.231,
+   "covered": 983,
+   "count": 3896
+  },
+  "branches": {
+   "pct": 19.66,
+   "covered": 462,
+   "count": 2350
+  },
+  "functions": {
+   "pct": 16.216,
+   "covered": 18,
+   "count": 111
+  },
+  "regions": {
+   "pct": 21.034,
+   "covered": 972,
+   "count": 4621
+  }
+ },
+ "execs": 128074978,
+ "corpus": 404,
+ "crashes": [],
+ "triage": [],
+ "targets": [
+  {
+   "fix": 1,
+   "applied": true,
+   "line": 36,
+   "opened": false
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "line": 37,
+   "opened": false
+  },
+  {
+   "fix": 1,
+   "applied": true,
+   "line": 37,
+   "opened": false
+  },
+  {
+   "fix": 2,
+   "applied": false,
+   "line": 36,
+   "opened": false
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "line": 37,
+   "opened": false
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "line": 717,
+   "opened": false
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "line": 717,
+   "opened": false
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "line": 739,
+   "opened": false
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "line": 768,
+   "opened": false
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "line": 917,
+   "opened": false
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "line": 1142,
+   "opened": false
+  },
+  {
+   "fix": 4,
+   "applied": true,
+   "line": 1158,
+   "opened": false
+  }
+ ],
+ "started": "2026-11-22T09:45:48+0000",
+ "wall_secs": 3606,
+ "by": "xxn9k",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+  "cores": 12,
+  "tool_commit": "a8503d0"
+ },
+ "snapshots": [
+  3240
+ ]
+}
