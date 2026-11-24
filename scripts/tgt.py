@@ -204,7 +204,12 @@ def _copy_corpus(src: Path, dst: Path, keep=None) -> int:
             try:
                 os.link(f.path, dst / f.name)
             except OSError:
-                shutil.copy2(f.path, dst / f.name)
+                try:
+                    shutil.copy2(f.path, dst / f.name)
+                except shutil.SameFileError:
+                    # Some bind filesystems create the hard link but still
+                    # report an error. In that case the snapshot is complete.
+                    pass
             n += 1
         except FileNotFoundError:           # 퍼저가 방금 더 작은 입력으로 바꾸면서 지운 파일
             pass
