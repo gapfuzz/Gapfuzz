@@ -504,11 +504,47 @@ def union_dir(lib: str, secs: int) -> Path:
     return RESULTS / lib / f"union_{plan_dir(secs)}"
 
 
-def union_one(lib: str, t: dict, side: str, hs: list[str], r: int, secs: int, env: dict, at: int | None = None) -> dict:
+def union_md(lib: str, secs: int) -> Path:
+    """보고서 파일. 1시간 실험은 UNION.md, 다른 길이는 UNION_<길이>.md (예: UNION_24h.md)라서 서로 덮어쓰지 않는다."""
+    return RESULTS / lib / ("UNION.md" if secs == 3600 else f"UNION_{plan_dir(secs)}.md")
+
+
+def fmt_dur(secs: float) -> str:
+    """초 → "6시간", "30분", "45초" (보고서 표시용)."""
+    if secs >= 3600:
+        return f"{secs / 3600:g}시간"
+    return f"{secs / 60:g}분" if secs >= 60 and secs % 60 == 0 else f"{secs:g}초"
+
+
+def union_secs_done(lib: str) -> list[int]:
+    """이 라이브러리에 결과가 있는 하네스 전체 기준 실험의 길이(초)들. 폴더 이름 union_1h, union_24h, union_40s에서 읽는다."""
+    out = []
+    for d in sorted((RESULTS / lib).glob("union_*")):
+        m = re.fullmatch(r"union_(\d+)(h|s)", d.name)
+        if m and d.is_dir():
+            out.append(int(m.group(1)) * (3600 if m.group(2) == "h" else 1))
+    return sorted(out)
+
+
+def parse_checkpoints(s: str | None, secs: int) -> list[int]:
+    """--checkpoints "1,6,12"(시간 단위, 소수 가능) → 초 단위 목록. 실험 길이 이상이거나 0 이하인 값은 버린다."""
+    out = set()
+    for part in (s or "").split(","):
+        part = part.strip()
+        if part:
+            c = int(round(float(part) * 3600))
+            if 0 < c < secs:
+                out.add(c)
+    return sorted(out)
+
+
+def union_one(lib: str, t: dict, side: str, hs: list[str], r: int, secs: int, env: dict, at: int | None = None,
+              curve: bool = False) -> dict:
     """한 회차의 한 묶음: 하네스들의 실행 기록을 합쳐 커버리지와 '어느 하네스도 안 부르는 API' 수를 잰다.
-    at: 주면 하네스마다 실행 중 at초 시점에 찍어 둔 코퍼스로 잰 기록을 합친다(동일 계산량)."""
+    at: 주면 하네스마다 실행 중 at초 시점에 찍어 둔 코퍼스로 잰 기록을 합친다(동일 계산량).
+    curve: 참이면 "시간에 따른 곡선"의 한 점으로 curve/<묶음>_<at>s/ 아래에 따로 저장한다(묶음의 최종 결과를 덮어쓰지 않음)."""
     sub = f"long{secs}/snap{at}" if at else f"long{secs}"
-    d = tg.union(t, hs, secs=secs, r=r, name=f"_union_{side}", sub=sub)
+    d = tg.union(t, hs, secs=secs, r=r, name=f"_union_{side}" + ("_curve" if curve else ""), sub=sub)
     cov, _ = coverage_map(d / "coverage.json")
     gap = json.load(open(d / "gap" / "gap.json"))
     res_apis = gap["results"]
@@ -524,7 +560,7 @@ def union_one(lib: str, t: dict, side: str, hs: list[str], r: int, secs: int, en
         res["cut_from_secs"] = secs
         res["snapshot_method"] = {h: m["method"] for h, m in meth.items()}
         res["approximate"] = any(m["method"] != "snapshot" for m in meth.values())
-    out = union_dir(lib, secs) / side / f"r{r:02d}.json"
+    out = (union_dir(lib, secs) / "curve" / f"{side}_{at}s" if curve else union_dir(lib, secs) / side) / f"r{r:02d}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     return res
@@ -558,6 +594,8 @@ def run_union(a, t: dict, env: dict) -> int:
         print(f"[run] {a.lib}: OSS-Fuzz 하네스가 하나뿐이고 고친 하네스도 없습니다. 기준만 잽니다.")
     allh = list(dict.fromkeys(base + ops))
     trials = parse_range(a.trials)
+    cps = parse_checkpoints(getattr(a, "checkpoints", None), a.secs)
+    snaps_of = lambda h: sorted(set(cps + ([at] if at and h in ops else []))) or None
     raw = lambda h, r: ROOT / "out" / "targets" / a.lib / h / f"long{a.secs}" / f"r{r}" / "cov.profdata"
     todo = [(h, r) for r in trials for h in allh if not raw(h, r).exists()]
     hours = len(todo) * a.secs / 3600 / max(a.jobs, 1)
@@ -566,11 +604,13 @@ def run_union(a, t: dict, env: dict) -> int:
     if has_ops:
         print(f"[run]   C 수정 + gapfuzz_ops {len(ops)}개. 동일 계산량 비교용으로 C의 하네스는 {at}초 시점도 함께 잽니다 "
               f"({len(ops)}개 × {at}초 ≈ B의 {len(fixed)}개 × {a.secs}초)")
+    if cps:
+        print(f"[run]   중간 시점 {', '.join(fmt_dur(c) for c in cps)}에도 세 묶음의 커버리지를 잽니다 (시간에 따른 곡선)")
     print(f"[run]   새로 돌릴 것 {len(todo)}개 (하네스 {len(allh)}개 × 회차 {a.trials} 중 원본이 없는 것, 회당 {a.secs}초, 동시에 {a.jobs}개) → 약 {hours:.1f}시간")
     for h in allh:
         tg.build(t, h)
     with cf.ThreadPoolExecutor(max_workers=a.jobs) as ex:
-        futs = [ex.submit(run_trial, a.lib, h, r, a.secs, env, [at] if at and h in ops else None) for h, r in todo]
+        futs = [ex.submit(run_trial, a.lib, h, r, a.secs, env, snaps_of(h)) for h, r in todo]
         for f in cf.as_completed(futs):
             try:
                 print(f.result(), flush=True)
@@ -593,8 +633,21 @@ def run_union(a, t: dict, env: dict) -> int:
             print(f"[run] r{r:02d} {names[side]} 합침: 분기 {x['coverage']['branches']['pct']:.2f}% "
                   f"라인 {x['coverage']['lines']['pct']:.2f}% 어느 하네스도 안 부르는 API {x['not_called']}/{x['apis']}"
                   + (" (근사)" if x.get("approximate") else ""), flush=True)
+        for c in cps:                                       # 시간에 따른 곡선: 중간 시점마다 세 묶음을 같은 방법으로 합친다
+            for side in ("base", "fixed", "fixed_ops"):
+                hs = sets[side]
+                if (side == "fixed" and fixed == base) or (side == "fixed_ops" and not has_ops):
+                    continue
+                if (union_dir(a.lib, a.secs) / "curve" / f"{side}_{c}s" / f"r{r:02d}.json").exists():
+                    continue
+                if not all(raw(h, r).exists() for h in hs) or not all(_ensure_snap(a.lib, t, h, r, a.secs, c) for h in hs):
+                    print(f"[run] r{r:02d} {names[side]} {fmt_dur(c)} 시점: 기록이 없는 하네스가 있어 건너뜁니다")
+                    continue
+                x = union_one(a.lib, t, side, hs, r, a.secs, env, at=c, curve=True)
+                print(f"[run] r{r:02d} {names[side]} {fmt_dur(c)} 시점: 분기 {x['coverage']['branches']['pct']:.2f}% "
+                      f"어느 하네스도 안 부르는 API {x['not_called']}/{x['apis']}" + (" (근사)" if x.get("approximate") else ""), flush=True)
     union_report(a.lib, a.secs)
-    print(f"[run] 끝. 결과: evaluation/results/{a.lib}/UNION.md  올리기: python3 scripts/exp.py submit {a.lib}")
+    print(f"[run] 끝. 결과: evaluation/results/{a.lib}/{union_md(a.lib, a.secs).name}  올리기: python3 scripts/exp.py submit {a.lib}")
     return 0
 
 
@@ -664,6 +717,9 @@ def union_report(lib: str, secs: int = 3600) -> None:
               "같은 회차끼리(같은 시드, 같은 컴퓨터) 뒤 묶음에서 앞 묶음을 뺀 값입니다. p는 Wilcoxon 부호순위 검정(양측, 정확).",
               "고치지 않은 하네스는 묶음들이 같은 실행 기록을 같이 쓰므로, 독립 표본 검정이 아니라 회차별 대응 비교를 씁니다.", "",
               "| 비교 | 회차 | 분기 커버리지 차이 | 오른 회차 | p | 안 부르는 API 수 차이 | 뜻 |", "|---|---:|---|---:|---:|---:|---|"] + rows
+        nt = len(G["base"])
+        if nt < 6:
+            L += ["", f"회차가 {nt}회뿐이라 p값으로는 판단할 수 없습니다(6회 미만이면 모든 회차가 올라도 p가 0.05보다 큽니다). 차이의 크기와 방향만 보세요."]
     eq = list(G["fixed_ops_equal"].values())
     if eq:
         n = len(eq[0]["harnesses"])
@@ -672,7 +728,34 @@ def union_report(lib: str, secs: int = 3600) -> None:
         ap = sorted(x["trial"] for x in eq if x.get("approximate"))
         if ap:
             L += [f"주의: 회차 {ap}는 실행 중 스냅샷이 없는 예전 기록이 섞여 파일 시각으로 근사했습니다. 실제보다 낮게 나올 수 있습니다."]
-    (RESULTS / lib / "UNION.md").write_text("\n".join(L) + "\n", encoding="utf-8")
+    # 시간에 따른 곡선 (--checkpoints)
+    cdir = d / "curve"
+    C = {}
+    if cdir.exists():
+        for p in sorted(cdir.glob("*_*s/r*.json")):
+            x = json.load(open(p))
+            C.setdefault(x["secs_per_harness"], {}).setdefault(x["side"], []).append(x)
+    if C:
+        cols = [s for s in ("base", "fixed", "fixed_ops") if G[s]]
+        cell = lambda v: (f"{med([br(x) for x in v]):.2f}% · {med([x['not_called'] for x in v]):g}" + (" (근사)" if any(x.get("approximate") for x in v) else "")) if v else "–"
+        L += ["", "## 시간에 따른 커버리지", "",
+              "하네스마다 그 시각까지 퍼징한 코퍼스로 잰 값을 묶음별로 합쳤습니다. 칸은 `분기 커버리지 · 어느 하네스도 안 부르는 API 수` (중앙값).",
+              "고친 하네스가 없는 묶음은 앞 묶음과 같은 값입니다.", "",
+              "| 하네스당 퍼징 시간 | " + " | ".join(names[s] for s in cols) + " |", "|---:|" + "---|" * len(cols)]
+        for c in sorted(C):
+            L.append(f"| {fmt_dur(c)} | " + " | ".join(cell(C[c].get(s) or (C[c].get("base") if s == "fixed" and G["fixed"] is G["base"] else None)) for s in cols) + " |")
+        L.append(f"| **{fmt_dur(secs)} (끝)** | " + " | ".join(cell(list(G[s].values())) for s in cols) + " |")
+    # 크래시·timeout으로 일찍 멈춘 하네스 (libFuzzer는 첫 크래시에서 멈춘다)
+    early = []
+    for h in dict.fromkeys(h for s, _ in SIDES for x in G[s].values() for h in x["harnesses"]):
+        for p in sorted((RESULTS / lib / plan_dir(secs) / h).glob("r*.json")):
+            x = json.load(open(p))
+            if x.get("crashes"):
+                early.append(f"`{h}` r{x['trial']:02d} ({', '.join(c.split('-')[0] for c in x['crashes'][:3])}, 퍼징과 측정을 합쳐 {fmt_dur(x.get('wall_secs', 0))})")
+    if early:
+        L += ["", "주의: 다음 실행은 크래시나 timeout으로 정해진 시간을 채우지 못하고 멈췄습니다. 그 하네스의 값은 멈춘 시점까지의 값입니다. "
+                  + "; ".join(early)]
+    union_md(lib, secs).write_text("\n".join(L) + "\n", encoding="utf-8")
 
 
 # ------------------------------------------------------------------ 통계
@@ -867,7 +950,8 @@ def report(a) -> int:
 # ------------------------------------------------------------------ 올리기
 def submit(a) -> int:
     lib = a.lib
-    union_report(lib)
+    for us in union_secs_done(lib) or [3600]:               # 1시간뿐 아니라 24시간 등 다른 길이의 보고서도 다시 만든다
+        union_report(lib, us)
     if not all(load(lib, h) for h in HARNESSES):          # 하네스 전체 기준 실험만 한 라이브러리 (예: libyaml)
         print(f"[submit] {lib}: {BASE}/{FIXED} 비교 결과가 없어 REPORT.md는 만들지 않습니다")
     else:
@@ -922,6 +1006,8 @@ def main() -> int:
     r.add_argument("--force", action="store_true", help="다른 사람이 맡은 라이브러리라도 실행")
     r.add_argument("--plan", choices=["1h", "24h", "union"], default="1h",
                    help="1h: 1시간 × 10회 (기본), 24h: 24시간 × 1회, union: OSS-Fuzz 하네스 전체를 각각 돌려 합친 커버리지로 비교")
+    r.add_argument("--checkpoints", default="",
+                   help="--plan union에서 중간 시점(시간 단위, 쉼표로 구분)의 커버리지도 잰다. 예: 1,6,12 (24시간 실험의 시간에 따른 곡선)")
     r.add_argument("--schedule", help=argparse.SUPPRESS)          # 시험용: 24h 구간 길이(분), 예: 1,1
     p = sub.add_parser("report", help="evaluation/results/<lib>/REPORT.md 만들기")
     p.add_argument("lib", nargs="?")
