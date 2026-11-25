@@ -1,0 +1,50 @@
+{
+ "lib": "libyaml",
+ "harness": "official_reformatter_alt",
+ "trial": 9,
+ "secs": 3600,
+ "seed": 1009,
+ "coverage": {
+  "lines": {
+   "pct": 75.422,
+   "covered": 4106,
+   "count": 5444
+  },
+  "branches": {
+   "pct": 63.945,
+   "covered": 4260,
+   "count": 6662
+  },
+  "functions": {
+   "pct": 76.02,
+   "covered": 149,
+   "count": 196
+  },
+  "regions": {
+   "pct": 72.894,
+   "covered": 7667,
+   "count": 10518
+  }
+ },
+ "execs": 9070206,
+ "corpus": 4037,
+ "crashes": [],
+ "triage": [],
+ "targets": [],
+ "started": "2026-11-25T11:09:51+0000",
+ "wall_secs": 3639,
+ "by": "jhyunniee",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "13th Gen Intel(R) Core(TM) i5-1340P",
+  "cores": 16,
+  "tool_commit": "7a96df6"
+ },
+ "snapshots": [
+  3240
+ ]
+}

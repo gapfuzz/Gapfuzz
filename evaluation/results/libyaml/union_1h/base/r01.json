@@ -1,0 +1,48 @@
+{
+ "lib": "libyaml",
+ "side": "base",
+ "trial": 1,
+ "secs_per_harness": 3600,
+ "harnesses": [
+  "official",
+  "official_deconstructor_alt",
+  "official_deconstructor",
+  "official_dumper",
+  "official_emitter",
+  "official_loader",
+  "official_reformatter_alt",
+  "official_reformatter",
+  "official_scanner"
+ ],
+ "total_cpu_hours": 9.0,
+ "coverage": {
+  "lines": {
+   "pct": 87.693,
+   "covered": 4774,
+   "count": 5444
+  },
+  "branches": {
+   "pct": 72.666,
+   "covered": 4841,
+   "count": 6662
+  },
+  "functions": {
+   "pct": 90.306,
+   "covered": 177,
+   "count": 196
+  },
+  "regions": {
+   "pct": 82.05,
+   "covered": 8630,
+   "count": 10518
+  }
+ },
+ "apis": 50,
+ "not_called": 13,
+ "fixes": 0,
+ "by": "jhyunniee",
+ "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+ "cpu": "13th Gen Intel(R) Core(TM) i5-1340P",
+ "tool_commit": "7a96df6",
+ "finished": "2026-11-25 12:10"
+}

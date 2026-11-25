@@ -1,0 +1,50 @@
+{
+ "lib": "libyaml",
+ "harness": "official_deconstructor_alt_llm",
+ "trial": 5,
+ "secs": 3600,
+ "seed": 1005,
+ "coverage": {
+  "lines": {
+   "pct": 72.943,
+   "covered": 3971,
+   "count": 5444
+  },
+  "branches": {
+   "pct": 58.256,
+   "covered": 3881,
+   "count": 6662
+  },
+  "functions": {
+   "pct": 76.02,
+   "covered": 149,
+   "count": 196
+  },
+  "regions": {
+   "pct": 67.674,
+   "covered": 7118,
+   "count": 10518
+  }
+ },
+ "execs": 4944370,
+ "corpus": 3209,
+ "crashes": [],
+ "triage": [],
+ "targets": [],
+ "started": "2026-11-24T04:45:44+0000",
+ "wall_secs": 3646,
+ "by": "jhyunniee",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "13th Gen Intel(R) Core(TM) i5-1340P",
+  "cores": 16,
+  "tool_commit": "7a96df6"
+ },
+ "snapshots": [
+  3240
+ ]
+}

@@ -1,0 +1,50 @@
+{
+ "lib": "libyaml",
+ "harness": "gapfuzz_ops",
+ "trial": 8,
+ "secs": 3600,
+ "seed": 1008,
+ "coverage": {
+  "lines": {
+   "pct": 70.022,
+   "covered": 3812,
+   "count": 5444
+  },
+  "branches": {
+   "pct": 63.344,
+   "covered": 4220,
+   "count": 6662
+  },
+  "functions": {
+   "pct": 69.898,
+   "covered": 137,
+   "count": 196
+  },
+  "regions": {
+   "pct": 71.287,
+   "covered": 7498,
+   "count": 10518
+  }
+ },
+ "execs": 13249829,
+ "corpus": 4362,
+ "crashes": [],
+ "triage": [],
+ "targets": [],
+ "started": "2026-11-24T16:35:13+0000",
+ "wall_secs": 3626,
+ "by": "jhyunniee",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "13th Gen Intel(R) Core(TM) i5-1340P",
+  "cores": 16,
+  "tool_commit": "7a96df6"
+ },
+ "snapshots": [
+  3240
+ ]
+}
