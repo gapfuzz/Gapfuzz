@@ -1,0 +1,99 @@
+{
+ "lib": "expat",
+ "harness": "gapfuzz_ops",
+ "trial": 10,
+ "secs": 3600,
+ "seed": 1010,
+ "coverage": {
+  "lines": {
+   "pct": 32.053,
+   "covered": 2828,
+   "count": 8823
+  },
+  "branches": {
+   "pct": 27.89,
+   "covered": 1375,
+   "count": 4930
+  },
+  "functions": {
+   "pct": 42.81,
+   "covered": 131,
+   "count": 306
+  },
+  "regions": {
+   "pct": 34.074,
+   "covered": 2270,
+   "count": 6662
+  }
+ },
+ "execs": 1978314,
+ "corpus": 4992,
+ "crashes": [],
+ "triage": [],
+ "targets": [
+  {
+   "fix": 1,
+   "applied": true,
+   "line": 1668,
+   "opened": false
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "line": 8298,
+   "opened": false
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "line": 8306,
+   "opened": false
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "line": 8314,
+   "opened": false
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "line": 8345,
+   "opened": false
+  },
+  {
+   "fix": 2,
+   "applied": true,
+   "line": 8356,
+   "opened": false
+  },
+  {
+   "fix": 3,
+   "applied": true,
+   "line": 2339,
+   "opened": false
+  },
+  {
+   "fix": 4,
+   "applied": false,
+   "line": 2316,
+   "opened": false
+  }
+ ],
+ "started": "2026-11-24T13:14:39+0000",
+ "wall_secs": 3702,
+ "by": "ttzero25",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz",
+  "cores": 8,
+  "tool_commit": "7a96df6"
+ },
+ "snapshots": [
+  2400
+ ]
+}

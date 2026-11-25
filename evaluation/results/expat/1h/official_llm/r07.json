@@ -6,28 +6,28 @@
  "seed": 1007,
  "coverage": {
   "lines": {
-   "pct": 48.102,
-   "covered": 4244,
+   "pct": 35.396,
+   "covered": 3123,
    "count": 8823
   },
   "branches": {
-   "pct": 43.205,
-   "covered": 2130,
+   "pct": 27.911,
+   "covered": 1376,
    "count": 4930
   },
   "functions": {
-   "pct": 53.268,
-   "covered": 163,
+   "pct": 44.444,
+   "covered": 136,
    "count": 306
   },
   "regions": {
-   "pct": 49.985,
-   "covered": 3330,
+   "pct": 35.14,
+   "covered": 2341,
    "count": 6662
   }
  },
- "execs": 32032553,
- "corpus": 11880,
+ "execs": 229209,
+ "corpus": 3072,
  "crashes": [],
  "triage": [],
  "targets": [
@@ -80,8 +80,8 @@
    "opened": false
   }
  ],
- "started": "2026-11-03T10:32:21+0000",
- "wall_secs": 3607,
+ "started": "2026-11-24T10:27:42+0000",
+ "wall_secs": 3834,
  "by": "ttzero25",
  "env": {
   "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
@@ -91,6 +91,9 @@
   "docker": true,
   "cpu": "Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz",
   "cores": 8,
-  "tool_commit": "2327384"
- }
+  "tool_commit": "7a96df6"
+ },
+ "snapshots": [
+  2400
+ ]
 }
