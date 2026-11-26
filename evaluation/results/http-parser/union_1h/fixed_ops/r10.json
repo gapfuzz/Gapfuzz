@@ -1,0 +1,42 @@
+{
+ "lib": "http-parser",
+ "side": "fixed_ops",
+ "trial": 10,
+ "secs_per_harness": 3600,
+ "harnesses": [
+  "official_llm",
+  "official_url",
+  "gapfuzz_ops"
+ ],
+ "total_cpu_hours": 3.0,
+ "coverage": {
+  "lines": {
+   "pct": 71.821,
+   "covered": 1124,
+   "count": 1565
+  },
+  "branches": {
+   "pct": 73.816,
+   "covered": 1153,
+   "count": 1562
+  },
+  "functions": {
+   "pct": 100,
+   "covered": 18,
+   "count": 18
+  },
+  "regions": {
+   "pct": 70.476,
+   "covered": 1776,
+   "count": 2520
+  }
+ },
+ "apis": 14,
+ "not_called": 0,
+ "fixes": 1,
+ "by": "jhyunniee",
+ "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+ "cpu": "13th Gen Intel(R) Core(TM) i5-1340P",
+ "tool_commit": "ce20d5c",
+ "finished": "2026-11-26 06:20"
+}

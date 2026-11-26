@@ -1,0 +1,50 @@
+{
+ "lib": "http-parser",
+ "harness": "gapfuzz_ops",
+ "trial": 8,
+ "secs": 3600,
+ "seed": 1008,
+ "coverage": {
+  "lines": {
+   "pct": 39.936,
+   "covered": 625,
+   "count": 1565
+  },
+  "branches": {
+   "pct": 41.933,
+   "covered": 655,
+   "count": 1562
+  },
+  "functions": {
+   "pct": 72.222,
+   "covered": 13,
+   "count": 18
+  },
+  "regions": {
+   "pct": 46.349,
+   "covered": 1168,
+   "count": 2520
+  }
+ },
+ "execs": 114483082,
+ "corpus": 715,
+ "crashes": [],
+ "triage": [],
+ "targets": [],
+ "started": "2026-11-25T22:41:28+0000",
+ "wall_secs": 3622,
+ "by": "jhyunniee",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "13th Gen Intel(R) Core(TM) i5-1340P",
+  "cores": 16,
+  "tool_commit": "ce20d5c"
+ },
+ "snapshots": [
+  2400
+ ]
+}
