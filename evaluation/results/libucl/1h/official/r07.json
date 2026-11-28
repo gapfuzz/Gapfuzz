@@ -1,0 +1,47 @@
+{
+ "lib": "libucl",
+ "harness": "official",
+ "trial": 7,
+ "secs": 3600,
+ "seed": 1007,
+ "coverage": {
+  "lines": {
+   "pct": 21.983,
+   "covered": 2199,
+   "count": 10003
+  },
+  "branches": {
+   "pct": 22.173,
+   "covered": 1204,
+   "count": 5430
+  },
+  "functions": {
+   "pct": 19.941,
+   "covered": 68,
+   "count": 341
+  },
+  "regions": {
+   "pct": 26.584,
+   "covered": 2186,
+   "count": 8223
+  }
+ },
+ "execs": 9625808,
+ "corpus": 2158,
+ "crashes": [],
+ "triage": [],
+ "targets": [],
+ "started": "2026-11-28T05:24:45+0000",
+ "wall_secs": 3619,
+ "by": "Taeyoung Jeong",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz",
+  "cores": 8,
+  "tool_commit": "7d7d2a0"
+ }
+}

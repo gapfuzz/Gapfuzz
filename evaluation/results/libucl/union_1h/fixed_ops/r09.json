@@ -1,0 +1,42 @@
+{
+ "lib": "libucl",
+ "side": "fixed_ops",
+ "trial": 9,
+ "secs_per_harness": 3600,
+ "harnesses": [
+  "official_llm",
+  "official_msgpack_llm",
+  "gapfuzz_ops"
+ ],
+ "total_cpu_hours": 3.0,
+ "coverage": {
+  "lines": {
+   "pct": 55.193,
+   "covered": 5521,
+   "count": 10003
+  },
+  "branches": {
+   "pct": 51.657,
+   "covered": 2805,
+   "count": 5430
+  },
+  "functions": {
+   "pct": 60.997,
+   "covered": 208,
+   "count": 341
+  },
+  "regions": {
+   "pct": 59.248,
+   "covered": 4872,
+   "count": 8223
+  }
+ },
+ "apis": 130,
+ "not_called": 57,
+ "fixes": 9,
+ "by": "Taeyoung Jeong",
+ "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+ "cpu": "Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz",
+ "tool_commit": "7d7d2a0",
+ "finished": "2026-11-28 09:02"
+}

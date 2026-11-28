@@ -1,0 +1,50 @@
+{
+ "lib": "libucl",
+ "harness": "gapfuzz_ops",
+ "trial": 1,
+ "secs": 3600,
+ "seed": 1001,
+ "coverage": {
+  "lines": {
+   "pct": 38.948,
+   "covered": 3896,
+   "count": 10003
+  },
+  "branches": {
+   "pct": 38.527,
+   "covered": 2092,
+   "count": 5430
+  },
+  "functions": {
+   "pct": 48.68,
+   "covered": 166,
+   "count": 341
+  },
+  "regions": {
+   "pct": 45.3,
+   "covered": 3725,
+   "count": 8223
+  }
+ },
+ "execs": 7524557,
+ "corpus": 3916,
+ "crashes": [],
+ "triage": [],
+ "targets": [],
+ "started": "2026-11-28T02:22:50+0000",
+ "wall_secs": 3638,
+ "by": "Taeyoung Jeong",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz",
+  "cores": 8,
+  "tool_commit": "7d7d2a0"
+ },
+ "snapshots": [
+  2400
+ ]
+}

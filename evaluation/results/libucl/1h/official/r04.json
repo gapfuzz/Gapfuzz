@@ -1,0 +1,59 @@
+{
+ "lib": "libucl",
+ "harness": "official",
+ "trial": 4,
+ "secs": 3600,
+ "seed": 1004,
+ "coverage": {
+  "lines": {
+   "pct": 24.383,
+   "covered": 2439,
+   "count": 10003
+  },
+  "branches": {
+   "pct": 24.733,
+   "covered": 1343,
+   "count": 5430
+  },
+  "functions": {
+   "pct": 22.287,
+   "covered": 76,
+   "count": 341
+  },
+  "regions": {
+   "pct": 29.758,
+   "covered": 2447,
+   "count": 8223
+  }
+ },
+ "execs": 2994599,
+ "corpus": 2225,
+ "crashes": [
+  "leak-809e2c778729b53c67ea362b82aa4f921734ef83"
+ ],
+ "triage": [
+  {
+   "verdict": "LIBRARY",
+   "confidence": "약",
+   "reason": "라이브러리가 할당한 메모리가 누수됨 (하네스가 해제 API를 안 불렀을 수도 있음)",
+   "kind": "leak",
+   "files": [
+    "/work/out/targets/libucl/official/long3600/r4/leak-809e2c778729b53c67ea362b82aa4f921734ef83"
+   ]
+  }
+ ],
+ "targets": [],
+ "started": "2026-11-28T03:39:18+0000",
+ "wall_secs": 544,
+ "by": "Taeyoung Jeong",
+ "env": {
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "llvm_cov": "Ubuntu LLVM version 18.1.3",
+  "python": "3.12.3",
+  "os": "Ubuntu 24.04.5 LTS",
+  "docker": true,
+  "cpu": "Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz",
+  "cores": 8,
+  "tool_commit": "7d7d2a0"
+ }
+}
